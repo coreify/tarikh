@@ -58,13 +58,6 @@ export interface FormatBanglaCalendarOptions {
 }
 
 export type BanglaCalendarDayFormat = "ordinal" | "spoken";
-
-/**
- * @deprecated Use `BanglaCalendarDayFormat`.
- *
- * Kept as an alias for compatibility.
- */
-export type BanglaCalendarDayStyle = BanglaCalendarDayFormat;
 export type BanglaCalendarDaySpokenVariant = "pohela" | "poyla";
 
 export interface FormatBanglaCalendarDayOptions {
