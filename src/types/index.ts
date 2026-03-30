@@ -53,15 +53,21 @@ export interface BanglaCalendarDateLocalized {
 
 export interface FormatBanglaCalendarOptions {
   locale?: TarikhLocale;
-  style?: BanglaCalendarDayStyle;
+  format?: BanglaCalendarDayFormat;
   variant?: BanglaCalendarDaySpokenVariant;
 }
 
-export type BanglaCalendarDayStyle = "ordinal" | "spoken";
-export type BanglaCalendarDayFormat = BanglaCalendarDayStyle;
+export type BanglaCalendarDayFormat = "ordinal" | "spoken";
+
+/**
+ * @deprecated Use `BanglaCalendarDayFormat`.
+ *
+ * Kept as an alias for compatibility.
+ */
+export type BanglaCalendarDayStyle = BanglaCalendarDayFormat;
 export type BanglaCalendarDaySpokenVariant = "pohela" | "poyla";
 
 export interface FormatBanglaCalendarDayOptions {
-  style?: BanglaCalendarDayStyle;
+  format?: BanglaCalendarDayFormat;
   variant?: BanglaCalendarDaySpokenVariant;
 }

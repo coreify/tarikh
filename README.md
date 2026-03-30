@@ -99,8 +99,8 @@ Convert Gregorian dates to the Bengali calendar (Bangladesh Revised Calendar, 19
 - Default output: English digits + Latin month names (`en-BD`).
 - Locale-aware output: Bangla date words like `১লা`, `২রা`, `৩রা`, `৪ঠা`, `৫ই`, `১৯শে` plus Bangla month names (`bn-BD`).
 - `monthIndex` remains numeric in both cases.
-- `formatBanglaCalendar(..., { locale: "bn-BD", style: "spoken" })` returns spoken day words like `পহেলা`, `দোসরা`, `তেসরা`, `চৌঠা`.
-- `formatBanglaCalendarDay(day, { style: "spoken" })` returns colloquial spoken forms for the first four days: `পহেলা`, `দোসরা`, `তেসরা`, `চৌঠা`.
+- `formatBanglaCalendar(..., { locale: "bn-BD", format: "spoken" })` returns spoken day words like `পহেলা`, `দোসরা`, `তেসরা`, `চৌঠা`.
+- `formatBanglaCalendarDay(day, { format: "spoken" })` returns colloquial spoken forms for the first four days: `পহেলা`, `দোসরা`, `তেসরা`, `চৌঠা`.
 - Pass `{ variant: "pohela" }` to keep the standard `পহেলা` spelling explicitly, or `{ variant: "poyla" }` to get `পয়লা` for day 1. The parser also accepts the common `পয়লা` spelling.
 
 ```ts
@@ -121,12 +121,12 @@ formatBanglaCalendar("2026-03-31", { locale: "bn-BD" });
 formatBanglaCalendar("2026-04-14");
 // → "1 Baishakh 1433"
 
-formatBanglaCalendar("2026-04-14", { locale: "bn-BD", style: "spoken" });
+formatBanglaCalendar("2026-04-14", { locale: "bn-BD", format: "spoken" });
 // → "পহেলা বৈশাখ ১৪৩৩"
 
 formatBanglaCalendar("2026-04-14", {
   locale: "bn-BD",
-  style: "spoken",
+  format: "spoken",
   variant: "poyla"
 });
 // → "পয়লা বৈশাখ ১৪৩৩"
@@ -137,13 +137,13 @@ import { formatBanglaCalendarDay } from "@coreify/tarikh";
 formatBanglaCalendarDay(21);
 // → "২১শে"
 
-formatBanglaCalendarDay(1, { style: "spoken" });
+formatBanglaCalendarDay(1, { format: "spoken" });
 // → "পহেলা"
 
-formatBanglaCalendarDay(1, { style: "spoken", variant: "poyla" });
+formatBanglaCalendarDay(1, { format: "spoken", variant: "poyla" });
 // → "পয়লা"
 
-formatBanglaCalendarDay(1, { style: "spoken", variant: "pohela" });
+formatBanglaCalendarDay(1, { format: "spoken", variant: "pohela" });
 // → "পহেলা"
 ```
 
@@ -299,6 +299,14 @@ import { TarikhCalendar } from "@coreify/tarikh/react";
 <TarikhCalendar value={new Date()} locale="bn-BD" />
 // → <time>১৭ই চৈত্র ১৪৩২</time> (example; depends on date)
 
+<TarikhCalendar
+  value={new Date()}
+  locale="bn-BD"
+  format="spoken"
+  variant="poyla"
+/>
+// → spoken day + Bangla month (e.g. পয়লা বৈশাখ … on Pohela Baishakh)
+
 <TarikhCalendar value="31 March 2026" />
 // → <time dateTime="2026-03-31">17 Chaitra 1432</time> (example; depends on date)
 ```
@@ -326,7 +334,7 @@ import type {
   TarikhLanguage,
   ToBanglaCalendarOptions,
   FormatBanglaCalendarOptions,
-  BanglaCalendarDayStyle,
+  BanglaCalendarDayFormat,
   BanglaCalendarDaySpokenVariant,
   FormatBanglaCalendarDayOptions,
   FormatDateOptions,

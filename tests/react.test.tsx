@@ -143,6 +143,18 @@ describe("TarikhCalendar", () => {
     expect(html).toContain("১৭ই চৈত্র ১৪৩২");
   });
 
+  it("forwards format and variant to formatBanglaCalendar", () => {
+    const html = renderToStaticMarkup(
+      createElement(TarikhCalendar, {
+        value: new Date(2026, 3, 14),
+        locale: "bn-BD",
+        format: "spoken",
+        variant: "poyla"
+      })
+    );
+    expect(html).toContain("পয়লা বৈশাখ ১৪৩৩");
+  });
+
   it("renders Pohela Baishakh in English by default", () => {
     const html = renderToStaticMarkup(
       createElement(TarikhCalendar, { value: new Date(2026, 3, 14) })

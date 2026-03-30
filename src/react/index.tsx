@@ -101,13 +101,26 @@ TarikhRelative.displayName = "TarikhRelative";
 
 export const TarikhCalendar = forwardRef<HTMLTimeElement, TarikhCalendarProps>(
   function TarikhCalendar(
-    { value, locale, srLabel, "aria-label": ariaLabelProp, ...props },
+    {
+      value,
+      locale,
+      format,
+      variant,
+      srLabel,
+      "aria-label": ariaLabelProp,
+      ...props
+    },
     ref
   ): ReactElement {
     const date = toDate(value);
+    const formatOpts = {
+      ...(locale !== undefined && { locale }),
+      ...(format !== undefined && { format }),
+      ...(variant !== undefined && { variant })
+    };
     const formatted = formatBanglaCalendar(
       date,
-      locale !== undefined ? { locale } : undefined
+      Object.keys(formatOpts).length > 0 ? formatOpts : undefined
     );
     const iso = toDateTimeAttribute(value, date);
     const ariaLabel = srLabel ?? ariaLabelProp ?? formatted;

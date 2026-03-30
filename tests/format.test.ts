@@ -115,13 +115,13 @@ describe("formatBanglaCalendar", () => {
     expect(
       formatBanglaCalendar("2026-04-14", {
         locale: "bn-BD",
-        style: "spoken"
+        format: "spoken"
       })
     ).toBe("পহেলা বৈশাখ ১৪৩৩");
     expect(
       formatBanglaCalendar("2026-04-14", {
         locale: "bn-BD",
-        style: "spoken",
+        format: "spoken",
         variant: "poyla"
       })
     ).toBe("পয়লা বৈশাখ ১৪৩৩");
@@ -135,12 +135,12 @@ describe("formatBanglaCalendar", () => {
 describe("formatBanglaCalendarDay", () => {
   it("formats the Bangla date-word suffixes", () => {
     expect(formatBanglaCalendarDay(1)).toBe("১লা");
-    expect(formatBanglaCalendarDay(1, { style: "spoken" })).toBe("পহেলা");
+    expect(formatBanglaCalendarDay(1, { format: "spoken" })).toBe("পহেলা");
     expect(
-      formatBanglaCalendarDay(1, { style: "spoken", variant: "pohela" })
+      formatBanglaCalendarDay(1, { format: "spoken", variant: "pohela" })
     ).toBe("পহেলা");
     expect(
-      formatBanglaCalendarDay(1, { style: "spoken", variant: "poyla" })
+      formatBanglaCalendarDay(1, { format: "spoken", variant: "poyla" })
     ).toBe("পয়লা");
     expect(formatBanglaCalendarDay(2)).toBe("২রা");
     expect(formatBanglaCalendarDay(3)).toBe("৩রা");
@@ -149,7 +149,7 @@ describe("formatBanglaCalendarDay", () => {
     expect(formatBanglaCalendarDay(18)).toBe("১৮ই");
     expect(formatBanglaCalendarDay(19)).toBe("১৯শে");
     expect(formatBanglaCalendarDay(31)).toBe("৩১শে");
-    expect(formatBanglaCalendarDay(21, { style: "spoken" })).toBe("২১শে");
+    expect(formatBanglaCalendarDay(21, { format: "spoken" })).toBe("২১শে");
   });
 });
 
