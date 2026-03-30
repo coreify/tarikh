@@ -2,34 +2,11 @@ import type { ParseDateOptions, TarikhDateInput } from "../types";
 import { fromBanglaCalendar } from "./calendar";
 import {
   BANGLA_CALENDAR_MONTHS,
-  BANGLA_CALENDAR_MONTHS_EN,
-  BANGLA_MONTHS_FULL,
-  BANGLA_MONTHS_SHORT,
-  ENGLISH_MONTHS_FULL,
-  ENGLISH_MONTHS_SHORT
+  BANGLA_CALENDAR_MONTHS_EN
 } from "./constants";
 import { toEnglishDigits } from "./digits";
 import { parseDateString } from "./utils";
 
-function findMonthIndex(name: string): number {
-  const lower = name.toLowerCase();
-
-  for (let i = 0; i < ENGLISH_MONTHS_FULL.length; i++) {
-    if (ENGLISH_MONTHS_FULL[i]!.toLowerCase() === lower) return i;
-  }
-  for (let i = 0; i < ENGLISH_MONTHS_SHORT.length; i++) {
-    if (ENGLISH_MONTHS_SHORT[i]!.toLowerCase() === lower) return i;
-  }
-  for (let i = 0; i < BANGLA_MONTHS_FULL.length; i++) {
-    if (BANGLA_MONTHS_FULL[i] === name) return i;
-  }
-  for (let i = 0; i < BANGLA_MONTHS_SHORT.length; i++) {
-    if (BANGLA_MONTHS_SHORT[i] === name) return i;
-  }
-  return -1;
-}
-
-/** Alternate Latin transliterations still accepted by `parseDate`. */
 const BANGLA_CALENDAR_EN_ALIASES: Readonly<Record<string, number>> = {
   baishakh: 1,
   boishakh: 1,
@@ -97,26 +74,6 @@ function parseBanglaCalendarDayToken(token: string): number | null {
   return null;
 }
 
-function parseDateOnlyString(input: string): Date | null {
-  const match = input.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!match) return null;
-
-  const year = Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
-  const date = new Date(year, month - 1, day);
-
-  if (
-    date.getFullYear() !== year ||
-    date.getMonth() !== month - 1 ||
-    date.getDate() !== day
-  ) {
-    return null;
-  }
-
-  return date;
-}
-
 export function parseDate(
   input: TarikhDateInput,
   options?: ParseDateOptions
@@ -136,11 +93,7 @@ export function parseDate(
     return parseBanglaCalendar(normalized);
   }
 
-  const parsed = parseDateString(normalized);
-  if (parsed) return parsed;
-
-  // Try "DD Month YYYY" pattern
-  return parseDMY(normalized);
+  return parseDateString(normalized);
 }
 
 function parseBanglaCalendar(normalized: string): Date | null {
@@ -159,32 +112,4 @@ function parseBanglaCalendar(normalized: string): Date | null {
   } catch {
     return null;
   }
-}
-
-function parseDMY(normalized: string): Date | null {
-  const match = normalized.match(/^(\d{1,2})\s+(\S+)\s+(\d{2,4})$/);
-  if (!match) return null;
-
-  const day = Number(match[1]);
-  const monthName = match[2]!;
-  const yearRaw = match[3]!;
-
-  const monthIndex = findMonthIndex(monthName);
-  if (monthIndex === -1) return null;
-
-  let year = Number(yearRaw);
-  if (yearRaw.length === 2) {
-    year += year >= 50 ? 1900 : 2000;
-  }
-
-  const date = new Date(year, monthIndex, day);
-  if (
-    date.getFullYear() !== year ||
-    date.getMonth() !== monthIndex ||
-    date.getDate() !== day
-  ) {
-    return null;
-  }
-
-  return date;
 }

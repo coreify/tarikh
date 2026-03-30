@@ -25,7 +25,7 @@ function isBanglaLeapYear(banglaYear: number): boolean {
 function getMonthDays(banglaYear: number): number[] {
   const days = [...BANGLA_CALENDAR_MONTH_DAYS];
   if (isBanglaLeapYear(banglaYear)) {
-    days[10] = 31; // Falgun gets an extra day
+    days[10] = 31;
   }
   return days;
 }

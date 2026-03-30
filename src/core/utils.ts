@@ -113,7 +113,7 @@ function findMonthIndex(name: string): number {
   return -1;
 }
 
-function parseDMY(input: string): Date | null {
+function parseDMYString(input: string): Date | null {
   const match = input.match(/^(\d{1,2})\s+(\S+)\s+(\d{2,4})$/);
   if (!match) return null;
 
@@ -142,7 +142,11 @@ function parseDMY(input: string): Date | null {
 }
 
 export function parseDateString(input: string): Date | null {
-  return parseDateOnlyString(input) ?? parseIsoLikeDateTimeString(input);
+  return (
+    parseDateOnlyString(input) ??
+    parseIsoLikeDateTimeString(input) ??
+    parseDMYString(input)
+  );
 }
 
 export function toDate(input: TarikhDateInput): Date {
@@ -167,7 +171,7 @@ export function toDate(input: TarikhDateInput): Date {
   }
 
   const normalized = toEnglishDigits(input).trim();
-  const parsed = parseDateString(normalized) ?? parseDMY(normalized);
+  const parsed = parseDateString(normalized);
   if (!parsed) {
     throw new Error(`Invalid date input: ${String(input)}`);
   }

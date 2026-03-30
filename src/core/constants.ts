@@ -99,7 +99,6 @@ export const BANGLA_CALENDAR_MONTHS = [
   "চৈত্র"
 ] as const;
 
-/** Latin-script month names (Bangladesh revised calendar), default for `toBanglaCalendar`. */
 export const BANGLA_CALENDAR_MONTHS_EN = [
   "Baishakh",
   "Jaishtho",
@@ -115,13 +114,11 @@ export const BANGLA_CALENDAR_MONTHS_EN = [
   "Chaitra"
 ] as const;
 
-/** Day counts per Bengali calendar month (non-leap year). Falgun (index 10) becomes 31 in leap years. */
 export const BANGLA_CALENDAR_MONTH_DAYS = [
   31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30
 ] as const;
 
-/** Pohela Boishakh falls on April 14 every year (Bangladesh revised calendar). */
-export const BOISHAKH_START_MONTH = 3; // April (0-indexed)
+export const BOISHAKH_START_MONTH = 3;
 export const BOISHAKH_START_DAY = 14;
 
 export const RELATIVE_TIME_EN = {
