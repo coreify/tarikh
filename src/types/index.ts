@@ -1,48 +1,48 @@
-export type TarikhLocale = "en-BD" | "bn-BD";
-export type TarikhLanguage = "en" | "bn";
-export type TarikhMonthFormat = "short" | "long";
-export type TarikhYearFormat = "numeric" | "2-digit";
-export type TarikhDayFormat = "numeric" | "2-digit";
-export type TarikhWeekdayFormat = "short" | "long";
-export type TarikhTimeFormat = "numeric" | "2-digit";
+export type Locale = "en-BD" | "bn-BD";
+export type Language = "en" | "bn";
+export type MonthFormat = "short" | "long";
+export type YearFormat = "numeric" | "2-digit";
+export type DayFormat = "numeric" | "2-digit";
+export type WeekdayFormat = "short" | "long";
+export type TimeFormat = "numeric" | "2-digit";
 
-export type TarikhDateInput = Date | string | number;
+export type DateInput = Date | string | number;
 
-export interface FormatDateOptions {
-  locale?: TarikhLocale;
-  month?: TarikhMonthFormat;
-  year?: TarikhYearFormat;
-  day?: TarikhDayFormat;
-  weekday?: TarikhWeekdayFormat;
-  hour?: TarikhTimeFormat;
-  minute?: TarikhTimeFormat;
-  second?: TarikhTimeFormat;
+export interface DateFormatOptions {
+  locale?: Locale;
+  month?: MonthFormat;
+  year?: YearFormat;
+  day?: DayFormat;
+  weekday?: WeekdayFormat;
+  hour?: TimeFormat;
+  minute?: TimeFormat;
+  second?: TimeFormat;
   hour12?: boolean;
 }
 
-export interface FormatOptions {
-  locale?: TarikhLocale;
+export interface TokenFormatOptions {
+  locale?: Locale;
 }
 
-export interface HybridFormatOptions {
-  digits?: TarikhLanguage;
-  month?: TarikhLanguage;
-  year?: TarikhLanguage;
-  day?: TarikhLanguage;
-  monthFormat?: TarikhMonthFormat;
+export interface HybridDateFormatOptions {
+  digits?: Language;
+  month?: Language;
+  year?: Language;
+  day?: Language;
+  monthFormat?: MonthFormat;
 }
 
-export interface FromNowOptions {
-  locale?: TarikhLocale;
+export interface RelativeTimeOptions {
+  locale?: Locale;
   numeric?: "always" | "auto";
 }
 
-export interface ParseDateOptions {
+export interface DateParseOptions {
   calendar?: "gregorian" | "bangla";
 }
 
-export interface ToBanglaCalendarOptions {
-  locale?: TarikhLocale;
+export interface BanglaCalendarOptions {
+  locale?: Locale;
 }
 
 export interface BanglaCalendarDate {
@@ -59,8 +59,8 @@ export interface BanglaCalendarDateLocalized {
   year: string;
 }
 
-export interface FormatBanglaCalendarOptions {
-  locale?: TarikhLocale;
+export interface BanglaCalendarFormatOptions {
+  locale?: Locale;
   format?: BanglaCalendarDayFormat;
   variant?: BanglaCalendarDaySpokenVariant;
 }
@@ -68,7 +68,7 @@ export interface FormatBanglaCalendarOptions {
 export type BanglaCalendarDayFormat = "ordinal" | "spoken";
 export type BanglaCalendarDaySpokenVariant = "pohela" | "poyla";
 
-export interface FormatBanglaCalendarDayOptions {
+export interface BanglaDayFormatOptions {
   format?: BanglaCalendarDayFormat;
   variant?: BanglaCalendarDaySpokenVariant;
 }

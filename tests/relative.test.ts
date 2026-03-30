@@ -75,9 +75,7 @@ describe("fromNow", () => {
 
   // Bangla locale tests
   it("returns Bangla 'just now'", () => {
-    expect(fromNow(new Date(NOW - 500), { locale: "bn-BD" })).toBe(
-      "এইমাত্র"
-    );
+    expect(fromNow(new Date(NOW - 500), { locale: "bn-BD" })).toBe("এইমাত্র");
   });
 
   it("returns Bangla days ago", () => {
@@ -87,39 +85,39 @@ describe("fromNow", () => {
   });
 
   it("returns Bangla hours ago", () => {
-    expect(
-      fromNow(new Date(NOW - 3 * 3_600_000), { locale: "bn-BD" })
-    ).toBe("৩ ঘণ্টা আগে");
+    expect(fromNow(new Date(NOW - 3 * 3_600_000), { locale: "bn-BD" })).toBe(
+      "৩ ঘণ্টা আগে"
+    );
   });
 
   it("returns Bangla future", () => {
-    expect(
-      fromNow(new Date(NOW + 5 * 60_000), { locale: "bn-BD" })
-    ).toBe("৫ মিনিট পরে");
+    expect(fromNow(new Date(NOW + 5 * 60_000), { locale: "bn-BD" })).toBe(
+      "৫ মিনিট পরে"
+    );
   });
 
   it("returns Bangla 1 month in the future for month-end boundaries", () => {
-    expect(
-      fromNow(new Date("2026-04-30T12:00:00Z"), { locale: "bn-BD" })
-    ).toBe("১ মাস পরে");
+    expect(fromNow(new Date("2026-04-30T12:00:00Z"), { locale: "bn-BD" })).toBe(
+      "১ মাস পরে"
+    );
   });
 
   it("returns Bangla 1 day ago", () => {
-    expect(
-      fromNow(new Date(NOW - 86_400_000), { locale: "bn-BD" })
-    ).toBe("১ দিন আগে");
+    expect(fromNow(new Date(NOW - 86_400_000), { locale: "bn-BD" })).toBe(
+      "১ দিন আগে"
+    );
   });
 
   it("supports natural relative words in English", () => {
-    expect(
-      fromNow(new Date("2026-03-31T00:00:00Z"), { numeric: "auto" })
-    ).toBe("today");
-    expect(
-      fromNow(new Date(NOW - 86_400_000), { numeric: "auto" })
-    ).toBe("yesterday");
-    expect(
-      fromNow(new Date("2026-04-30T12:00:00Z"), { numeric: "auto" })
-    ).toBe("next month");
+    expect(fromNow(new Date("2026-03-31T00:00:00Z"), { numeric: "auto" })).toBe(
+      "today"
+    );
+    expect(fromNow(new Date(NOW - 86_400_000), { numeric: "auto" })).toBe(
+      "yesterday"
+    );
+    expect(fromNow(new Date("2026-04-30T12:00:00Z"), { numeric: "auto" })).toBe(
+      "next month"
+    );
   });
 
   it("supports natural relative words in Bangla", () => {

@@ -1,4 +1,4 @@
-import type { FromNowOptions, TarikhDateInput } from "../types";
+import type { DateInput, RelativeTimeOptions } from "../types";
 import { RELATIVE_TIME_BN, RELATIVE_TIME_EN } from "./constants";
 import { toBanglaDigits } from "./digits";
 import { toDate } from "./utils";
@@ -12,7 +12,14 @@ const WEEK = 7 * DAY;
 interface TimeUnit {
   threshold: number;
   singular: "second" | "minute" | "hour" | "day" | "week" | "month" | "year";
-  plural: "seconds" | "minutes" | "hours" | "days" | "weeks" | "months" | "years";
+  plural:
+    | "seconds"
+    | "minutes"
+    | "hours"
+    | "days"
+    | "weeks"
+    | "months"
+    | "years";
 }
 
 const UNITS: TimeUnit[] = [
@@ -23,18 +30,18 @@ const UNITS: TimeUnit[] = [
   { threshold: SECOND, singular: "second", plural: "seconds" }
 ];
 
-function daysInMonth(year: number, monthIndex: number): number {
+function monthDays(year: number, monthIndex: number): number {
   return new Date(year, monthIndex + 1, 0).getDate();
 }
 
-function addCalendarMonths(date: Date, months: number): Date {
+function shiftMonths(date: Date, months: number): Date {
   const year = date.getFullYear();
   const month = date.getMonth() + months;
   const targetYear = year + Math.floor(month / 12);
   const targetMonth = ((month % 12) + 12) % 12;
   const targetDay = Math.min(
     date.getDate(),
-    daysInMonth(targetYear, targetMonth)
+    monthDays(targetYear, targetMonth)
   );
 
   return new Date(
@@ -48,12 +55,12 @@ function addCalendarMonths(date: Date, months: number): Date {
   );
 }
 
-function addCalendarYears(date: Date, years: number): Date {
+function shiftYears(date: Date, years: number): Date {
   const targetYear = date.getFullYear() + years;
   const targetMonth = date.getMonth();
   const targetDay = Math.min(
     date.getDate(),
-    daysInMonth(targetYear, targetMonth)
+    monthDays(targetYear, targetMonth)
   );
 
   return new Date(
@@ -67,27 +74,27 @@ function addCalendarYears(date: Date, years: number): Date {
   );
 }
 
-function diffInCalendarYears(later: Date, earlier: Date): number {
+function calendarYearsDiff(later: Date, earlier: Date): number {
   let years = later.getFullYear() - earlier.getFullYear();
-  const anchor = addCalendarYears(earlier, years);
+  const anchor = shiftYears(earlier, years);
   if (anchor > later) {
     years -= 1;
   }
   return years;
 }
 
-function diffInCalendarMonths(later: Date, earlier: Date): number {
+function calendarMonthsDiff(later: Date, earlier: Date): number {
   let months =
     (later.getFullYear() - earlier.getFullYear()) * 12 +
     (later.getMonth() - earlier.getMonth());
-  const anchor = addCalendarMonths(earlier, months);
+  const anchor = shiftMonths(earlier, months);
   if (anchor > later) {
     months -= 1;
   }
   return months;
 }
 
-function formatRelativeValue(
+function relativeValue(
   count: number,
   singular: string,
   plural: string,
@@ -105,7 +112,7 @@ function formatRelativeValue(
   return isPast ? `${countStr} ${label} ago` : `in ${countStr} ${label}`;
 }
 
-function formatNaturalRelative(
+function naturalRelative(
   unit: "day" | "week" | "month" | "year",
   isPast: boolean,
   locale: "en-BD" | "bn-BD"
@@ -123,13 +130,13 @@ function formatNaturalRelative(
   return isPast ? "last year" : "next year";
 }
 
-function formatTodayWord(locale: "en-BD" | "bn-BD"): string {
+function todayWord(locale: "en-BD" | "bn-BD"): string {
   return locale === "bn-BD" ? "আজ" : "today";
 }
 
 export function fromNow(
-  input: TarikhDateInput,
-  options?: FromNowOptions
+  input: DateInput,
+  options?: RelativeTimeOptions
 ): string {
   const date = toDate(input);
   const locale = options?.locale ?? "en-BD";
@@ -153,47 +160,38 @@ export function fromNow(
   }
 
   if (numeric === "auto" && isSameCalendarDay) {
-    return formatTodayWord(locale);
+    return todayWord(locale);
   }
 
-  const years = diffInCalendarYears(later, earlier);
+  const years = calendarYearsDiff(later, earlier);
   if (years >= 1) {
     if (numeric === "auto" && years === 1) {
-      const natural = formatNaturalRelative("year", isPast, locale);
+      const natural = naturalRelative("year", isPast, locale);
       if (natural !== null) return natural;
     }
-    return formatRelativeValue(years, words.year, words.years, isPast, locale);
+    return relativeValue(years, words.year, words.years, isPast, locale);
   }
 
-  const months = diffInCalendarMonths(later, earlier);
+  const months = calendarMonthsDiff(later, earlier);
   if (months >= 1) {
     if (numeric === "auto" && months === 1) {
-      const natural = formatNaturalRelative("month", isPast, locale);
+      const natural = naturalRelative("month", isPast, locale);
       if (natural !== null) return natural;
     }
-    return formatRelativeValue(
-      months,
-      words.month,
-      words.months,
-      isPast,
-      locale
-    );
+    return relativeValue(months, words.month, words.months, isPast, locale);
   }
 
   for (const unit of UNITS) {
     if (absDiff >= unit.threshold) {
       const count = Math.floor(absDiff / unit.threshold);
       if (numeric === "auto" && count === 1) {
-        if (
-          unit.singular === "day" ||
-          unit.singular === "week"
-        ) {
-          const natural = formatNaturalRelative(unit.singular, isPast, locale);
+        if (unit.singular === "day" || unit.singular === "week") {
+          const natural = naturalRelative(unit.singular, isPast, locale);
           if (natural !== null) return natural;
         }
       }
 
-      return formatRelativeValue(
+      return relativeValue(
         count,
         words[unit.singular],
         words[unit.plural],

@@ -1,12 +1,12 @@
 import type {
   BanglaCalendarDaySpokenVariant,
   BanglaCalendarDayFormat,
-  FormatBanglaCalendarDayOptions,
-  FormatBanglaCalendarOptions,
-  FormatDateOptions,
-  FormatOptions,
-  HybridFormatOptions,
-  TarikhDateInput
+  BanglaDayFormatOptions,
+  BanglaCalendarFormatOptions,
+  DateFormatOptions,
+  TokenFormatOptions,
+  HybridDateFormatOptions,
+  DateInput
 } from "../types";
 import { toBanglaCalendar } from "./calendar";
 import {
@@ -23,7 +23,7 @@ import {
 import { toBanglaDigits } from "./digits";
 import { toDate } from "./utils";
 
-function formatBanglaCalendarDayOrdinal(day: number): string {
+function banglaDayOrdinal(day: number): string {
   const digits = toBanglaDigits(day);
 
   if (day === 1) return `${digits}লা`;
@@ -33,7 +33,7 @@ function formatBanglaCalendarDayOrdinal(day: number): string {
   return `${digits}ই`;
 }
 
-function formatBanglaCalendarDaySpokenRaw(
+function banglaDaySpoken(
   day: number,
   variant: "pohela" | "poyla" = "pohela"
 ): string {
@@ -47,29 +47,35 @@ function formatBanglaCalendarDaySpokenRaw(
     case 4:
       return "চৌঠা";
     default:
-      return formatBanglaCalendarDayOrdinal(day);
+      return banglaDayOrdinal(day);
   }
 }
 
 export function formatBanglaCalendarDay(
   day: number,
-  options?: FormatBanglaCalendarDayOptions
+  options?: BanglaDayFormatOptions
 ): string {
-  const dayStyle: BanglaCalendarDayFormat =
-    options?.format ?? "ordinal";
+  const dayFormat: BanglaCalendarDayFormat = options?.format ?? "ordinal";
 
-  if (dayStyle === "spoken") {
-    return formatBanglaCalendarDaySpokenRaw(day, options?.variant);
+  if (dayFormat === "spoken") {
+    return banglaDaySpoken(day, options?.variant);
   }
 
-  return formatBanglaCalendarDayOrdinal(day);
+  return banglaDayOrdinal(day);
 }
 
-function formatNumericValue(value: number, format: "numeric" | "2-digit"): string {
+function formatNumericValue(
+  value: number,
+  format: "numeric" | "2-digit"
+): string {
   return format === "2-digit" ? String(value).padStart(2, "0") : String(value);
 }
 
-function getMeridiem(hours24: number, locale: "en-BD" | "bn-BD", lowercase: boolean): string {
+function getMeridiem(
+  hours24: number,
+  locale: "en-BD" | "bn-BD",
+  lowercase: boolean
+): string {
   if (locale === "bn-BD") {
     return hours24 < 12 ? "পূর্বাহ্ণ" : "অপরাহ্ণ";
   }
@@ -79,8 +85,8 @@ function getMeridiem(hours24: number, locale: "en-BD" | "bn-BD", lowercase: bool
 }
 
 export function formatDate(
-  input: TarikhDateInput,
-  options?: FormatDateOptions
+  input: DateInput,
+  options?: DateFormatOptions
 ): string {
   const date = toDate(input);
   const locale = options?.locale ?? "en-BD";
@@ -95,11 +101,12 @@ export function formatDate(
     hourFmt !== undefined || minuteFmt !== undefined || secondFmt !== undefined;
   const isBn = locale === "bn-BD";
 
-  const d = date.getDate();
-  const m = date.getMonth();
-  const y = date.getFullYear();
+  const day = date.getDate();
+  const monthIndex = date.getMonth();
+  const year = date.getFullYear();
 
-  const dayStr = dayFmt === "2-digit" ? String(d).padStart(2, "0") : String(d);
+  const dayStr =
+    dayFmt === "2-digit" ? String(day).padStart(2, "0") : String(day);
 
   const monthNames = isBn
     ? monthFmt === "short"
@@ -108,10 +115,9 @@ export function formatDate(
     : monthFmt === "short"
       ? ENGLISH_MONTHS_SHORT
       : ENGLISH_MONTHS_FULL;
-  const monthStr = monthNames[m]!;
+  const monthStr = monthNames[monthIndex]!;
 
-  const yearStr =
-    yearFmt === "2-digit" ? String(y).slice(-2) : String(y);
+  const yearStr = yearFmt === "2-digit" ? String(year).slice(-2) : String(year);
 
   const datePart = `${dayStr} ${monthStr} ${yearStr}`;
   const weekdayNames = isBn
@@ -128,7 +134,7 @@ export function formatDate(
   if (includeTime) {
     const useHour12 = options?.hour12 ?? false;
     const hours24 = date.getHours();
-    const hours = useHour12 ? ((hours24 % 12) || 12) : hours24;
+    const hours = useHour12 ? hours24 % 12 || 12 : hours24;
     const resolvedHourFmt = hourFmt ?? "numeric";
     const resolvedMinuteFmt =
       minuteFmt ?? (secondFmt !== undefined ? "2-digit" : undefined);
@@ -141,46 +147,44 @@ export function formatDate(
       secondFmt !== undefined
         ? `:${formatNumericValue(date.getSeconds(), secondFmt)}`
         : "";
-    const meridiem = useHour12
-      ? ` ${getMeridiem(hours24, locale, false)}`
-      : "";
+    const meridiem = useHour12 ? ` ${getMeridiem(hours24, locale, false)}` : "";
 
     timePart = `${hourStr}${minuteStr}${secondStr}${meridiem}`;
   }
 
-  const result = `${weekdayPart}${datePart}${timePart ? `, ${timePart}` : ""}`;
-  return isBn ? toBanglaDigits(result) : result;
+  const formatted = `${weekdayPart}${datePart}${timePart ? `, ${timePart}` : ""}`;
+  return isBn ? toBanglaDigits(formatted) : formatted;
 }
 
 export function format(
-  input: TarikhDateInput,
+  input: DateInput,
   template: string,
-  options?: FormatOptions
+  options?: TokenFormatOptions
 ): string {
   const date = toDate(input);
   const locale = options?.locale ?? "en-BD";
   const isBn = locale === "bn-BD";
 
-  const d = date.getDate();
-  const m = date.getMonth();
-  const y = date.getFullYear();
+  const day = date.getDate();
+  const monthIndex = date.getMonth();
+  const year = date.getFullYear();
 
   const monthsLong = isBn ? BANGLA_MONTHS_FULL : ENGLISH_MONTHS_FULL;
   const monthsShort = isBn ? BANGLA_MONTHS_SHORT : ENGLISH_MONTHS_SHORT;
   const weekdaysLong = isBn ? BANGLA_WEEKDAYS_FULL : ENGLISH_WEEKDAYS_FULL;
   const weekdaysShort = isBn ? BANGLA_WEEKDAYS_SHORT : ENGLISH_WEEKDAYS_SHORT;
   const hours24 = date.getHours();
-  const hours12 = (hours24 % 12) || 12;
+  const hours12 = hours24 % 12 || 12;
 
   const tokens: Record<string, string> = {
     dddd: weekdaysLong[date.getDay()]!,
     ddd: weekdaysShort[date.getDay()]!,
-    MMMM: monthsLong[m]!,
-    MMM: monthsShort[m]!,
-    MM: String(m + 1).padStart(2, "0"),
-    M: String(m + 1),
-    DD: String(d).padStart(2, "0"),
-    D: String(d),
+    MMMM: monthsLong[monthIndex]!,
+    MMM: monthsShort[monthIndex]!,
+    MM: String(monthIndex + 1).padStart(2, "0"),
+    M: String(monthIndex + 1),
+    DD: String(day).padStart(2, "0"),
+    D: String(day),
     HH: String(hours24).padStart(2, "0"),
     H: String(hours24),
     hh: String(hours12).padStart(2, "0"),
@@ -191,41 +195,41 @@ export function format(
     s: String(date.getSeconds()),
     A: getMeridiem(hours24, locale, false),
     a: getMeridiem(hours24, locale, true),
-    YYYY: String(y),
-    YY: String(y).slice(-2)
+    YYYY: String(year),
+    YY: String(year).slice(-2)
   };
 
-  const pattern = /dddd|ddd|MMMM|MMM|MM|M|DD|D|YYYY|YY|HH|H|hh|h|mm|m|ss|s|A|a/g;
-  const result = template.replace(pattern, (match) => tokens[match]!);
+  const pattern =
+    /dddd|ddd|MMMM|MMM|MM|M|DD|D|YYYY|YY|HH|H|hh|h|mm|m|ss|s|A|a/g;
+  const formatted = template.replace(pattern, (match) => tokens[match]!);
 
-  return isBn ? toBanglaDigits(result) : result;
+  return isBn ? toBanglaDigits(formatted) : formatted;
 }
 
 export function formatBanglaCalendar(
-  input: TarikhDateInput,
-  options?: FormatBanglaCalendarOptions
+  input: DateInput,
+  options?: BanglaCalendarFormatOptions
 ): string {
   const locale = options?.locale ?? "en-BD";
-  const dayStyle: BanglaCalendarDayFormat =
-    options?.format ?? "ordinal";
+  const dayFormat: BanglaCalendarDayFormat = options?.format ?? "ordinal";
   const variant: BanglaCalendarDaySpokenVariant | undefined = options?.variant;
-  const cal = toBanglaCalendar(input, { locale: "en-BD" });
+  const calendar = toBanglaCalendar(input, { locale: "en-BD" });
 
   if (locale === "bn-BD") {
-    const month = cal.monthIndex - 1;
-    const dayOptions: FormatBanglaCalendarDayOptions = { format: dayStyle };
+    const monthIndex = calendar.monthIndex - 1;
+    const dayOptions: BanglaDayFormatOptions = { format: dayFormat };
     if (variant !== undefined) {
       dayOptions.variant = variant;
     }
-    return `${formatBanglaCalendarDay(cal.day, dayOptions)} ${BANGLA_CALENDAR_MONTHS[month]!} ${toBanglaDigits(cal.year)}`;
+    return `${formatBanglaCalendarDay(calendar.day, dayOptions)} ${BANGLA_CALENDAR_MONTHS[monthIndex]!} ${toBanglaDigits(calendar.year)}`;
   }
 
-  return `${cal.day} ${cal.month} ${cal.year}`;
+  return `${calendar.day} ${calendar.month} ${calendar.year}`;
 }
 
 export function formatHybridDate(
-  input: TarikhDateInput,
-  options?: HybridFormatOptions
+  input: DateInput,
+  options?: HybridDateFormatOptions
 ): string {
   const date = toDate(input);
   const digitLang = options?.digits ?? "en";
@@ -234,9 +238,9 @@ export function formatHybridDate(
   const dayLang = options?.day ?? digitLang;
   const monthFmt = options?.monthFormat ?? "long";
 
-  const d = date.getDate();
-  const m = date.getMonth();
-  const y = date.getFullYear();
+  const day = date.getDate();
+  const monthIndex = date.getMonth();
+  const year = date.getFullYear();
 
   const monthNames =
     monthLang === "bn"
@@ -247,9 +251,9 @@ export function formatHybridDate(
         ? ENGLISH_MONTHS_SHORT
         : ENGLISH_MONTHS_FULL;
 
-  const dayStr = dayLang === "bn" ? toBanglaDigits(d) : String(d);
-  const monthStr = monthNames[m]!;
-  const yearStr = yearLang === "bn" ? toBanglaDigits(y) : String(y);
+  const dayStr = dayLang === "bn" ? toBanglaDigits(day) : String(day);
+  const monthStr = monthNames[monthIndex]!;
+  const yearStr = yearLang === "bn" ? toBanglaDigits(year) : String(year);
 
   return `${dayStr} ${monthStr} ${yearStr}`;
 }

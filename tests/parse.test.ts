@@ -113,15 +113,15 @@ describe("parseDate", () => {
   });
 
   it("parses more Bangla calendar aliases and punctuation", () => {
-    expect(
-      parseDate("1 Boisakh 1433", { calendar: "bangla" })!.getDate()
-    ).toBe(14);
-    expect(
-      parseDate("১৭ চৈত্র, ১৪৩২", { calendar: "bangla" })!.getDate()
-    ).toBe(31);
-    expect(
-      parseDate("১ অঘ্রাণ ১৪৩৩", { calendar: "bangla" })!.getMonth()
-    ).toBe(10);
+    expect(parseDate("1 Boisakh 1433", { calendar: "bangla" })!.getDate()).toBe(
+      14
+    );
+    expect(parseDate("১৭ চৈত্র, ১৪৩২", { calendar: "bangla" })!.getDate()).toBe(
+      31
+    );
+    expect(parseDate("১ অঘ্রাণ ১৪৩৩", { calendar: "bangla" })!.getMonth()).toBe(
+      10
+    );
   });
 
   it("parses Bangla calendar date with Bangla month names", () => {

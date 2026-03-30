@@ -1,8 +1,8 @@
 import type {
   BanglaCalendarDate,
   BanglaCalendarDateLocalized,
-  TarikhDateInput,
-  ToBanglaCalendarOptions
+  DateInput,
+  BanglaCalendarOptions
 } from "../types";
 import {
   BANGLA_CALENDAR_MONTH_DAYS,
@@ -37,12 +37,16 @@ function daysBetween(a: Date, b: Date): number {
   return Math.floor((utcB - utcA) / msPerDay);
 }
 
-function assertValidBanglaCalendarDate(
+function validateBanglaCalendarDate(
   day: number,
   monthIndex: number,
   year: number
 ): number[] {
-  if (!Number.isInteger(day) || !Number.isInteger(monthIndex) || !Number.isInteger(year)) {
+  if (
+    !Number.isInteger(day) ||
+    !Number.isInteger(monthIndex) ||
+    !Number.isInteger(year)
+  ) {
     throw new Error("Invalid Bangla calendar date.");
   }
 
@@ -62,16 +66,16 @@ function assertValidBanglaCalendarDate(
 }
 
 export function toBanglaCalendar(
-  input: TarikhDateInput,
-  options: ToBanglaCalendarOptions & { locale: "bn-BD" }
+  input: DateInput,
+  options: BanglaCalendarOptions & { locale: "bn-BD" }
 ): BanglaCalendarDateLocalized;
 export function toBanglaCalendar(
-  input: TarikhDateInput,
-  options?: ToBanglaCalendarOptions
+  input: DateInput,
+  options?: BanglaCalendarOptions
 ): BanglaCalendarDate;
 export function toBanglaCalendar(
-  input: TarikhDateInput,
-  options?: ToBanglaCalendarOptions
+  input: DateInput,
+  options?: BanglaCalendarOptions
 ): BanglaCalendarDate | BanglaCalendarDateLocalized {
   const locale = options?.locale ?? "en-BD";
   const date = toDate(input);
@@ -79,7 +83,11 @@ export function toBanglaCalendar(
   const gMonth = date.getMonth();
   const gDay = date.getDate();
 
-  const boishakhThisYear = new Date(gYear, BOISHAKH_START_MONTH, BOISHAKH_START_DAY);
+  const boishakhThisYear = new Date(
+    gYear,
+    BOISHAKH_START_MONTH,
+    BOISHAKH_START_DAY
+  );
   const isBeforeBoishakh =
     gMonth < BOISHAKH_START_MONTH ||
     (gMonth === BOISHAKH_START_MONTH && gDay < BOISHAKH_START_DAY);
@@ -127,9 +135,13 @@ export function fromBanglaCalendar(
   monthIndex: number,
   year: number
 ): Date {
-  const monthDays = assertValidBanglaCalendarDate(day, monthIndex, year);
+  const monthDays = validateBanglaCalendarDate(day, monthIndex, year);
   const gStartYear = year + 593;
-  const boishakhStart = new Date(gStartYear, BOISHAKH_START_MONTH, BOISHAKH_START_DAY);
+  const boishakhStart = new Date(
+    gStartYear,
+    BOISHAKH_START_MONTH,
+    BOISHAKH_START_DAY
+  );
 
   let totalDays = day - 1;
   for (let i = 0; i < monthIndex - 1; i++) {

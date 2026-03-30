@@ -292,27 +292,35 @@ parseDate("2026-03-31T15:30:00Z");
 
 ```ts
 import {
-  isToday, isYesterday, isTomorrow,
-  startOfDay, endOfDay,
-  startOfMonth, endOfMonth,
-  startOfYear, endOfYear,
-  addDays, subDays,
-  addMonths, subMonths,
-  addYears, subYears,
+  isToday,
+  isYesterday,
+  isTomorrow,
+  startOfDay,
+  endOfDay,
+  startOfMonth,
+  endOfMonth,
+  startOfYear,
+  endOfYear,
+  addDays,
+  subDays,
+  addMonths,
+  subMonths,
+  addYears,
+  subYears,
   getBanglaMonth
 } from "@coreify/tarikh";
 
-isToday(new Date());        // → true
+isToday(new Date()); // → true
 isYesterday(subDays(new Date(), 1)); // → true
-isTomorrow(addDays(new Date(), 1));  // → true
-startOfMonth(new Date());            // → Date at the start of this month
-endOfMonth(new Date());              // → Date at the end of this month
-addMonths("2026-01-31", 1);          // → 2026-02-28
-addYears(new Date(2024, 1, 29), 1);  // → 2025-02-28
+isTomorrow(addDays(new Date(), 1)); // → true
+startOfMonth(new Date()); // → Date at the start of this month
+endOfMonth(new Date()); // → Date at the end of this month
+addMonths("2026-01-31", 1); // → 2026-02-28
+addYears(new Date(2024, 1, 29), 1); // → 2025-02-28
 
-getBanglaMonth(3);          // → "মার্চ"
+getBanglaMonth(3); // → "মার্চ"
 getBanglaMonth(3, "short"); // → "মার্চ"
-getBanglaMonth(12);         // → "ডিসেম্বর"
+getBanglaMonth(12); // → "ডিসেম্বর"
 ```
 
 ### Constants
@@ -340,21 +348,21 @@ Optional entry point — only included if you import from `@coreify/tarikh/react
 npm install @coreify/tarikh react
 ```
 
-### TarikhDate
+### Tarikh
 
 ```tsx
-import { TarikhDate } from "@coreify/tarikh/react";
+import { Tarikh } from "@coreify/tarikh/react";
 
-<TarikhDate value={new Date()} />
+<Tarikh value={new Date()} />
 // → <time>31 Mar 2026</time>
 
-<TarikhDate value={new Date()} locale="bn-BD" />
+<Tarikh value={new Date()} locale="bn-BD" />
 // → <time>৩১ মার্চ ২০২৬</time>
 
-<TarikhDate value={new Date()} month="long" />
+<Tarikh value={new Date()} month="long" />
 // → <time>31 March 2026</time>
 
-<TarikhDate
+<Tarikh
   value={new Date(2026, 2, 31, 15, 4)}
   weekday="short"
   hour="numeric"
@@ -362,7 +370,7 @@ import { TarikhDate } from "@coreify/tarikh/react";
 />
 // → <time>Tue, 31 Mar 2026, 15:04</time>
 
-<TarikhDate
+<Tarikh
   value={new Date(2026, 2, 31, 15, 4, 9)}
   weekday="long"
   hour="2-digit"
@@ -373,40 +381,40 @@ import { TarikhDate } from "@coreify/tarikh/react";
 />
 // → <time>মঙ্গলবার, ৩১ মার্চ ২০২৬, ০৩:০৪:০৯ অপরাহ্ণ</time>
 
-<TarikhDate value="31 March 2026" />
+<Tarikh value="31 March 2026" />
 // → <time dateTime="2026-03-31">31 Mar 2026</time>
 ```
 
-### TarikhRelative
+### RelativeTime
 
 ```tsx
-import { TarikhRelative } from "@coreify/tarikh/react";
+import { RelativeTime } from "@coreify/tarikh/react";
 
-<TarikhRelative value={someDate} />
+<RelativeTime value={someDate} />
 // → <time>2 days ago</time>
 
-<TarikhRelative value={someDate} locale="bn-BD" />
+<RelativeTime value={someDate} locale="bn-BD" />
 // → <time>২ দিন আগে</time>
 
-<TarikhRelative value={someDate} numeric="auto" />
+<RelativeTime value={someDate} numeric="auto" />
 // → <time>yesterday</time> (for a 1-day past date)
 
-<TarikhRelative value={someDate} locale="bn-BD" numeric="auto" />
+<RelativeTime value={someDate} locale="bn-BD" numeric="auto" />
 // → <time>আগামীকাল</time> (for a 1-day future date)
 ```
 
-### TarikhCalendar
+### BanglaDate
 
 ```tsx
-import { TarikhCalendar } from "@coreify/tarikh/react";
+import { BanglaDate } from "@coreify/tarikh/react";
 
-<TarikhCalendar value={new Date()} />
+<BanglaDate value={new Date()} />
 // → <time>17 Chaitra 1432</time> (example; depends on date)
 
-<TarikhCalendar value={new Date()} locale="bn-BD" />
+<BanglaDate value={new Date()} locale="bn-BD" />
 // → <time>১৭ই চৈত্র ১৪৩২</time> (example; depends on date)
 
-<TarikhCalendar
+<BanglaDate
   value={new Date()}
   locale="bn-BD"
   format="spoken"
@@ -414,7 +422,7 @@ import { TarikhCalendar } from "@coreify/tarikh/react";
 />
 // → spoken day + Bangla month (e.g. পয়লা বৈশাখ … on Pohela Baishakh)
 
-<TarikhCalendar value="31 March 2026" />
+<BanglaDate value="31 March 2026" />
 // → <time dateTime="2026-03-31">17 Chaitra 1432</time> (example; depends on date)
 ```
 
@@ -422,14 +430,14 @@ All components render semantic `<time>` elements with `dateTime` and `aria-label
 
 ## What `Intl.DateTimeFormat` cannot do
 
-| Feature | Intl | @coreify/tarikh |
-|---|---|---|
-| Bangla calendar (বৈশাখ → চৈত্র) | No | Yes |
-| Bangla digits in dates | Partial | Yes |
-| Hybrid formatting (mixed en/bn) | No | Yes |
-| Bangla calendar date parsing | No | Yes |
-| Relative time in Bangla | No | Yes |
-| SSR-safe React components | N/A | Yes |
+| Feature                         | Intl    | @coreify/tarikh |
+| ------------------------------- | ------- | --------------- |
+| Bangla calendar (বৈশাখ → চৈত্র) | No      | Yes             |
+| Bangla digits in dates          | Partial | Yes             |
+| Hybrid formatting (mixed en/bn) | No      | Yes             |
+| Bangla calendar date parsing    | No      | Yes             |
+| Relative time in Bangla         | No      | Yes             |
+| SSR-safe React components       | N/A     | Yes             |
 
 ## TypeScript
 
@@ -437,23 +445,33 @@ Fully typed with strict mode. Core option interfaces and value types are exporte
 
 ```ts
 import type {
-  TarikhLocale,
-  TarikhLanguage,
-  TarikhWeekdayFormat,
-  TarikhTimeFormat,
-  ToBanglaCalendarOptions,
-  FromNowOptions,
-  FormatBanglaCalendarOptions,
+  DateInput,
+  DayFormat,
+  MonthFormat,
+  Locale,
+  Language,
+  YearFormat,
+  WeekdayFormat,
+  TimeFormat,
+  BanglaCalendarOptions,
+  RelativeTimeOptions,
+  BanglaCalendarFormatOptions,
   BanglaCalendarDayFormat,
   BanglaCalendarDaySpokenVariant,
-  FormatBanglaCalendarDayOptions,
-  FormatDateOptions,
+  BanglaDayFormatOptions,
+  DateFormatOptions,
   BanglaCalendarDate,
-  HybridFormatOptions
+  HybridDateFormatOptions
 } from "@coreify/tarikh";
 ```
 
-React component prop types stay in `@coreify/tarikh/react`.
+```ts
+import type {
+  BanglaDateProps,
+  RelativeTimeProps,
+  TarikhProps
+} from "@coreify/tarikh/react";
+```
 
 ## License
 

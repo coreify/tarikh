@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  fromBanglaCalendar,
-  toBanglaCalendar
-} from "../src/core/calendar";
+import { fromBanglaCalendar, toBanglaCalendar } from "../src/core/calendar";
 
 describe("toBanglaCalendar", () => {
   it("defaults to English month names (Latin script)", () => {

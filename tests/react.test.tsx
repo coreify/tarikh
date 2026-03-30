@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { TarikhCalendar, TarikhDate, TarikhRelative } from "../src/react";
+import { BanglaDate, RelativeTime, Tarikh } from "../src/react";
 
-describe("TarikhDate", () => {
+describe("Tarikh", () => {
   it("renders a time element with formatted date", () => {
     const html = renderToStaticMarkup(
-      createElement(TarikhDate, { value: "2026-03-31" })
+      createElement(Tarikh, { value: "2026-03-31" })
     );
     expect(html).toContain("31 Mar 2026");
     expect(html).toContain("<time");
@@ -15,14 +15,14 @@ describe("TarikhDate", () => {
 
   it("preserves date-only semantics for human-readable strings", () => {
     const html = renderToStaticMarkup(
-      createElement(TarikhDate, { value: "31 March 2026" })
+      createElement(Tarikh, { value: "31 March 2026" })
     );
     expect(html).toContain('dateTime="2026-03-31"');
   });
 
   it("preserves a full datetime in dateTime", () => {
     const html = renderToStaticMarkup(
-      createElement(TarikhDate, {
+      createElement(Tarikh, {
         value: new Date("2026-03-31T15:30:00.000Z")
       })
     );
@@ -31,7 +31,7 @@ describe("TarikhDate", () => {
 
   it("renders in bn-BD locale", () => {
     const html = renderToStaticMarkup(
-      createElement(TarikhDate, {
+      createElement(Tarikh, {
         value: new Date(2026, 2, 31),
         locale: "bn-BD"
       })
@@ -41,7 +41,7 @@ describe("TarikhDate", () => {
 
   it("supports long month format", () => {
     const html = renderToStaticMarkup(
-      createElement(TarikhDate, {
+      createElement(Tarikh, {
         value: new Date(2026, 2, 31),
         month: "long"
       })
@@ -51,7 +51,7 @@ describe("TarikhDate", () => {
 
   it("supports weekday and time props", () => {
     const html = renderToStaticMarkup(
-      createElement(TarikhDate, {
+      createElement(Tarikh, {
         value: new Date(2026, 2, 31, 15, 4),
         weekday: "short",
         hour: "numeric",
@@ -63,14 +63,14 @@ describe("TarikhDate", () => {
 
   it("includes aria-label", () => {
     const html = renderToStaticMarkup(
-      createElement(TarikhDate, { value: new Date(2026, 2, 31) })
+      createElement(Tarikh, { value: new Date(2026, 2, 31) })
     );
     expect(html).toContain('aria-label="31 Mar 2026"');
   });
 
   it("supports custom srLabel", () => {
     const html = renderToStaticMarkup(
-      createElement(TarikhDate, {
+      createElement(Tarikh, {
         value: new Date(2026, 2, 31),
         srLabel: "Custom label"
       })
@@ -79,7 +79,7 @@ describe("TarikhDate", () => {
   });
 });
 
-describe("TarikhRelative", () => {
+describe("RelativeTime", () => {
   const NOW = new Date("2026-03-31T12:00:00Z").getTime();
 
   beforeEach(() => {
@@ -93,7 +93,7 @@ describe("TarikhRelative", () => {
 
   it("renders relative time", () => {
     const html = renderToStaticMarkup(
-      createElement(TarikhRelative, {
+      createElement(RelativeTime, {
         value: new Date(NOW - 2 * 86_400_000)
       })
     );
@@ -103,7 +103,7 @@ describe("TarikhRelative", () => {
 
   it("renders Bangla relative time", () => {
     const html = renderToStaticMarkup(
-      createElement(TarikhRelative, {
+      createElement(RelativeTime, {
         value: new Date(NOW - 86_400_000),
         locale: "bn-BD"
       })
@@ -113,14 +113,14 @@ describe("TarikhRelative", () => {
 
   it("preserves date-only semantics for human-readable strings", () => {
     const html = renderToStaticMarkup(
-      createElement(TarikhRelative, { value: "31 March 2026" })
+      createElement(RelativeTime, { value: "31 March 2026" })
     );
     expect(html).toContain('dateTime="2026-03-31"');
   });
 
   it("supports natural relative wording", () => {
     const html = renderToStaticMarkup(
-      createElement(TarikhRelative, {
+      createElement(RelativeTime, {
         value: new Date("2026-03-31T00:00:00Z"),
         numeric: "auto"
       })
@@ -129,10 +129,10 @@ describe("TarikhRelative", () => {
   });
 });
 
-describe("TarikhCalendar", () => {
+describe("BanglaDate", () => {
   it("renders Bangla calendar date in English by default", () => {
     const html = renderToStaticMarkup(
-      createElement(TarikhCalendar, { value: "2026-03-31" })
+      createElement(BanglaDate, { value: "2026-03-31" })
     );
     expect(html).toContain("17 Chaitra 1432");
     expect(html).toContain("<time");
@@ -141,14 +141,14 @@ describe("TarikhCalendar", () => {
 
   it("preserves date-only semantics for human-readable strings", () => {
     const html = renderToStaticMarkup(
-      createElement(TarikhCalendar, { value: "31 March 2026" })
+      createElement(BanglaDate, { value: "31 March 2026" })
     );
     expect(html).toContain('dateTime="2026-03-31"');
   });
 
   it("preserves a full datetime in dateTime", () => {
     const html = renderToStaticMarkup(
-      createElement(TarikhCalendar, {
+      createElement(BanglaDate, {
         value: new Date("2026-03-31T15:30:00.000Z")
       })
     );
@@ -157,7 +157,7 @@ describe("TarikhCalendar", () => {
 
   it("renders Bangla digits and month when locale is bn-BD", () => {
     const html = renderToStaticMarkup(
-      createElement(TarikhCalendar, {
+      createElement(BanglaDate, {
         value: new Date(2026, 2, 31),
         locale: "bn-BD"
       })
@@ -167,7 +167,7 @@ describe("TarikhCalendar", () => {
 
   it("forwards format and variant to formatBanglaCalendar", () => {
     const html = renderToStaticMarkup(
-      createElement(TarikhCalendar, {
+      createElement(BanglaDate, {
         value: new Date(2026, 3, 14),
         locale: "bn-BD",
         format: "spoken",
@@ -179,14 +179,14 @@ describe("TarikhCalendar", () => {
 
   it("renders Pohela Baishakh in English by default", () => {
     const html = renderToStaticMarkup(
-      createElement(TarikhCalendar, { value: new Date(2026, 3, 14) })
+      createElement(BanglaDate, { value: new Date(2026, 3, 14) })
     );
     expect(html).toContain("1 Baishakh 1433");
   });
 
   it("supports custom srLabel", () => {
     const html = renderToStaticMarkup(
-      createElement(TarikhCalendar, {
+      createElement(BanglaDate, {
         value: new Date(2026, 2, 31),
         srLabel: "Bengali date"
       })

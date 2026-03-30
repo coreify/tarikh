@@ -83,7 +83,7 @@ const GREGORIAN_MONTH_ALIASES: Readonly<Record<string, number>> = {
   ডিসে: 11
 };
 
-export function findGregorianMonthIndex(name: string): number {
+export function gregorianMonthIndex(name: string): number {
   const trimmed = name.trim();
   const lower = trimmed.toLowerCase();
   const alias = GREGORIAN_MONTH_ALIASES[lower];

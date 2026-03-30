@@ -5,19 +5,19 @@ import { parseDate } from "../core/parse";
 import { fromNow } from "../core/relative";
 import { toDate } from "../core/utils";
 import type {
-  TarikhCalendarProps,
-  TarikhDateProps,
-  TarikhRelativeProps
+  BanglaDateProps,
+  RelativeTimeProps,
+  TarikhProps
 } from "../types/react";
 
-function toLocalDateOnlyString(date: Date): string {
+function localDateOnlyString(date: Date): string {
   const year = String(date.getFullYear());
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
 
-function hasExplicitTimeComponent(input: string): boolean {
+function hasTimeComponent(input: string): boolean {
   return /(?:T|\s)\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:?\d{2})?$/i.test(
     input.trim()
   );
@@ -26,98 +26,98 @@ function hasExplicitTimeComponent(input: string): boolean {
 function isDateOnlyInput(value: unknown): value is string {
   return (
     typeof value === "string" &&
-    !hasExplicitTimeComponent(value) &&
+    !hasTimeComponent(value) &&
     parseDate(value) !== null
   );
 }
 
-function toDateTimeAttribute(value: unknown, date: Date): string {
+function dateTimeAttribute(value: unknown, date: Date): string {
   if (isDateOnlyInput(value)) {
-    return toLocalDateOnlyString(date);
+    return localDateOnlyString(date);
   }
   return date.toISOString();
 }
 
 export type {
-  TarikhCalendarProps,
-  TarikhDateProps,
-  TarikhRelativeProps
+  BanglaDateProps,
+  RelativeTimeProps,
+  TarikhProps
 } from "../types/react";
 
-export const TarikhDate = forwardRef<HTMLTimeElement, TarikhDateProps>(
-  function TarikhDate(
-    {
-      value,
-      locale,
-      month,
-      year,
-      day,
-      weekday,
-      hour,
-      minute,
-      second,
-      hour12,
-      srLabel,
-      "aria-label": ariaLabelProp,
-      ...props
-    },
-    ref
-  ): ReactElement {
-    const date = toDate(value);
-    const opts = {
-      ...(locale !== undefined && { locale }),
-      ...(month !== undefined && { month }),
-      ...(year !== undefined && { year }),
-      ...(day !== undefined && { day }),
-      ...(weekday !== undefined && { weekday }),
-      ...(hour !== undefined && { hour }),
-      ...(minute !== undefined && { minute }),
-      ...(second !== undefined && { second }),
-      ...(hour12 !== undefined && { hour12 })
-    };
-    const formatted = formatDate(date, opts);
-    const iso = toDateTimeAttribute(value, date);
-    const ariaLabel = srLabel ?? ariaLabelProp ?? formatted;
+export const Tarikh = forwardRef<HTMLTimeElement, TarikhProps>(function Tarikh(
+  {
+    value,
+    locale,
+    month,
+    year,
+    day,
+    weekday,
+    hour,
+    minute,
+    second,
+    hour12,
+    srLabel,
+    "aria-label": ariaLabelProp,
+    ...props
+  },
+  ref
+): ReactElement {
+  const date = toDate(value);
+  const formatOptions = {
+    ...(locale !== undefined && { locale }),
+    ...(month !== undefined && { month }),
+    ...(year !== undefined && { year }),
+    ...(day !== undefined && { day }),
+    ...(weekday !== undefined && { weekday }),
+    ...(hour !== undefined && { hour }),
+    ...(minute !== undefined && { minute }),
+    ...(second !== undefined && { second }),
+    ...(hour12 !== undefined && { hour12 })
+  };
+  const formatted = formatDate(date, formatOptions);
+  const dateTime = dateTimeAttribute(value, date);
+  const ariaLabel = srLabel ?? ariaLabelProp ?? formatted;
 
-    return createElement(
-      "time",
-      { ...props, ref, dateTime: iso, "aria-label": ariaLabel },
-      formatted
-    );
-  }
-);
+  return createElement(
+    "time",
+    { ...props, ref, dateTime, "aria-label": ariaLabel },
+    formatted
+  );
+});
 
-TarikhDate.displayName = "TarikhDate";
+Tarikh.displayName = "Tarikh";
 
-export const TarikhRelative = forwardRef<HTMLTimeElement, TarikhRelativeProps>(
-  function TarikhRelative(
+export const RelativeTime = forwardRef<HTMLTimeElement, RelativeTimeProps>(
+  function RelativeTime(
     { value, locale, numeric, srLabel, "aria-label": ariaLabelProp, ...props },
     ref
   ): ReactElement {
     const date = toDate(value);
-    const relativeOptions = {
+    const relativeTimeOptions = {
       ...(locale !== undefined && { locale }),
       ...(numeric !== undefined && { numeric })
     };
     const formatted = fromNow(
       date,
-      Object.keys(relativeOptions).length > 0 ? relativeOptions : undefined
+      Object.keys(relativeTimeOptions).length > 0
+        ? relativeTimeOptions
+        : undefined
     );
-    const iso = toDateTimeAttribute(value, date);
+    const dateTime = dateTimeAttribute(value, date);
     const ariaLabel = srLabel ?? ariaLabelProp ?? formatted;
 
     return createElement(
       "time",
-      { ...props, ref, dateTime: iso, "aria-label": ariaLabel },
+      { ...props, ref, dateTime, "aria-label": ariaLabel },
       formatted
     );
   }
 );
 
-TarikhRelative.displayName = "TarikhRelative";
+RelativeTime.displayName = "RelativeTime";
 
-export const TarikhCalendar = forwardRef<HTMLTimeElement, TarikhCalendarProps>(
-  function TarikhCalendar(
+export const BanglaDate = forwardRef<HTMLTimeElement, BanglaDateProps>(
+  function BanglaDate(
     {
       value,
       locale,
@@ -130,24 +130,26 @@ export const TarikhCalendar = forwardRef<HTMLTimeElement, TarikhCalendarProps>(
     ref
   ): ReactElement {
     const date = toDate(value);
-    const formatOpts = {
+    const calendarFormatOptions = {
       ...(locale !== undefined && { locale }),
       ...(format !== undefined && { format }),
       ...(variant !== undefined && { variant })
     };
     const formatted = formatBanglaCalendar(
       date,
-      Object.keys(formatOpts).length > 0 ? formatOpts : undefined
+      Object.keys(calendarFormatOptions).length > 0
+        ? calendarFormatOptions
+        : undefined
     );
-    const iso = toDateTimeAttribute(value, date);
+    const dateTime = dateTimeAttribute(value, date);
     const ariaLabel = srLabel ?? ariaLabelProp ?? formatted;
 
     return createElement(
       "time",
-      { ...props, ref, dateTime: iso, "aria-label": ariaLabel },
+      { ...props, ref, dateTime, "aria-label": ariaLabel },
       formatted
     );
   }
 );
 
-TarikhCalendar.displayName = "TarikhCalendar";
+BanglaDate.displayName = "BanglaDate";

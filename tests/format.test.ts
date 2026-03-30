@@ -15,9 +15,7 @@ describe("formatDate", () => {
   });
 
   it("formats in bn-BD with Bangla digits and months", () => {
-    expect(formatDate(testDate, { locale: "bn-BD" })).toBe(
-      "৩১ মার্চ ২০২৬"
-    );
+    expect(formatDate(testDate, { locale: "bn-BD" })).toBe("৩১ মার্চ ২০২৬");
   });
 
   it("respects long month format", () => {
@@ -48,9 +46,9 @@ describe("formatDate", () => {
 
   it("supports time output", () => {
     const date = new Date(2026, 2, 31, 15, 4, 9);
-    expect(
-      formatDate(date, { hour: "numeric", minute: "2-digit" })
-    ).toBe("31 Mar 2026, 15:04");
+    expect(formatDate(date, { hour: "numeric", minute: "2-digit" })).toBe(
+      "31 Mar 2026, 15:04"
+    );
     expect(
       formatDate(date, {
         hour: "2-digit",
@@ -151,15 +149,15 @@ describe("formatBanglaCalendar", () => {
   });
 
   it("uses Bangla digits and month names when locale is bn-BD", () => {
-    expect(
-      formatBanglaCalendar("2026-03-31", { locale: "bn-BD" })
-    ).toBe("১৭ই চৈত্র ১৪৩২");
-    expect(
-      formatBanglaCalendar("2026-04-14", { locale: "bn-BD" })
-    ).toBe("১লা বৈশাখ ১৪৩৩");
-    expect(
-      formatBanglaCalendar("2026-05-04", { locale: "bn-BD" })
-    ).toBe("২১শে বৈশাখ ১৪৩৩");
+    expect(formatBanglaCalendar("2026-03-31", { locale: "bn-BD" })).toBe(
+      "১৭ই চৈত্র ১৪৩২"
+    );
+    expect(formatBanglaCalendar("2026-04-14", { locale: "bn-BD" })).toBe(
+      "১লা বৈশাখ ১৪৩৩"
+    );
+    expect(formatBanglaCalendar("2026-05-04", { locale: "bn-BD" })).toBe(
+      "২১শে বৈশাখ ১৪৩৩"
+    );
   });
 
   it("supports spoken Bangla day words in the calendar formatter", () => {

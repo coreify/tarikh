@@ -1,10 +1,8 @@
-import type { ParseDateOptions, TarikhDateInput } from "../types";
+import type { DateInput, DateParseOptions } from "../types";
 import { fromBanglaCalendar } from "./calendar";
-import {
-  BANGLA_CALENDAR_MONTHS,
-  BANGLA_CALENDAR_MONTHS_EN
-} from "./constants";
+import { BANGLA_CALENDAR_MONTHS, BANGLA_CALENDAR_MONTHS_EN } from "./constants";
 import { toEnglishDigits } from "./digits";
+import { gregorianMonthIndex } from "./months";
 import { parseDateString } from "./utils";
 
 const BANGLA_CALENDAR_EN_ALIASES: Readonly<Record<string, number>> = {
@@ -70,7 +68,7 @@ const BANGLA_CALENDAR_BN_ALIASES: Readonly<Record<string, number>> = {
   চৈত্র: 12
 };
 
-function findBanglaCalendarMonthIndex(name: string): number {
+function banglaMonthIndex(name: string): number {
   const lower = name.toLowerCase();
 
   for (let i = 0; i < BANGLA_CALENDAR_MONTHS.length; i++) {
@@ -109,8 +107,8 @@ function parseBanglaCalendarDayToken(token: string): number | null {
 }
 
 export function parseDate(
-  input: TarikhDateInput,
-  options?: ParseDateOptions
+  input: DateInput,
+  options?: DateParseOptions
 ): Date | null {
   if (input instanceof Date) {
     return Number.isNaN(input.getTime()) ? null : new Date(input.getTime());
@@ -137,7 +135,7 @@ function parseBanglaCalendar(normalized: string): Date | null {
   const day = parseBanglaCalendarDayToken(match[1]!.replace(/,$/, ""));
   if (day === null) return null;
 
-  const monthIndex = findBanglaCalendarMonthIndex(match[2]!.replace(/,$/, ""));
+  const monthIndex = banglaMonthIndex(match[2]!.replace(/,$/, ""));
   if (monthIndex === -1) return null;
 
   const year = Number(match[3]);
