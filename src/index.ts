@@ -38,6 +38,7 @@ export {
 export type {
   BanglaCalendarDate,
   BanglaCalendarDateLocalized,
+  BanglaCalendarDayFormat,
   BanglaCalendarDayStyle,
   BanglaCalendarDaySpokenVariant,
   FormatBanglaCalendarOptions,

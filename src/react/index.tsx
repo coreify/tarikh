@@ -23,7 +23,7 @@ function hasExplicitTimeComponent(input: string): boolean {
   );
 }
 
-function isDateOnlyStringInput(value: unknown): value is string {
+function isDateOnlyInput(value: unknown): value is string {
   return (
     typeof value === "string" &&
     !hasExplicitTimeComponent(value) &&
@@ -32,15 +32,13 @@ function isDateOnlyStringInput(value: unknown): value is string {
 }
 
 function toDateTimeAttribute(value: unknown, date: Date): string {
-  if (isDateOnlyStringInput(value)) {
+  if (isDateOnlyInput(value)) {
     return toLocalDateOnlyString(date);
   }
   return date.toISOString();
 }
 
 export type {
-  TarikhReactSpanProps,
-  TarikhReactTimeProps,
   TarikhCalendarProps,
   TarikhDateProps,
   TarikhRelativeProps

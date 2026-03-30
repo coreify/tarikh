@@ -57,6 +57,7 @@ function parseBanglaCalendarDayToken(token: string): number | null {
   const spoken = {
     পহেলা: 1,
     পয়লা: 1,
+    পয়লা: 1,
     দোসরা: 2,
     তেসরা: 3,
     চৌঠা: 4

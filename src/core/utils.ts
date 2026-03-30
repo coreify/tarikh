@@ -1,11 +1,10 @@
 import type { TarikhDateInput, TarikhMonthFormat } from "../types";
 import {
   BANGLA_MONTHS_FULL,
-  BANGLA_MONTHS_SHORT,
-  ENGLISH_MONTHS_FULL,
-  ENGLISH_MONTHS_SHORT
+  BANGLA_MONTHS_SHORT
 } from "./constants";
 import { toEnglishDigits } from "./digits";
+import { findGregorianMonthIndex } from "./months";
 
 function parseDateOnlyString(input: string): Date | null {
   const match = input.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -31,7 +30,7 @@ function parseIsoLikeDateTimeString(input: string): Date | null {
   const match = input
     .trim()
     .match(
-      /^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?(Z|[+-]\d{2}:?\d{2})?)$/
+      /^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?(Z|[+-]\d{2}:?\d{2})?)$/
     );
   if (!match) return null;
 
@@ -91,28 +90,6 @@ function parseIsoLikeDateTimeString(input: string): Date | null {
   return date;
 }
 
-function findMonthIndex(name: string): number {
-  const lower = name.toLowerCase();
-
-  for (let i = 0; i < ENGLISH_MONTHS_FULL.length; i++) {
-    if (ENGLISH_MONTHS_FULL[i]!.toLowerCase() === lower) return i;
-  }
-
-  for (let i = 0; i < ENGLISH_MONTHS_SHORT.length; i++) {
-    if (ENGLISH_MONTHS_SHORT[i]!.toLowerCase() === lower) return i;
-  }
-
-  for (let i = 0; i < BANGLA_MONTHS_FULL.length; i++) {
-    if (BANGLA_MONTHS_FULL[i] === name) return i;
-  }
-
-  for (let i = 0; i < BANGLA_MONTHS_SHORT.length; i++) {
-    if (BANGLA_MONTHS_SHORT[i] === name) return i;
-  }
-
-  return -1;
-}
-
 function parseDMYString(input: string): Date | null {
   const match = input.match(/^(\d{1,2})\s+(\S+)\s+(\d{2,4})$/);
   if (!match) return null;
@@ -121,7 +98,7 @@ function parseDMYString(input: string): Date | null {
   const monthName = match[2]!;
   const yearRaw = match[3]!;
 
-  const monthIndex = findMonthIndex(monthName);
+  const monthIndex = findGregorianMonthIndex(monthName);
   if (monthIndex === -1) return null;
 
   let year = Number(yearRaw);

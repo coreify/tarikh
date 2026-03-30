@@ -99,8 +99,9 @@ Convert Gregorian dates to the Bengali calendar (Bangladesh Revised Calendar, 19
 - Default output: English digits + Latin month names (`en-BD`).
 - Locale-aware output: Bangla date words like `১লা`, `২রা`, `৩রা`, `৪ঠা`, `৫ই`, `১৯শে` plus Bangla month names (`bn-BD`).
 - `monthIndex` remains numeric in both cases.
+- `formatBanglaCalendar(..., { locale: "bn-BD", style: "spoken" })` returns spoken day words like `পহেলা`, `দোসরা`, `তেসরা`, `চৌঠা`.
 - `formatBanglaCalendarDay(day, { style: "spoken" })` returns colloquial spoken forms for the first four days: `পহেলা`, `দোসরা`, `তেসরা`, `চৌঠা`.
-- Pass `{ variant: "pohela" }` to keep the standard `পহেলা` spelling explicitly, or `{ variant: "poyla" }` to get `পয়লা` for day 1.
+- Pass `{ variant: "pohela" }` to keep the standard `পহেলা` spelling explicitly, or `{ variant: "poyla" }` to get `পয়লা` for day 1. The parser also accepts the common `পয়লা` spelling.
 
 ```ts
 import { toBanglaCalendar, formatBanglaCalendar } from "@coreify/tarikh";
@@ -119,6 +120,16 @@ formatBanglaCalendar("2026-03-31", { locale: "bn-BD" });
 
 formatBanglaCalendar("2026-04-14");
 // → "1 Baishakh 1433"
+
+formatBanglaCalendar("2026-04-14", { locale: "bn-BD", style: "spoken" });
+// → "পহেলা বৈশাখ ১৪৩৩"
+
+formatBanglaCalendar("2026-04-14", {
+  locale: "bn-BD",
+  style: "spoken",
+  variant: "poyla"
+});
+// → "পয়লা বৈশাখ ১৪৩৩"
 
 // Reusable helper for just the Bangla day word
 import { formatBanglaCalendarDay } from "@coreify/tarikh";
@@ -192,6 +203,20 @@ parseDate("17 Chaitra 1432", { calendar: "bangla" });
 
 parseDate("১৭ চৈত্র ১৪৩২", { calendar: "bangla" });
 // → Date object (March 31, 2026)
+
+parseDate("31 March 2026");
+// → Date object (March 31, 2026)
+
+parseDate("2026-03-31T15:30:00Z");
+// → Date object (March 31, 2026, 3:30 PM UTC)
+
+// `toDate()` accepts the same Gregorian string forms as `parseDate()`,
+// plus `Date` objects and timestamps.
+// Supported string shapes:
+// - `YYYY-MM-DD`
+// - `YYYY-MM-DDTHH:mm[:ss[.sss]][Z|±HH:mm]`
+// - `DD Month YYYY`
+// - Bangla calendar strings like `১৭ চৈত্র ১৪৩২`
 ```
 
 ### Utilities
@@ -293,7 +318,7 @@ All components render semantic `<time>` elements with `dateTime` and `aria-label
 
 ## TypeScript
 
-Fully typed with strict mode. All option interfaces and types are exported.
+Fully typed with strict mode. All public option interfaces and types are exported.
 
 ```ts
 import type {
@@ -302,20 +327,12 @@ import type {
   ToBanglaCalendarOptions,
   FormatBanglaCalendarOptions,
   BanglaCalendarDayStyle,
+  BanglaCalendarDaySpokenVariant,
   FormatBanglaCalendarDayOptions,
   FormatDateOptions,
   BanglaCalendarDate,
   HybridFormatOptions
 } from "@coreify/tarikh";
-```
-
-React helper prop types are available from `@coreify/tarikh/react`:
-
-```ts
-import type {
-  TarikhReactSpanProps,
-  TarikhReactTimeProps
-} from "@coreify/tarikh/react";
 ```
 
 ## License

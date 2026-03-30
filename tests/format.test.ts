@@ -111,6 +111,22 @@ describe("formatBanglaCalendar", () => {
     ).toBe("২১শে বৈশাখ ১৪৩৩");
   });
 
+  it("supports spoken Bangla day words in the calendar formatter", () => {
+    expect(
+      formatBanglaCalendar("2026-04-14", {
+        locale: "bn-BD",
+        style: "spoken"
+      })
+    ).toBe("পহেলা বৈশাখ ১৪৩৩");
+    expect(
+      formatBanglaCalendar("2026-04-14", {
+        locale: "bn-BD",
+        style: "spoken",
+        variant: "poyla"
+      })
+    ).toBe("পয়লা বৈশাখ ১৪৩৩");
+  });
+
   it("accepts Date object", () => {
     expect(formatBanglaCalendar(testDate)).toBe("17 Chaitra 1432");
   });

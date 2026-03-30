@@ -1,4 +1,7 @@
 import type {
+  BanglaCalendarDaySpokenVariant,
+  BanglaCalendarDayStyle,
+  BanglaCalendarDayFormat,
   FormatBanglaCalendarDayOptions,
   FormatBanglaCalendarOptions,
   FormatDateOptions,
@@ -49,7 +52,7 @@ export function formatBanglaCalendarDay(
   day: number,
   options?: FormatBanglaCalendarDayOptions
 ): string {
-  const style = options?.style ?? "ordinal";
+  const style: BanglaCalendarDayStyle = options?.style ?? "ordinal";
 
   if (style === "spoken") {
     return formatBanglaCalendarDaySpokenRaw(day, options?.variant);
@@ -129,11 +132,17 @@ export function formatBanglaCalendar(
   options?: FormatBanglaCalendarOptions
 ): string {
   const locale = options?.locale ?? "en-BD";
+  const style: BanglaCalendarDayFormat = options?.style ?? "ordinal";
+  const variant: BanglaCalendarDaySpokenVariant | undefined = options?.variant;
   const cal = toBanglaCalendar(input);
 
   if (locale === "bn-BD") {
     const month = cal.monthIndex - 1;
-    return `${formatBanglaCalendarDay(cal.day)} ${BANGLA_CALENDAR_MONTHS[month]!} ${toBanglaDigits(cal.year)}`;
+    const dayOptions: FormatBanglaCalendarDayOptions = { style };
+    if (variant !== undefined) {
+      dayOptions.variant = variant;
+    }
+    return `${formatBanglaCalendarDay(cal.day, dayOptions)} ${BANGLA_CALENDAR_MONTHS[month]!} ${toBanglaDigits(cal.year)}`;
   }
 
   return `${cal.day} ${cal.month} ${cal.year}`;

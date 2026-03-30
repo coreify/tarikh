@@ -5,11 +5,8 @@ import type {
   TarikhLocale
 } from "./index";
 
-export type TarikhReactSpanProps = ComponentPropsWithoutRef<"span">;
-export type TarikhReactTimeProps = ComponentPropsWithoutRef<"time">;
-
 export interface TarikhDateProps
-  extends Omit<TarikhReactTimeProps, "children">,
+  extends Omit<ComponentPropsWithoutRef<"time">, "children">,
     Omit<FormatDateOptions, "locale"> {
   value: TarikhDateInput;
   locale?: TarikhLocale;
@@ -17,14 +14,14 @@ export interface TarikhDateProps
 }
 
 export interface TarikhRelativeProps
-  extends Omit<TarikhReactTimeProps, "children"> {
+  extends Omit<ComponentPropsWithoutRef<"time">, "children"> {
   value: TarikhDateInput;
   locale?: TarikhLocale;
   srLabel?: string;
 }
 
 export interface TarikhCalendarProps
-  extends Omit<TarikhReactTimeProps, "children"> {
+  extends Omit<ComponentPropsWithoutRef<"time">, "children"> {
   value: TarikhDateInput;
   locale?: TarikhLocale;
   srLabel?: string;

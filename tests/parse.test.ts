@@ -55,6 +55,12 @@ describe("parseDate", () => {
     expect(result!.toISOString()).toBe("2026-03-31T15:30:00.000Z");
   });
 
+  it("parses ISO datetime strings with microsecond precision", () => {
+    const result = parseDate("2026-03-31T15:30:00.123456Z");
+    expect(result).toBeInstanceOf(Date);
+    expect(result!.toISOString()).toBe("2026-03-31T15:30:00.123Z");
+  });
+
   it("parses Bangla calendar date with English month names (Chaitra)", () => {
     const result = parseDate("17 Chaitra 1432", { calendar: "bangla" });
     expect(result).toBeInstanceOf(Date);
@@ -100,6 +106,14 @@ describe("parseDate", () => {
     expect(poyla!.getFullYear()).toBe(2026);
     expect(poyla!.getMonth()).toBe(3);
     expect(poyla!.getDate()).toBe(14);
+
+    const poylaNoNukta = parseDate("পয়লা বৈশাখ ১৪৩৩", {
+      calendar: "bangla"
+    });
+    expect(poylaNoNukta).toBeInstanceOf(Date);
+    expect(poylaNoNukta!.getFullYear()).toBe(2026);
+    expect(poylaNoNukta!.getMonth()).toBe(3);
+    expect(poylaNoNukta!.getDate()).toBe(14);
   });
 
   it("parses 1 Baishakh", () => {

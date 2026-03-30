@@ -53,9 +53,12 @@ export interface BanglaCalendarDateLocalized {
 
 export interface FormatBanglaCalendarOptions {
   locale?: TarikhLocale;
+  style?: BanglaCalendarDayStyle;
+  variant?: BanglaCalendarDaySpokenVariant;
 }
 
 export type BanglaCalendarDayStyle = "ordinal" | "spoken";
+export type BanglaCalendarDayFormat = BanglaCalendarDayStyle;
 export type BanglaCalendarDaySpokenVariant = "pohela" | "poyla";
 
 export interface FormatBanglaCalendarDayOptions {
