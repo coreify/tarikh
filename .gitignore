@@ -1,0 +1,28 @@
+/dist
+/node_modules
+
+.env
+.DS_Store
+
+examples/
+screenshots/
+*.png
+*.jpg
+*.jpeg
+
+# Temporary folders
+tmp/
+temp/
+
+# Nuxt.js build / generate output
+.nuxt
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+
+# Package files
+*.tgz
