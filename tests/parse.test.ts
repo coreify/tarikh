@@ -61,6 +61,30 @@ describe("parseDate", () => {
     expect(result!.toISOString()).toBe("2026-03-31T15:30:00.123Z");
   });
 
+  it("parses month-first Gregorian dates", () => {
+    const result = parseDate("March 31, 2026");
+    expect(result).toBeInstanceOf(Date);
+    expect(result!.getFullYear()).toBe(2026);
+    expect(result!.getMonth()).toBe(2);
+    expect(result!.getDate()).toBe(31);
+  });
+
+  it("parses hyphenated Gregorian dates", () => {
+    const result = parseDate("31-Mar-2026");
+    expect(result).toBeInstanceOf(Date);
+    expect(result!.getFullYear()).toBe(2026);
+    expect(result!.getMonth()).toBe(2);
+    expect(result!.getDate()).toBe(31);
+  });
+
+  it("parses slash-separated year-first Gregorian dates", () => {
+    const result = parseDate("2026/03/31");
+    expect(result).toBeInstanceOf(Date);
+    expect(result!.getFullYear()).toBe(2026);
+    expect(result!.getMonth()).toBe(2);
+    expect(result!.getDate()).toBe(31);
+  });
+
   it("parses Bangla calendar date with English month names (Chaitra)", () => {
     const result = parseDate("17 Chaitra 1432", { calendar: "bangla" });
     expect(result).toBeInstanceOf(Date);
@@ -76,6 +100,18 @@ describe("parseDate", () => {
     expect(
       parseDate("1 Boishakh 1433", { calendar: "bangla" })!.getDate()
     ).toBe(14);
+  });
+
+  it("parses more Bangla calendar aliases and punctuation", () => {
+    expect(
+      parseDate("1 Boisakh 1433", { calendar: "bangla" })!.getDate()
+    ).toBe(14);
+    expect(
+      parseDate("১৭ চৈত্র, ১৪৩২", { calendar: "bangla" })!.getDate()
+    ).toBe(31);
+    expect(
+      parseDate("১ অঘ্রাণ ১৪৩৩", { calendar: "bangla" })!.getMonth()
+    ).toBe(10);
   });
 
   it("parses Bangla calendar date with Bangla month names", () => {

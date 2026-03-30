@@ -39,6 +39,42 @@ describe("formatDate", () => {
     expect(formatDate(jan1, { day: "2-digit" })).toBe("05 Jan 2026");
   });
 
+  it("supports weekday output", () => {
+    expect(formatDate(testDate, { weekday: "short" })).toBe("Tue, 31 Mar 2026");
+    expect(formatDate(testDate, { weekday: "long" })).toBe(
+      "Tuesday, 31 Mar 2026"
+    );
+  });
+
+  it("supports time output", () => {
+    const date = new Date(2026, 2, 31, 15, 4, 9);
+    expect(
+      formatDate(date, { hour: "numeric", minute: "2-digit" })
+    ).toBe("31 Mar 2026, 15:04");
+    expect(
+      formatDate(date, {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true
+      })
+    ).toBe("31 Mar 2026, 03:04:09 PM");
+  });
+
+  it("supports weekday and time in bn-BD", () => {
+    const date = new Date(2026, 2, 31, 9, 5, 7);
+    expect(
+      formatDate(date, {
+        locale: "bn-BD",
+        weekday: "short",
+        hour: "numeric",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true
+      })
+    ).toBe("মঙ্গল, ৩১ মার্চ ২০২৬, ৯:০৫:০৭ পূর্বাহ্ণ");
+  });
+
   it("accepts string input", () => {
     expect(formatDate("2026-03-31")).toBe("31 Mar 2026");
   });
@@ -87,6 +123,21 @@ describe("format (token-based)", () => {
   it("pads day with DD token", () => {
     const jan5 = new Date(2026, 0, 5);
     expect(format(jan5, "DD MMM YYYY")).toBe("05 Jan 2026");
+  });
+
+  it("supports weekday and time tokens", () => {
+    const date = new Date(2026, 2, 31, 15, 4, 9);
+    expect(format(date, "ddd, D MMM YYYY HH:mm:ss")).toBe(
+      "Tue, 31 Mar 2026 15:04:09"
+    );
+    expect(format(date, "dddd h:mm A")).toBe("Tuesday 3:04 PM");
+  });
+
+  it("supports localized weekday and meridiem tokens", () => {
+    const date = new Date(2026, 2, 31, 9, 4, 9);
+    expect(format(date, "ddd, D MMM YYYY h:mm a", { locale: "bn-BD" })).toBe(
+      "মঙ্গল, ৩১ মার্চ ২০২৬ ৯:০৪ পূর্বাহ্ণ"
+    );
   });
 });
 

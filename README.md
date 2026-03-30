@@ -11,6 +11,8 @@ JavaScript's `Intl.DateTimeFormat` and libraries like Day.js / date-fns don't so
 - **Bangla calendar** — Convert Gregorian dates to Bengali calendar (বৈশাখ, চৈত্র, etc.)
 - **Bangla digits** — Render `৩১ মার্চ ২০২৬` instead of `31 March 2026`
 - **Hybrid formatting** — Mix English and Bangla in a single date string
+- **Weekday and time formatting** — Render weekday, hour, minute, and second output
+- **Natural relative time** — Use `yesterday`, `tomorrow`, `গতকাল`, `আগামীকাল`, etc.
 - **Cultural correctness** — Bangladeshi locale-aware formatting out of the box
 
 `@coreify/tarikh` is a zero-dependency, tree-shakeable, SSR-safe toolkit purpose-built for Bangladesh.
@@ -51,8 +53,24 @@ formatBanglaCalendar("2026-03-31", { locale: "bn-BD" });
 formatBanglaCalendar("2026-04-14", { locale: "bn-BD" });
 // → "১লা বৈশাখ ১৪৩৩"
 
-fromNow(new Date(Date.now() - 86400000));
-// → "1 day ago"
+formatDate(new Date(2026, 2, 31, 15, 4), {
+  weekday: "short",
+  hour: "numeric",
+  minute: "2-digit"
+});
+// → "Tue, 31 Mar 2026, 15:04"
+
+formatDate(new Date(2026, 2, 31, 21, 4, 9), {
+  weekday: "long",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: true
+});
+// → "Tuesday, 31 Mar 2026, 09:04:09 PM"
+
+fromNow(new Date(Date.now() - 86400000), { numeric: "auto" });
+// → "yesterday"
 ```
 
 ## Features
@@ -70,9 +88,18 @@ formatDate(new Date(), { locale: "bn-BD" });
 
 formatDate(new Date(), { month: "long", year: "2-digit" });
 // → "31 March 26"
+
+formatDate(new Date(2026, 2, 31, 15, 4, 9), {
+  weekday: "long",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: true
+});
+// → "Tuesday, 31 Mar 2026, 03:04:09 PM"
 ```
 
-**Options:** `locale` (`"en-BD"` | `"bn-BD"`), `month` (`"short"` | `"long"`), `year` (`"numeric"` | `"2-digit"`), `day` (`"numeric"` | `"2-digit"`)
+**Options:** `locale` (`"en-BD"` | `"bn-BD"`), `month` (`"short"` | `"long"`), `year` (`"numeric"` | `"2-digit"`), `day` (`"numeric"` | `"2-digit"`), `weekday` (`"short"` | `"long"`), `hour` / `minute` / `second` (`"numeric"` | `"2-digit"`), `hour12` (`boolean`)
 
 ### Token-based Formatting
 
@@ -87,9 +114,20 @@ format(new Date(), "DD MMMM YYYY", { locale: "bn-BD" });
 
 format(new Date(), "DD/MM/YYYY");
 // → "31/03/2026"
+
+format(new Date(2026, 2, 31, 15, 4, 9), "ddd, D MMM YYYY HH:mm:ss");
+// → "Tue, 31 Mar 2026 15:04:09"
+
+format(new Date(2026, 2, 31, 9, 4), "ddd, D MMM YYYY h:mm a", {
+  locale: "bn-BD"
+});
+// → "মঙ্গল, ৩১ মার্চ ২০২৬ ৯:০৪ পূর্বাহ্ণ"
+
+format(new Date(2026, 2, 31, 21, 4, 9), "dddd, D MMM YYYY hh:mm:ss A");
+// → "Tuesday, 31 Mar 2026 09:04:09 PM"
 ```
 
-**Tokens:** `DD`, `D`, `MMMM`, `MMM`, `MM`, `M`, `YYYY`, `YY`
+**Tokens:** `dddd`, `ddd`, `DD`, `D`, `MMMM`, `MMM`, `MM`, `M`, `YYYY`, `YY`, `HH`, `H`, `hh`, `h`, `mm`, `m`, `ss`, `s`, `A`, `a`
 
 ### Bangla Calendar
 
@@ -104,7 +142,11 @@ Convert Gregorian dates to the Bengali calendar (Bangladesh Revised Calendar, 19
 - Pass `{ variant: "pohela" }` to keep the standard `পহেলা` spelling explicitly, or `{ variant: "poyla" }` to get `পয়লা` for day 1. The parser also accepts the common `পয়লা` spelling.
 
 ```ts
-import { toBanglaCalendar, formatBanglaCalendar } from "@coreify/tarikh";
+import {
+  formatBanglaCalendar,
+  formatBanglaCalendarDay,
+  toBanglaCalendar
+} from "@coreify/tarikh";
 
 toBanglaCalendar("2026-03-31");
 // → { day: 17, month: "Chaitra", monthIndex: 12, year: 1432 }
@@ -130,9 +172,6 @@ formatBanglaCalendar("2026-04-14", {
   variant: "poyla"
 });
 // → "পয়লা বৈশাখ ১৪৩৩"
-
-// Reusable helper for just the Bangla day word
-import { formatBanglaCalendarDay } from "@coreify/tarikh";
 
 formatBanglaCalendarDay(21);
 // → "২১শে"
@@ -186,6 +225,15 @@ fromNow(new Date(Date.now() - 86400000), { locale: "bn-BD" });
 
 fromNow(new Date(Date.now() + 3600000));
 // → "in 1 hour"
+
+fromNow(new Date(Date.now() - 86400000), { numeric: "auto" });
+// → "yesterday"
+
+fromNow(new Date(Date.now() + 86400000), {
+  locale: "bn-BD",
+  numeric: "auto"
+});
+// → "আগামীকাল"
 ```
 
 ### Parsing
@@ -207,6 +255,18 @@ parseDate("১৭ চৈত্র ১৪৩২", { calendar: "bangla" });
 parseDate("31 March 2026");
 // → Date object (March 31, 2026)
 
+parseDate("March 31, 2026");
+// → Date object (March 31, 2026)
+
+parseDate("31-Mar-2026");
+// → Date object (March 31, 2026)
+
+parseDate("2026/03/31");
+// → Date object (March 31, 2026)
+
+parseDate("2026.03.31");
+// → Date object (March 31, 2026)
+
 parseDate("2026-03-31T15:30:00Z");
 // → Date object (March 31, 2026, 3:30 PM UTC)
 
@@ -214,9 +274,14 @@ parseDate("2026-03-31T15:30:00Z");
 // plus `Date` objects and timestamps.
 // Supported string shapes:
 // - `YYYY-MM-DD`
-// - `YYYY-MM-DDTHH:mm[:ss[.sss]][Z|±HH:mm]`
+// - `YYYY/MM/DD`
+// - `YYYY.MM.DD`
+// - `YYYY-MM-DDTHH:mm[:ss[.fraction]][Z|±HH:mm]`
 // - `DD Month YYYY`
+// - `Month DD, YYYY`
+// - `DD-Month-YYYY`
 // - Bangla calendar strings like `১৭ চৈত্র ১৪৩২`
+// - Common Bangla month aliases like `Boishakh`, `Poush`, `Falgun`, `Asharh`
 ```
 
 ### Utilities
@@ -225,16 +290,25 @@ parseDate("2026-03-31T15:30:00Z");
 import {
   isToday, isYesterday, isTomorrow,
   startOfDay, endOfDay,
+  startOfMonth, endOfMonth,
+  startOfYear, endOfYear,
   addDays, subDays,
+  addMonths, subMonths,
+  addYears, subYears,
   getBanglaMonth
 } from "@coreify/tarikh";
 
 isToday(new Date());        // → true
 isYesterday(subDays(new Date(), 1)); // → true
 isTomorrow(addDays(new Date(), 1));  // → true
+startOfMonth(new Date());            // → Date at the start of this month
+endOfMonth(new Date());              // → Date at the end of this month
+addMonths("2026-01-31", 1);          // → 2026-02-28
+addYears(new Date(2024, 1, 29), 1);  // → 2025-02-28
 
 getBanglaMonth(3);          // → "মার্চ"
 getBanglaMonth(3, "short"); // → "মার্চ"
+getBanglaMonth(12);         // → "ডিসেম্বর"
 ```
 
 ### Constants
@@ -245,6 +319,10 @@ import {
   BANGLA_MONTHS_SHORT,
   BANGLA_CALENDAR_MONTHS,
   BANGLA_CALENDAR_MONTHS_EN,
+  BANGLA_WEEKDAYS_FULL,
+  BANGLA_WEEKDAYS_SHORT,
+  ENGLISH_WEEKDAYS_FULL,
+  ENGLISH_WEEKDAYS_SHORT,
   BANGLA_DIGITS,
   ENGLISH_DIGITS
 } from "@coreify/tarikh";
@@ -272,6 +350,25 @@ import { TarikhDate } from "@coreify/tarikh/react";
 <TarikhDate value={new Date()} month="long" />
 // → <time>31 March 2026</time>
 
+<TarikhDate
+  value={new Date(2026, 2, 31, 15, 4)}
+  weekday="short"
+  hour="numeric"
+  minute="2-digit"
+/>
+// → <time>Tue, 31 Mar 2026, 15:04</time>
+
+<TarikhDate
+  value={new Date(2026, 2, 31, 15, 4, 9)}
+  weekday="long"
+  hour="2-digit"
+  minute="2-digit"
+  second="2-digit"
+  hour12
+  locale="bn-BD"
+/>
+// → <time>মঙ্গলবার, ৩১ মার্চ ২০২৬, ০৩:০৪:০৯ অপরাহ্ণ</time>
+
 <TarikhDate value="31 March 2026" />
 // → <time dateTime="2026-03-31">31 Mar 2026</time>
 ```
@@ -286,6 +383,12 @@ import { TarikhRelative } from "@coreify/tarikh/react";
 
 <TarikhRelative value={someDate} locale="bn-BD" />
 // → <time>২ দিন আগে</time>
+
+<TarikhRelative value={someDate} numeric="auto" />
+// → <time>yesterday</time> (for a 1-day past date)
+
+<TarikhRelative value={someDate} locale="bn-BD" numeric="auto" />
+// → <time>আগামীকাল</time> (for a 1-day future date)
 ```
 
 ### TarikhCalendar
@@ -326,13 +429,16 @@ All components render semantic `<time>` elements with `dateTime` and `aria-label
 
 ## TypeScript
 
-Fully typed with strict mode. All public option interfaces and types are exported.
+Fully typed with strict mode. Core option interfaces and value types are exported from `@coreify/tarikh`.
 
 ```ts
 import type {
   TarikhLocale,
   TarikhLanguage,
+  TarikhWeekdayFormat,
+  TarikhTimeFormat,
   ToBanglaCalendarOptions,
+  FromNowOptions,
   FormatBanglaCalendarOptions,
   BanglaCalendarDayFormat,
   BanglaCalendarDaySpokenVariant,
@@ -342,6 +448,8 @@ import type {
   HybridFormatOptions
 } from "@coreify/tarikh";
 ```
+
+React component prop types stay in `@coreify/tarikh/react`.
 
 ## License
 

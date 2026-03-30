@@ -1,12 +1,20 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   addDays,
+  addMonths,
+  addYears,
   endOfDay,
+  endOfMonth,
+  endOfYear,
   getBanglaMonth,
   isToday,
   isTomorrow,
   isYesterday,
+  startOfMonth,
+  startOfYear,
   startOfDay,
+  subMonths,
+  subYears,
   subDays,
   toDate
 } from "../src/core/utils";
@@ -63,6 +71,27 @@ describe("toDate", () => {
 
   it("throws on invalid numeric timestamps", () => {
     expect(() => toDate(NaN)).toThrow("Invalid date input");
+  });
+
+  it("converts a month-first Gregorian date", () => {
+    const result = toDate("March 31, 2026");
+    expect(result.getFullYear()).toBe(2026);
+    expect(result.getMonth()).toBe(2);
+    expect(result.getDate()).toBe(31);
+  });
+
+  it("converts a hyphenated Gregorian date", () => {
+    const result = toDate("31-Mar-2026");
+    expect(result.getFullYear()).toBe(2026);
+    expect(result.getMonth()).toBe(2);
+    expect(result.getDate()).toBe(31);
+  });
+
+  it("converts a slash-separated year-first Gregorian date", () => {
+    const result = toDate("2026/03/31");
+    expect(result.getFullYear()).toBe(2026);
+    expect(result.getMonth()).toBe(2);
+    expect(result.getDate()).toBe(31);
   });
 });
 
@@ -149,6 +178,73 @@ describe("addDays / subDays", () => {
     const result = addDays("31 March 2026", 1);
     expect(result.getDate()).toBe(1);
     expect(result.getMonth()).toBe(3);
+  });
+});
+
+describe("month/year utilities", () => {
+  it("adds months with end-of-month clamping", () => {
+    const result = addMonths(new Date(2026, 0, 31), 1);
+    expect(result.getFullYear()).toBe(2026);
+    expect(result.getMonth()).toBe(1);
+    expect(result.getDate()).toBe(28);
+  });
+
+  it("subtracts months", () => {
+    const result = subMonths(new Date(2026, 2, 31), 1);
+    expect(result.getFullYear()).toBe(2026);
+    expect(result.getMonth()).toBe(1);
+    expect(result.getDate()).toBe(28);
+  });
+
+  it("adds years with leap-day clamping", () => {
+    const result = addYears(new Date(2024, 1, 29), 1);
+    expect(result.getFullYear()).toBe(2025);
+    expect(result.getMonth()).toBe(1);
+    expect(result.getDate()).toBe(28);
+  });
+
+  it("subtracts years", () => {
+    const result = subYears(new Date(2026, 2, 31), 1);
+    expect(result.getFullYear()).toBe(2025);
+    expect(result.getMonth()).toBe(2);
+    expect(result.getDate()).toBe(31);
+  });
+});
+
+describe("month/year boundaries", () => {
+  it("returns startOfMonth", () => {
+    const result = startOfMonth(new Date(2026, 2, 31, 15, 30, 45, 123));
+    expect(result.getDate()).toBe(1);
+    expect(result.getHours()).toBe(0);
+    expect(result.getMinutes()).toBe(0);
+    expect(result.getSeconds()).toBe(0);
+    expect(result.getMilliseconds()).toBe(0);
+  });
+
+  it("returns endOfMonth", () => {
+    const result = endOfMonth(new Date(2026, 1, 2, 8, 0));
+    expect(result.getDate()).toBe(28);
+    expect(result.getHours()).toBe(23);
+    expect(result.getMinutes()).toBe(59);
+    expect(result.getSeconds()).toBe(59);
+    expect(result.getMilliseconds()).toBe(999);
+  });
+
+  it("returns startOfYear", () => {
+    const result = startOfYear(new Date(2026, 5, 15, 11, 45));
+    expect(result.getMonth()).toBe(0);
+    expect(result.getDate()).toBe(1);
+    expect(result.getHours()).toBe(0);
+  });
+
+  it("returns endOfYear", () => {
+    const result = endOfYear(new Date(2026, 5, 15, 11, 45));
+    expect(result.getMonth()).toBe(11);
+    expect(result.getDate()).toBe(31);
+    expect(result.getHours()).toBe(23);
+    expect(result.getMinutes()).toBe(59);
+    expect(result.getSeconds()).toBe(59);
+    expect(result.getMilliseconds()).toBe(999);
   });
 });
 

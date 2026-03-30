@@ -1,52 +1,53 @@
 import type { TarikhDateInput, TarikhMonthFormat } from "../types";
 import {
   BANGLA_MONTHS_FULL,
-  BANGLA_MONTHS_SHORT,
-  ENGLISH_MONTHS_FULL,
-  ENGLISH_MONTHS_SHORT
+  BANGLA_MONTHS_SHORT
 } from "./constants";
 import { toEnglishDigits } from "./digits";
+import { findGregorianMonthIndex } from "./months";
 
-function findGregorianMonthIndex(name: string): number {
-  const lower = name.toLowerCase();
-
-  for (let i = 0; i < ENGLISH_MONTHS_FULL.length; i++) {
-    if (ENGLISH_MONTHS_FULL[i]!.toLowerCase() === lower) return i;
-  }
-
-  for (let i = 0; i < ENGLISH_MONTHS_SHORT.length; i++) {
-    if (ENGLISH_MONTHS_SHORT[i]!.toLowerCase() === lower) return i;
-  }
-
-  for (let i = 0; i < BANGLA_MONTHS_FULL.length; i++) {
-    if (BANGLA_MONTHS_FULL[i] === name) return i;
-  }
-
-  for (let i = 0; i < BANGLA_MONTHS_SHORT.length; i++) {
-    if (BANGLA_MONTHS_SHORT[i] === name) return i;
-  }
-
-  return -1;
-}
-
-function parseDateOnlyString(input: string): Date | null {
-  const match = input.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!match) return null;
-
-  const year = Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
-  const date = new Date(year, month - 1, day);
+function buildValidatedLocalDate(
+  year: number,
+  monthIndex: number,
+  day: number,
+  hour = 0,
+  minute = 0,
+  second = 0,
+  millisecond = 0
+): Date | null {
+  const date = new Date(
+    year,
+    monthIndex,
+    day,
+    hour,
+    minute,
+    second,
+    millisecond
+  );
 
   if (
     date.getFullYear() !== year ||
-    date.getMonth() !== month - 1 ||
-    date.getDate() !== day
+    date.getMonth() !== monthIndex ||
+    date.getDate() !== day ||
+    date.getHours() !== hour ||
+    date.getMinutes() !== minute ||
+    date.getSeconds() !== second ||
+    date.getMilliseconds() !== millisecond
   ) {
     return null;
   }
 
   return date;
+}
+
+function parseDateOnlyString(input: string): Date | null {
+  const match = input.trim().match(/^(\d{4})([-/.])(\d{2})\2(\d{2})$/);
+  if (!match) return null;
+
+  const year = Number(match[1]);
+  const month = Number(match[3]);
+  const day = Number(match[4]);
+  return buildValidatedLocalDate(year, month - 1, day);
 }
 
 function parseIsoLikeDateTimeString(input: string): Date | null {
@@ -67,19 +68,15 @@ function parseIsoLikeDateTimeString(input: string): Date | null {
   const timezone = match[8];
 
   if (timezone === undefined) {
-    const local = new Date(year, month - 1, day, hour, minute, second, millisecond);
-    if (
-      local.getFullYear() !== year ||
-      local.getMonth() !== month - 1 ||
-      local.getDate() !== day ||
-      local.getHours() !== hour ||
-      local.getMinutes() !== minute ||
-      local.getSeconds() !== second ||
-      local.getMilliseconds() !== millisecond
-    ) {
-      return null;
-    }
-    return local;
+    return buildValidatedLocalDate(
+      year,
+      month - 1,
+      day,
+      hour,
+      minute,
+      second,
+      millisecond
+    );
   }
 
   const offsetMatch = timezone.match(/^([+-])(\d{2}):?(\d{2})$/);
@@ -114,11 +111,13 @@ function parseIsoLikeDateTimeString(input: string): Date | null {
 }
 
 function parseDMYString(input: string): Date | null {
-  const match = input.match(/^(\d{1,2})\s+(\S+)\s+(\d{2,4})$/);
+  const match = input.match(
+    /^(\d{1,2})(?:st|nd|rd|th)?(?:\s+|-)(\S+)(?:\s+|-)(\d{2,4})$/
+  );
   if (!match) return null;
 
   const day = Number(match[1]);
-  const monthName = match[2]!;
+  const monthName = match[2]!.replace(/,$/, "");
   const yearRaw = match[3]!;
 
   const monthIndex = findGregorianMonthIndex(monthName);
@@ -129,23 +128,36 @@ function parseDMYString(input: string): Date | null {
     year += year >= 50 ? 1900 : 2000;
   }
 
-  const date = new Date(year, monthIndex, day);
-  if (
-    date.getFullYear() !== year ||
-    date.getMonth() !== monthIndex ||
-    date.getDate() !== day
-  ) {
-    return null;
+  return buildValidatedLocalDate(year, monthIndex, day);
+}
+
+function parseMonthFirstString(input: string): Date | null {
+  const match = input.match(
+    /^(\S+)\s+(\d{1,2})(?:st|nd|rd|th)?(?:,)?\s+(\d{2,4})$/
+  );
+  if (!match) return null;
+
+  const monthName = match[1]!.replace(/,$/, "");
+  const day = Number(match[2]);
+  const yearRaw = match[3]!;
+  const monthIndex = findGregorianMonthIndex(monthName);
+
+  if (monthIndex === -1) return null;
+
+  let year = Number(yearRaw);
+  if (yearRaw.length === 2) {
+    year += year >= 50 ? 1900 : 2000;
   }
 
-  return date;
+  return buildValidatedLocalDate(year, monthIndex, day);
 }
 
 export function parseDateString(input: string): Date | null {
   return (
     parseDateOnlyString(input) ??
     parseIsoLikeDateTimeString(input) ??
-    parseDMYString(input)
+    parseDMYString(input) ??
+    parseMonthFirstString(input)
   );
 }
 
@@ -230,6 +242,73 @@ export function addDays(input: TarikhDateInput, days: number): Date {
 
 export function subDays(input: TarikhDateInput, days: number): Date {
   return addDays(input, -days);
+}
+
+function daysInMonth(year: number, monthIndex: number): number {
+  return new Date(year, monthIndex + 1, 0).getDate();
+}
+
+export function addMonths(input: TarikhDateInput, months: number): Date {
+  const date = toDate(input);
+  const year = date.getFullYear();
+  const monthIndex = date.getMonth() + months;
+  const targetYear = year + Math.floor(monthIndex / 12);
+  const targetMonth = ((monthIndex % 12) + 12) % 12;
+  const targetDay = Math.min(
+    date.getDate(),
+    daysInMonth(targetYear, targetMonth)
+  );
+
+  date.setFullYear(targetYear, targetMonth, targetDay);
+  return date;
+}
+
+export function subMonths(input: TarikhDateInput, months: number): Date {
+  return addMonths(input, -months);
+}
+
+export function addYears(input: TarikhDateInput, years: number): Date {
+  const date = toDate(input);
+  const targetYear = date.getFullYear() + years;
+  const targetDay = Math.min(
+    date.getDate(),
+    daysInMonth(targetYear, date.getMonth())
+  );
+
+  date.setFullYear(targetYear, date.getMonth(), targetDay);
+  return date;
+}
+
+export function subYears(input: TarikhDateInput, years: number): Date {
+  return addYears(input, -years);
+}
+
+export function startOfMonth(input: TarikhDateInput): Date {
+  const date = toDate(input);
+  date.setDate(1);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+export function endOfMonth(input: TarikhDateInput): Date {
+  const date = toDate(input);
+  date.setMonth(date.getMonth() + 1, 0);
+  date.setHours(23, 59, 59, 999);
+  return date;
+}
+
+export function startOfYear(input: TarikhDateInput): Date {
+  const date = toDate(input);
+  date.setMonth(0, 1);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+export function endOfYear(input: TarikhDateInput): Date {
+  const date = toDate(input);
+  date.setMonth(11, 31);
+  date.setHours(23, 59, 59, 999);
+  return date;
 }
 
 export function getBanglaMonth(

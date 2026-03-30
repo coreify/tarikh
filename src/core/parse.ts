@@ -10,24 +10,33 @@ import { parseDateString } from "./utils";
 const BANGLA_CALENDAR_EN_ALIASES: Readonly<Record<string, number>> = {
   baishakh: 1,
   boishakh: 1,
+  boishak: 1,
+  boisakh: 1,
   jaishtho: 2,
+  jaishtha: 2,
+  jaistha: 2,
   joishtho: 2,
   jyoishtho: 2,
+  jyoistho: 2,
+  jyeshtho: 2,
   ashar: 3,
   asadh: 3,
   asharh: 3,
   srabon: 4,
   shraban: 4,
   shrabon: 4,
+  sraban: 4,
   bhadro: 5,
   ashin: 6,
   ashwin: 6,
   ashshin: 6,
   kartik: 7,
   ograyon: 8,
+  ograyan: 8,
   ogrohayon: 8,
   ograhayon: 8,
   agrahayan: 8,
+  aghrayan: 8,
   pous: 9,
   poush: 9,
   mag: 10,
@@ -39,12 +48,36 @@ const BANGLA_CALENDAR_EN_ALIASES: Readonly<Record<string, number>> = {
   choitro: 12
 };
 
+const BANGLA_CALENDAR_BN_ALIASES: Readonly<Record<string, number>> = {
+  বৈশাখ: 1,
+  জৈষ্ঠ: 2,
+  জ্যৈষ্ঠ: 2,
+  আষাঢ়: 3,
+  আষাঢ়: 3,
+  শ্রাবণ: 4,
+  ভাদ্র: 5,
+  আশ্বিন: 6,
+  কার্তিক: 7,
+  অগ্রহায়ণ: 8,
+  অগ্রহায়ণ: 8,
+  অঘ্রাণ: 8,
+  অগ্রায়ণ: 8,
+  অগ্রায়ণ: 8,
+  পৌষ: 9,
+  পৌস: 9,
+  মাঘ: 10,
+  ফাল্গুন: 11,
+  চৈত্র: 12
+};
+
 function findBanglaCalendarMonthIndex(name: string): number {
   const lower = name.toLowerCase();
 
   for (let i = 0; i < BANGLA_CALENDAR_MONTHS.length; i++) {
     if (BANGLA_CALENDAR_MONTHS[i] === name) return i + 1;
   }
+  const banglaAlias = BANGLA_CALENDAR_BN_ALIASES[name];
+  if (banglaAlias !== undefined) return banglaAlias;
   for (let i = 0; i < BANGLA_CALENDAR_MONTHS_EN.length; i++) {
     if (BANGLA_CALENDAR_MONTHS_EN[i]!.toLowerCase() === lower) return i + 1;
   }
@@ -98,13 +131,13 @@ export function parseDate(
 }
 
 function parseBanglaCalendar(normalized: string): Date | null {
-  const match = normalized.match(/^(\S+)\s+(\S+)\s+(\d{4})$/);
+  const match = normalized.match(/^(\S+),?\s+(\S+),?\s+(\d{4})$/);
   if (!match) return null;
 
-  const day = parseBanglaCalendarDayToken(match[1]!);
+  const day = parseBanglaCalendarDayToken(match[1]!.replace(/,$/, ""));
   if (day === null) return null;
 
-  const monthIndex = findBanglaCalendarMonthIndex(match[2]!);
+  const monthIndex = findBanglaCalendarMonthIndex(match[2]!.replace(/,$/, ""));
   if (monthIndex === -1) return null;
 
   const year = Number(match[3]);

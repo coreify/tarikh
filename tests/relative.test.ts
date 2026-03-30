@@ -109,4 +109,28 @@ describe("fromNow", () => {
       fromNow(new Date(NOW - 86_400_000), { locale: "bn-BD" })
     ).toBe("১ দিন আগে");
   });
+
+  it("supports natural relative words in English", () => {
+    expect(
+      fromNow(new Date(NOW - 86_400_000), { numeric: "auto" })
+    ).toBe("yesterday");
+    expect(
+      fromNow(new Date("2026-04-30T12:00:00Z"), { numeric: "auto" })
+    ).toBe("next month");
+  });
+
+  it("supports natural relative words in Bangla", () => {
+    expect(
+      fromNow(new Date(NOW - 86_400_000), {
+        locale: "bn-BD",
+        numeric: "auto"
+      })
+    ).toBe("গতকাল");
+    expect(
+      fromNow(new Date("2026-04-30T12:00:00Z"), {
+        locale: "bn-BD",
+        numeric: "auto"
+      })
+    ).toBe("আগামী মাসে");
+  });
 });

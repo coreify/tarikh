@@ -52,6 +52,11 @@ export const TarikhDate = forwardRef<HTMLTimeElement, TarikhDateProps>(
       month,
       year,
       day,
+      weekday,
+      hour,
+      minute,
+      second,
+      hour12,
       srLabel,
       "aria-label": ariaLabelProp,
       ...props
@@ -63,7 +68,12 @@ export const TarikhDate = forwardRef<HTMLTimeElement, TarikhDateProps>(
       ...(locale !== undefined && { locale }),
       ...(month !== undefined && { month }),
       ...(year !== undefined && { year }),
-      ...(day !== undefined && { day })
+      ...(day !== undefined && { day }),
+      ...(weekday !== undefined && { weekday }),
+      ...(hour !== undefined && { hour }),
+      ...(minute !== undefined && { minute }),
+      ...(second !== undefined && { second }),
+      ...(hour12 !== undefined && { hour12 })
     };
     const formatted = formatDate(date, opts);
     const iso = toDateTimeAttribute(value, date);
@@ -81,11 +91,18 @@ TarikhDate.displayName = "TarikhDate";
 
 export const TarikhRelative = forwardRef<HTMLTimeElement, TarikhRelativeProps>(
   function TarikhRelative(
-    { value, locale, srLabel, "aria-label": ariaLabelProp, ...props },
+    { value, locale, numeric, srLabel, "aria-label": ariaLabelProp, ...props },
     ref
   ): ReactElement {
     const date = toDate(value);
-    const formatted = fromNow(date, locale !== undefined ? { locale } : undefined);
+    const relativeOptions = {
+      ...(locale !== undefined && { locale }),
+      ...(numeric !== undefined && { numeric })
+    };
+    const formatted = fromNow(
+      date,
+      Object.keys(relativeOptions).length > 0 ? relativeOptions : undefined
+    );
     const iso = toDateTimeAttribute(value, date);
     const ariaLabel = srLabel ?? ariaLabelProp ?? formatted;
 

@@ -49,6 +49,18 @@ describe("TarikhDate", () => {
     expect(html).toContain("31 March 2026");
   });
 
+  it("supports weekday and time props", () => {
+    const html = renderToStaticMarkup(
+      createElement(TarikhDate, {
+        value: new Date(2026, 2, 31, 15, 4),
+        weekday: "short",
+        hour: "numeric",
+        minute: "2-digit"
+      })
+    );
+    expect(html).toContain("Tue, 31 Mar 2026, 15:04");
+  });
+
   it("includes aria-label", () => {
     const html = renderToStaticMarkup(
       createElement(TarikhDate, { value: new Date(2026, 2, 31) })
@@ -104,6 +116,16 @@ describe("TarikhRelative", () => {
       createElement(TarikhRelative, { value: "31 March 2026" })
     );
     expect(html).toContain('dateTime="2026-03-31"');
+  });
+
+  it("supports natural relative wording", () => {
+    const html = renderToStaticMarkup(
+      createElement(TarikhRelative, {
+        value: new Date(NOW - 86_400_000),
+        numeric: "auto"
+      })
+    );
+    expect(html).toContain("yesterday");
   });
 });
 

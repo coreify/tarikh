@@ -6,11 +6,15 @@ export {
   BANGLA_DIGITS,
   BANGLA_MONTHS_FULL,
   BANGLA_MONTHS_SHORT,
+  BANGLA_WEEKDAYS_FULL,
+  BANGLA_WEEKDAYS_SHORT,
   BOISHAKH_START_DAY,
   BOISHAKH_START_MONTH,
   ENGLISH_DIGITS,
   ENGLISH_MONTHS_FULL,
   ENGLISH_MONTHS_SHORT,
+  ENGLISH_WEEKDAYS_FULL,
+  ENGLISH_WEEKDAYS_SHORT,
   RELATIVE_TIME_BN,
   RELATIVE_TIME_EN
 } from "./core/constants";
@@ -26,12 +30,20 @@ export { parseDate } from "./core/parse";
 export { fromNow } from "./core/relative";
 export {
   addDays,
+  addMonths,
+  addYears,
   endOfDay,
+  endOfMonth,
+  endOfYear,
   getBanglaMonth,
   isToday,
   isTomorrow,
   isYesterday,
+  startOfMonth,
+  startOfYear,
   startOfDay,
+  subMonths,
+  subYears,
   subDays,
   toDate
 } from "./core/utils";
@@ -52,6 +64,8 @@ export type {
   TarikhLanguage,
   TarikhLocale,
   TarikhMonthFormat,
+  TarikhTimeFormat,
+  TarikhWeekdayFormat,
   TarikhYearFormat,
   ToBanglaCalendarOptions
 } from "./types";

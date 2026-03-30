@@ -3,6 +3,8 @@ export type TarikhLanguage = "en" | "bn";
 export type TarikhMonthFormat = "short" | "long";
 export type TarikhYearFormat = "numeric" | "2-digit";
 export type TarikhDayFormat = "numeric" | "2-digit";
+export type TarikhWeekdayFormat = "short" | "long";
+export type TarikhTimeFormat = "numeric" | "2-digit";
 
 export type TarikhDateInput = Date | string | number;
 
@@ -11,6 +13,11 @@ export interface FormatDateOptions {
   month?: TarikhMonthFormat;
   year?: TarikhYearFormat;
   day?: TarikhDayFormat;
+  weekday?: TarikhWeekdayFormat;
+  hour?: TarikhTimeFormat;
+  minute?: TarikhTimeFormat;
+  second?: TarikhTimeFormat;
+  hour12?: boolean;
 }
 
 export interface FormatOptions {
@@ -27,6 +34,7 @@ export interface HybridFormatOptions {
 
 export interface FromNowOptions {
   locale?: TarikhLocale;
+  numeric?: "always" | "auto";
 }
 
 export interface ParseDateOptions {

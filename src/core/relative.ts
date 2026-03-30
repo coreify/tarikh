@@ -87,12 +87,49 @@ function diffInCalendarMonths(later: Date, earlier: Date): number {
   return months;
 }
 
+function formatRelativeValue(
+  count: number,
+  singular: string,
+  plural: string,
+  isPast: boolean,
+  locale: "en-BD" | "bn-BD"
+): string {
+  const isBn = locale === "bn-BD";
+  const countStr = isBn ? toBanglaDigits(count) : String(count);
+  const label = count === 1 ? singular : plural;
+
+  if (isBn) {
+    return isPast ? `${countStr} ${label} আগে` : `${countStr} ${label} পরে`;
+  }
+
+  return isPast ? `${countStr} ${label} ago` : `in ${countStr} ${label}`;
+}
+
+function formatNaturalRelative(
+  unit: "day" | "week" | "month" | "year",
+  isPast: boolean,
+  locale: "en-BD" | "bn-BD"
+): string | null {
+  if (locale === "bn-BD") {
+    if (unit === "day") return isPast ? "গতকাল" : "আগামীকাল";
+    if (unit === "week") return isPast ? "গত সপ্তাহে" : "আগামী সপ্তাহে";
+    if (unit === "month") return isPast ? "গত মাসে" : "আগামী মাসে";
+    return isPast ? "গত বছর" : "আগামী বছর";
+  }
+
+  if (unit === "day") return isPast ? "yesterday" : "tomorrow";
+  if (unit === "week") return isPast ? "last week" : "next week";
+  if (unit === "month") return isPast ? "last month" : "next month";
+  return isPast ? "last year" : "next year";
+}
+
 export function fromNow(
   input: TarikhDateInput,
   options?: FromNowOptions
 ): string {
   const date = toDate(input);
   const locale = options?.locale ?? "en-BD";
+  const numeric = options?.numeric ?? "always";
   const isBn = locale === "bn-BD";
   const words = isBn ? RELATIVE_TIME_BN : RELATIVE_TIME_EN;
 
@@ -109,46 +146,48 @@ export function fromNow(
 
   const years = diffInCalendarYears(later, earlier);
   if (years >= 1) {
-    const countStr = isBn ? toBanglaDigits(years) : String(years);
-    const label = years === 1 ? words.year : words.years;
-    if (isBn) {
-      return isPast
-        ? `${countStr} ${label} ${words.ago}`
-        : `${countStr} ${label} পরে`;
+    if (numeric === "auto" && years === 1) {
+      const natural = formatNaturalRelative("year", isPast, locale);
+      if (natural !== null) return natural;
     }
-    return isPast
-      ? `${countStr} ${label} ${words.ago}`
-      : `${words.in} ${countStr} ${label}`;
+    return formatRelativeValue(years, words.year, words.years, isPast, locale);
   }
 
   const months = diffInCalendarMonths(later, earlier);
   if (months >= 1) {
-    const countStr = isBn ? toBanglaDigits(months) : String(months);
-    const label = months === 1 ? words.month : words.months;
-    if (isBn) {
-      return isPast
-        ? `${countStr} ${label} ${words.ago}`
-        : `${countStr} ${label} পরে`;
+    if (numeric === "auto" && months === 1) {
+      const natural = formatNaturalRelative("month", isPast, locale);
+      if (natural !== null) return natural;
     }
-    return isPast
-      ? `${countStr} ${label} ${words.ago}`
-      : `${words.in} ${countStr} ${label}`;
+    return formatRelativeValue(
+      months,
+      words.month,
+      words.months,
+      isPast,
+      locale
+    );
   }
 
   for (const unit of UNITS) {
     if (absDiff >= unit.threshold) {
       const count = Math.floor(absDiff / unit.threshold);
-      const label = count === 1 ? words[unit.singular] : words[unit.plural];
-      const countStr = isBn ? toBanglaDigits(count) : String(count);
-
-      if (isBn) {
-        return isPast
-          ? `${countStr} ${label} ${words.ago}`
-          : `${countStr} ${label} পরে`;
+      if (numeric === "auto" && count === 1) {
+        if (
+          unit.singular === "day" ||
+          unit.singular === "week"
+        ) {
+          const natural = formatNaturalRelative(unit.singular, isPast, locale);
+          if (natural !== null) return natural;
+        }
       }
-      return isPast
-        ? `${countStr} ${label} ${words.ago}`
-        : `${words.in} ${countStr} ${label}`;
+
+      return formatRelativeValue(
+        count,
+        words[unit.singular],
+        words[unit.plural],
+        isPast,
+        locale
+      );
     }
   }
 

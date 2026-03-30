@@ -54,6 +54,26 @@ export const ENGLISH_MONTHS_SHORT = [
   "Dec"
 ] as const;
 
+export const ENGLISH_WEEKDAYS_FULL = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday"
+] as const;
+
+export const ENGLISH_WEEKDAYS_SHORT = [
+  "Sun",
+  "Mon",
+  "Tue",
+  "Wed",
+  "Thu",
+  "Fri",
+  "Sat"
+] as const;
+
 export const BANGLA_MONTHS_FULL = [
   "জানুয়ারি",
   "ফেব্রুয়ারি",
@@ -82,6 +102,26 @@ export const BANGLA_MONTHS_SHORT = [
   "অক্টো",
   "নভে",
   "ডিসে"
+] as const;
+
+export const BANGLA_WEEKDAYS_FULL = [
+  "রবিবার",
+  "সোমবার",
+  "মঙ্গলবার",
+  "বুধবার",
+  "বৃহস্পতিবার",
+  "শুক্রবার",
+  "শনিবার"
+] as const;
+
+export const BANGLA_WEEKDAYS_SHORT = [
+  "রবি",
+  "সোম",
+  "মঙ্গল",
+  "বুধ",
+  "বৃহস্পতি",
+  "শুক্র",
+  "শনি"
 ] as const;
 
 export const BANGLA_CALENDAR_MONTHS = [

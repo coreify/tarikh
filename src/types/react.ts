@@ -1,6 +1,7 @@
 import type { ComponentPropsWithoutRef } from "react";
 import type {
   BanglaCalendarDaySpokenVariant,
+  FromNowOptions,
   FormatDateOptions,
   BanglaCalendarDayFormat,
   TarikhDateInput,
@@ -19,6 +20,7 @@ export interface TarikhRelativeProps
   extends Omit<ComponentPropsWithoutRef<"time">, "children"> {
   value: TarikhDateInput;
   locale?: TarikhLocale;
+  numeric?: FromNowOptions["numeric"];
   srLabel?: string;
 }
 
