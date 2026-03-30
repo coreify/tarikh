@@ -121,11 +121,11 @@ describe("TarikhRelative", () => {
   it("supports natural relative wording", () => {
     const html = renderToStaticMarkup(
       createElement(TarikhRelative, {
-        value: new Date(NOW - 86_400_000),
+        value: new Date("2026-03-31T00:00:00Z"),
         numeric: "auto"
       })
     );
-    expect(html).toContain("yesterday");
+    expect(html).toContain("today");
   });
 });
 

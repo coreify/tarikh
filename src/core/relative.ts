@@ -123,6 +123,10 @@ function formatNaturalRelative(
   return isPast ? "last year" : "next year";
 }
 
+function formatTodayWord(locale: "en-BD" | "bn-BD"): string {
+  return locale === "bn-BD" ? "আজ" : "today";
+}
+
 export function fromNow(
   input: TarikhDateInput,
   options?: FromNowOptions
@@ -137,11 +141,19 @@ export function fromNow(
   const absDiff = Math.abs(diff);
   const isPast = diff > 0;
   const now = new Date();
+  const isSameCalendarDay =
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth() &&
+    date.getDate() === now.getDate();
   const later = isPast ? now : date;
   const earlier = isPast ? date : now;
 
   if (absDiff < SECOND) {
     return words.justNow;
+  }
+
+  if (numeric === "auto" && isSameCalendarDay) {
+    return formatTodayWord(locale);
   }
 
   const years = diffInCalendarYears(later, earlier);

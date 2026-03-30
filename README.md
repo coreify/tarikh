@@ -71,6 +71,9 @@ formatDate(new Date(2026, 2, 31, 21, 4, 9), {
 
 fromNow(new Date(Date.now() - 86400000), { numeric: "auto" });
 // → "yesterday"
+
+fromNow(new Date(), { numeric: "auto" });
+// → "today"
 ```
 
 ## Features
@@ -276,6 +279,7 @@ parseDate("2026-03-31T15:30:00Z");
 // - `YYYY-MM-DD`
 // - `YYYY/MM/DD`
 // - `YYYY.MM.DD`
+// - `YYYY-M-D`, `YYYY/M/D`, `YYYY.M.D`
 // - `YYYY-MM-DDTHH:mm[:ss[.fraction]][Z|±HH:mm]`
 // - `DD Month YYYY`
 // - `Month DD, YYYY`

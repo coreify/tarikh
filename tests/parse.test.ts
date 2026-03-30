@@ -85,6 +85,16 @@ describe("parseDate", () => {
     expect(result!.getDate()).toBe(31);
   });
 
+  it("parses single-digit year-first Gregorian dates", () => {
+    for (const input of ["2026/3/1", "2026.3.1", "2026-3-1"]) {
+      const result = parseDate(input);
+      expect(result).toBeInstanceOf(Date);
+      expect(result!.getFullYear()).toBe(2026);
+      expect(result!.getMonth()).toBe(2);
+      expect(result!.getDate()).toBe(1);
+    }
+  });
+
   it("parses Bangla calendar date with English month names (Chaitra)", () => {
     const result = parseDate("17 Chaitra 1432", { calendar: "bangla" });
     expect(result).toBeInstanceOf(Date);

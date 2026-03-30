@@ -112,6 +112,9 @@ describe("fromNow", () => {
 
   it("supports natural relative words in English", () => {
     expect(
+      fromNow(new Date("2026-03-31T00:00:00Z"), { numeric: "auto" })
+    ).toBe("today");
+    expect(
       fromNow(new Date(NOW - 86_400_000), { numeric: "auto" })
     ).toBe("yesterday");
     expect(
@@ -121,11 +124,17 @@ describe("fromNow", () => {
 
   it("supports natural relative words in Bangla", () => {
     expect(
-      fromNow(new Date(NOW - 86_400_000), {
+      fromNow(new Date("2026-03-31T00:00:00Z"), {
         locale: "bn-BD",
         numeric: "auto"
       })
-    ).toBe("গতকাল");
+    ).toBe("আজ");
+    expect(
+      fromNow(new Date("2026-03-31T23:59:59"), {
+        locale: "bn-BD",
+        numeric: "auto"
+      })
+    ).toBe("আজ");
     expect(
       fromNow(new Date("2026-04-30T12:00:00Z"), {
         locale: "bn-BD",

@@ -41,7 +41,7 @@ function buildValidatedLocalDate(
 }
 
 function parseDateOnlyString(input: string): Date | null {
-  const match = input.trim().match(/^(\d{4})([-/.])(\d{2})\2(\d{2})$/);
+  const match = input.trim().match(/^(\d{4})([-/.])(\d{1,2})\2(\d{1,2})$/);
   if (!match) return null;
 
   const year = Number(match[1]);
