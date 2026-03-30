@@ -2,7 +2,6 @@ import type { DateInput, DateParseOptions } from "../types";
 import { fromBanglaCalendar } from "./calendar";
 import { BANGLA_CALENDAR_MONTHS, BANGLA_CALENDAR_MONTHS_EN } from "./constants";
 import { toEnglishDigits } from "./digits";
-import { gregorianMonthIndex } from "./months";
 import { parseDateString } from "./utils";
 
 const BANGLA_CALENDAR_EN_ALIASES: Readonly<Record<string, number>> = {

@@ -40,9 +40,6 @@ export default defineConfig([
       react: "src/react/index.tsx"
     },
     clean: false,
-    banner: {
-      js: '"use client";'
-    },
     async onSuccess() {
       preserveUseClientDirective();
     }
