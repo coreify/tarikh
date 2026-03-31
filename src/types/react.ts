@@ -37,3 +37,12 @@ export interface BanglaDateProps extends Omit<
   variant?: BanglaCalendarDaySpokenVariant;
   srLabel?: string;
 }
+
+export interface HijriDateProps extends Omit<
+  ComponentPropsWithoutRef<"time">,
+  "children"
+> {
+  value: DateInput;
+  locale?: Locale;
+  srLabel?: string;
+}

@@ -1,7 +1,7 @@
 {
   "name": "@coreify/tarikh",
   "version": "1.0.2",
-  "description": "A modern Bangladesh-first date toolkit for formatting, Bangla calendar, and localization in JavaScript, TypeScript, and React apps.",
+  "description": "A modern Bangladesh-first date toolkit for formatting, Bangla calendar, Hijri calendar, and localization in JavaScript, TypeScript, and React apps.",
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.cjs",
@@ -83,6 +83,8 @@
     "bangla",
     "bengali",
     "bangladesh",
+    "hijri",
+    "islamic",
     "calendar",
     "formatting",
     "localization",

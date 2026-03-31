@@ -73,7 +73,7 @@ describe("README contract", () => {
     const readme = await readFile(readmePath, "utf8");
 
     expect(sectionBody(readme, "Quick Start")).not.toBe("");
-    expect(sectionBody(readme, "🇧🇩 Bangla Calendar (Core Feature)")).not.toBe("");
+    expect(sectionBody(readme, "Hijri Calendar")).not.toBe("");
     expect(sectionBody(readme, "React Components")).not.toBe("");
     expect(sectionBody(readme, "Demo")).not.toBe("");
   });
@@ -121,17 +121,27 @@ describe("README contract", () => {
     expect(reactSection).toContain(
       '<Tarikh.Bangla value={new Date()} locale="bn-BD" />'
     );
+    expect(reactSection).toContain(
+      '<Tarikh.Hijri value={new Date()} locale="bn-BD" />'
+    );
     expect(reactSection).not.toContain("import { RelativeTime");
     expect(reactSection).not.toContain("import { BanglaDate");
   });
 
   it("highlights the Bangla calendar core feature", async () => {
     const readme = await readFile(readmePath, "utf8");
-    const banglaSection = sectionBody(readme, "🇧🇩 Bangla Calendar (Core Feature)");
+    expect(readme).toContain('format("2026-04-14", {');
+    expect(readme).toContain('mode: "bangla"');
+    expect(readme).toContain('format: "spoken"');
+  });
 
-    expect(banglaSection).toContain('format("2026-04-14", {');
-    expect(banglaSection).toContain('mode: "bangla"');
-    expect(banglaSection).toContain('format: "spoken"');
+  it("highlights the Hijri calendar feature", async () => {
+    const readme = await readFile(readmePath, "utf8");
+    const hijriSection = sectionBody(readme, "Hijri Calendar");
+
+    expect(hijriSection).toContain('format("2026-03-31", {');
+    expect(hijriSection).toContain('mode: "hijri"');
+    expect(hijriSection).toContain('import { format, toHijriCalendar }');
   });
 
   it("includes a simple external demo link", async () => {

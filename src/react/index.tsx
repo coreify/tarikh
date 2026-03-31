@@ -6,6 +6,7 @@ import { fromNow } from "../core/relative";
 import { toDate } from "../core/utils";
 import type {
   BanglaDateProps,
+  HijriDateProps,
   RelativeTimeProps,
   TarikhProps
 } from "../types/react";
@@ -40,6 +41,7 @@ function dateTimeAttribute(value: unknown, date: Date): string {
 
 export type {
   BanglaDateProps,
+  HijriDateProps,
   RelativeTimeProps,
   TarikhProps
 } from "../types/react";
@@ -49,6 +51,7 @@ type TarikhCompoundComponent = ForwardRefExoticComponent<
 > & {
   Relative: typeof RelativeTimeComponent;
   Bangla: typeof BanglaDateComponent;
+  Hijri: typeof HijriDateComponent;
 };
 
 export const Tarikh = forwardRef<HTMLTimeElement, TarikhProps>(function Tarikh(
@@ -165,5 +168,32 @@ const BanglaDateComponent = forwardRef<HTMLTimeElement, BanglaDateProps>(
 
 BanglaDateComponent.displayName = "BanglaDate";
 
+const HijriDateComponent = forwardRef<HTMLTimeElement, HijriDateProps>(
+  function HijriDate(
+    { value, locale, srLabel, "aria-label": ariaLabelProp, ...props },
+    ref
+  ): ReactElement {
+    const date = toDate(value);
+    const calendarFormatOptions = {
+      ...(locale !== undefined && { locale })
+    };
+    const formatted = formatDate(date, {
+      mode: "hijri",
+      ...calendarFormatOptions
+    });
+    const dateTime = dateTimeAttribute(value, date);
+    const ariaLabel = srLabel ?? ariaLabelProp ?? formatted;
+
+    return createElement(
+      "time",
+      { ...props, ref, dateTime, "aria-label": ariaLabel },
+      formatted
+    );
+  }
+);
+
+HijriDateComponent.displayName = "HijriDate";
+
 Tarikh.Relative = RelativeTimeComponent;
 Tarikh.Bangla = BanglaDateComponent;
+Tarikh.Hijri = HijriDateComponent;

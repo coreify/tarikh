@@ -1,4 +1,5 @@
 export { toBanglaCalendar, fromBanglaCalendar } from "./core/calendar";
+export { toHijriCalendar } from "./core/hijri";
 export {
   BANGLA_CALENDAR_MONTH_DAYS,
   BANGLA_CALENDAR_MONTHS,
@@ -52,6 +53,11 @@ export type {
   BanglaCalendarDateLocalized,
   BanglaCalendarDayFormat,
   BanglaCalendarDaySpokenVariant,
+  HijriFormatOptions,
+  HijriCalendarDate,
+  HijriCalendarDateLocalized,
+  HijriCalendarFormatOptions,
+  HijriCalendarOptions,
   DateInput,
   DayFormat,
   DateFormatOptions,

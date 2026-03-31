@@ -131,7 +131,7 @@ export function parseDate(
 }
 
 function parseBanglaCalendar(normalized: string): Date | null {
-  const match = normalized.match(/^(\S+),?\s+(\S+),?\s+(\d{4})$/);
+  const match = normalized.match(/^(\S+),?\s+(\S+),?\s+(\d+)$/);
   if (!match) return null;
 
   const day = parseBanglaCalendarDayToken(match[1]!.replace(/,$/, ""));

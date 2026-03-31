@@ -46,7 +46,8 @@ describe("package exports", () => {
       "toBanglaCalendar",
       "toBanglaDigits",
       "toDate",
-      "toEnglishDigits"
+      "toEnglishDigits",
+      "toHijriCalendar"
     ]);
   });
 

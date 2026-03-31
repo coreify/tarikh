@@ -10,6 +10,14 @@ describe("parseDate", () => {
     expect(result!.getDate()).toBe(31);
   });
 
+  it("parses signed ECMAScript boundary date-only strings", () => {
+    const result = parseDate("+275760-09-13");
+    expect(result).toBeInstanceOf(Date);
+    expect(result!.getFullYear()).toBe(275760);
+    expect(result!.getMonth()).toBe(8);
+    expect(result!.getDate()).toBe(13);
+  });
+
   it("parses Date object", () => {
     const d = new Date(2026, 2, 31);
     const result = parseDate(d);
@@ -31,6 +39,20 @@ describe("parseDate", () => {
     expect(result!.getFullYear()).toBe(2026);
     expect(result!.getMonth()).toBe(2);
     expect(result!.getDate()).toBe(31);
+  });
+
+  it("parses zero-padded and expanded human-readable years exactly", () => {
+    const zeroPadded = parseDate("31 Mar 0099");
+    expect(zeroPadded).toBeInstanceOf(Date);
+    expect(zeroPadded!.getFullYear()).toBe(99);
+    expect(zeroPadded!.getMonth()).toBe(2);
+    expect(zeroPadded!.getDate()).toBe(31);
+
+    const expanded = parseDate("13 Sep +275760");
+    expect(expanded).toBeInstanceOf(Date);
+    expect(expanded!.getFullYear()).toBe(275760);
+    expect(expanded!.getMonth()).toBe(8);
+    expect(expanded!.getDate()).toBe(13);
   });
 
   it("parses English short month format", () => {
@@ -201,6 +223,14 @@ describe("parseDate", () => {
     expect(poylaNoNukta!.getFullYear()).toBe(2026);
     expect(poylaNoNukta!.getMonth()).toBe(3);
     expect(poylaNoNukta!.getDate()).toBe(14);
+  });
+
+  it("parses Bangla calendar years with more than four digits", () => {
+    const result = parseDate("1 Baishakh 10000", { calendar: "bangla" });
+    expect(result).toBeInstanceOf(Date);
+    expect(result!.getFullYear()).toBe(10593);
+    expect(result!.getMonth()).toBe(3);
+    expect(result!.getDate()).toBe(14);
   });
 
   it("parses 1 Baishakh", () => {

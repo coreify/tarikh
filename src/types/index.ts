@@ -5,7 +5,7 @@ export type YearFormat = "numeric" | "2-digit";
 export type DayFormat = "numeric" | "2-digit";
 export type WeekdayFormat = "short" | "long";
 export type TimeFormat = "numeric" | "2-digit";
-export type FormatMode = "standard" | "bangla" | "hybrid";
+export type FormatMode = "standard" | "bangla" | "hijri" | "hybrid";
 
 export type DateInput = Date | string | number;
 
@@ -37,6 +37,11 @@ export type BanglaFormatOptions = BanglaCalendarFormatOptions & {
   pattern?: never;
 };
 
+export type HijriFormatOptions = HijriCalendarFormatOptions & {
+  mode: "hijri";
+  pattern?: never;
+};
+
 export type HybridFormatOptions = HybridDateFormatOptions & {
   mode: "hybrid";
   pattern?: never;
@@ -46,6 +51,7 @@ export type FormatOptions =
   | PatternFormatOptions
   | StandardFormatOptions
   | BanglaFormatOptions
+  | HijriFormatOptions
   | HybridFormatOptions;
 
 export interface HybridDateFormatOptions {
@@ -87,6 +93,28 @@ export interface BanglaCalendarFormatOptions {
   locale?: Locale;
   format?: BanglaCalendarDayFormat;
   variant?: BanglaCalendarDaySpokenVariant;
+}
+
+export interface HijriCalendarOptions {
+  locale?: Locale;
+}
+
+export interface HijriCalendarDate {
+  day: number;
+  month: string;
+  monthIndex: number;
+  year: number;
+}
+
+export interface HijriCalendarDateLocalized {
+  day: string;
+  month: string;
+  monthIndex: number;
+  year: string;
+}
+
+export interface HijriCalendarFormatOptions {
+  locale?: Locale;
 }
 
 export type BanglaCalendarDayFormat = "ordinal" | "spoken";

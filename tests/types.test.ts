@@ -7,11 +7,13 @@ describe("type-level format contract", () => {
     const patternOnly: FormatOptions = { pattern: "DD MMM YYYY" };
     const standardOnly: FormatOptions = { mode: "standard" };
     const banglaOnly: FormatOptions = { mode: "bangla" };
+    const hijriOnly: FormatOptions = { mode: "hijri" };
     const hybridOnly: FormatOptions = { mode: "hybrid" };
 
     expectType(patternOnly);
     expectType(standardOnly);
     expectType(banglaOnly);
+    expectType(hijriOnly);
     expectType(hybridOnly);
 
     // @ts-expect-error - format requires mode or pattern
@@ -26,6 +28,7 @@ describe("type-level format contract", () => {
     expect(format("2026-03-31", patternOnly)).toBe("31 Mar 2026");
     expect(format("2026-03-31", standardOnly)).toBe("31st Mar 2026");
     expect(format("2026-03-31", banglaOnly)).toBe("17th Chaitra 1432");
+    expect(format("2026-03-31", hijriOnly)).toBe("11th Shawwal 1447 AH");
     expect(format("2026-03-31", hybridOnly)).toBe("31 মার্চ 2026");
   });
 });

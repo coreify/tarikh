@@ -4,7 +4,7 @@
 [![downloads](https://img.shields.io/npm/dm/@coreify/tarikh)](https://www.npmjs.com/package/@coreify/tarikh)
 [![license](https://img.shields.io/npm/l/@coreify/tarikh)](https://github.com/coreify/tarikh/blob/main/package/LICENSE)
 
-The first JavaScript date library with full Bangla calendar support.
+The first JavaScript date library with Bangla and Hijri calendar support.
 
 Built for Bangla dates, Bengali calendar conversion, and culturally correct formatting.
 
@@ -28,6 +28,7 @@ External demo: [tarikh.js.org](https://tarikh.js.org)
 JavaScript's `Intl.DateTimeFormat` and libraries like Day.js / date-fns don't solve these problems:
 
 - **Bangla calendar** — Convert Gregorian dates to Bengali calendar (বৈশাখ, চৈত্র, etc.)
+- **Hijri calendar** — Render Islamic calendar dates alongside Bangla and Gregorian output
 - **Bangla digits** — Render `৩১শে মার্চ ২০২৬` instead of `31st March 2026`
 - **Hybrid formatting** — Mix English and Bangla in a single date string
 - **Weekday and time formatting** — Render weekday, hour, minute, and second output
@@ -48,12 +49,14 @@ npm install @coreify/tarikh
 import {
   format,
   fromNow,
-  toBanglaCalendar
+  toBanglaCalendar,
+  toHijriCalendar
 } from "@coreify/tarikh";
 
 // Preferred entry points:
 format(new Date(), { mode: "standard" });
 format(new Date(), { mode: "bangla" });
+format(new Date(), { mode: "hijri" });
 format(new Date(), { mode: "hybrid" });
 
 // Token-based output still works.
@@ -76,6 +79,18 @@ format("2026-03-31", { mode: "bangla", locale: "bn-BD" });
 
 format("2026-04-14", { mode: "bangla", locale: "bn-BD" });
 // → "১লা বৈশাখ ১৪৩৩"
+
+toHijriCalendar("2026-03-31");
+// → { day: 11, month: "Shawwal", monthIndex: 10, year: 1447 }
+
+toHijriCalendar("2026-03-31", { locale: "bn-BD" });
+// → { day: "১১", month: "শাওয়াল", monthIndex: 10, year: "১৪৪৭" }
+
+format("2026-03-31", { mode: "hijri" });
+// → "11th Shawwal 1447 AH"
+
+format("2026-03-31", { mode: "hijri", locale: "bn-BD" });
+// → "১১ই শাওয়াল ১৪৪৭ হিজরি"
 
 format(new Date(2026, 2, 31, 15, 4), {
   mode: "standard",
@@ -102,7 +117,7 @@ fromNow(new Date(), { numeric: "auto" });
 // → "today"
 ```
 
-Use `format()` for everything. Choose a mode (`standard`, `bangla`, `hybrid`) or pass a token pattern.
+Use `format()` for everything. Choose a mode (`standard`, `bangla`, `hijri`, `hybrid`) or pass a token pattern.
 
 ```ts
 // Show today's Bangla date in your app header
@@ -246,6 +261,27 @@ formatBanglaCalendarDay(1, { format: "spoken", variant: "poyla" });
 
 formatBanglaCalendarDay(1, { format: "spoken", variant: "pohela" });
 // → "পহেলা"
+```
+
+### Hijri Calendar
+
+Render Islamic calendar dates in the same object-first style as Bangla dates.
+Hijri dates can vary by moon sighting, so exact values may differ by locale.
+
+```ts
+import { format, toHijriCalendar } from "@coreify/tarikh";
+
+toHijriCalendar("2026-03-31");
+// → { day: 11, month: "Shawwal", monthIndex: 10, year: 1447 }
+
+toHijriCalendar("2026-03-31", { locale: "bn-BD" });
+// → { day: "১১", month: "শাওয়াল", monthIndex: 10, year: "১৪৪৭" }
+
+format("2026-03-31", { mode: "hijri" });
+// → "11th Shawwal 1447 AH"
+
+format("2026-03-31", { mode: "hijri", locale: "bn-BD" });
+// → "১১ই শাওয়াল ১৪৪৭ হিজরি"
 ```
 
 ### Hybrid Formatting
@@ -410,7 +446,7 @@ Optional entry point — only included if you import from `@coreify/tarikh/react
 
 Primary React API:
 
-Use `Tarikh` for the default formatter, then reach for the nested variants when you want relative time or Bangla calendar rendering.
+Use `Tarikh` for the default formatter, then reach for the nested variants when you want relative time, Bangla calendar rendering, or Hijri calendar rendering.
 
 ```tsx
 import { Tarikh } from "@coreify/tarikh/react";
@@ -418,6 +454,7 @@ import { Tarikh } from "@coreify/tarikh/react";
 <Tarikh value={new Date()} />
 <Tarikh.Relative value={new Date()} />
 <Tarikh.Bangla value={new Date()} locale="bn-BD" />
+<Tarikh.Hijri value={new Date()} locale="bn-BD" />
 ```
 
 ```bash
@@ -426,7 +463,7 @@ npm install @coreify/tarikh react
 
 All components render semantic `<time>` elements with `dateTime` and `aria-label` attributes. They are SSR-safe, tree-shakeable, and have zero runtime dependencies beyond React.
 
-`Tarikh` handles standard date formatting, `Tarikh.Relative` handles relative time, and `Tarikh.Bangla` handles Bangla calendar output.
+`Tarikh` handles standard date formatting, `Tarikh.Relative` handles relative time, `Tarikh.Bangla` handles Bangla calendar output, and `Tarikh.Hijri` handles Hijri calendar output.
 
 ## What `Intl.DateTimeFormat` cannot do
 
@@ -435,6 +472,7 @@ If you're building for Bangladesh, existing libraries are not enough.
 | Feature                         | Intl    | @coreify/tarikh |
 | ------------------------------- | ------- | --------------- |
 | Bangla calendar (বৈশাখ → চৈত্র) | No      | Yes             |
+| Hijri calendar                  | Partial | Yes             |
 | Bangla digits in dates          | Partial | Yes             |
 | Hybrid formatting (mixed en/bn) | No      | Yes             |
 | Bangla calendar date parsing    | No      | Yes             |

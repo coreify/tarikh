@@ -3,7 +3,13 @@ import { BANGLA_MONTHS_FULL, BANGLA_MONTHS_SHORT } from "./constants";
 import { toEnglishDigits } from "./digits";
 import { gregorianMonthIndex } from "./months";
 
-function makeValidDate(
+const MAX_SUPPORTED_TIMESTAMP = 8_640_000_000_000_000;
+
+function isSupportedTimestamp(time: number): boolean {
+  return Number.isFinite(time) && Math.abs(time) <= MAX_SUPPORTED_TIMESTAMP;
+}
+
+function makeValidLocalDate(
   year: number,
   monthIndex: number,
   day: number,
@@ -12,15 +18,9 @@ function makeValidDate(
   second = 0,
   millisecond = 0
 ): Date | null {
-  const date = new Date(
-    year,
-    monthIndex,
-    day,
-    hour,
-    minute,
-    second,
-    millisecond
-  );
+  const date = new Date(0);
+  date.setFullYear(year, monthIndex, day);
+  date.setHours(hour, minute, second, millisecond);
 
   if (
     date.getFullYear() !== year ||
@@ -37,21 +37,75 @@ function makeValidDate(
   return date;
 }
 
+function makeValidUtcDate(
+  year: number,
+  monthIndex: number,
+  day: number,
+  hour = 0,
+  minute = 0,
+  second = 0,
+  millisecond = 0
+): Date | null {
+  const date = new Date(0);
+  date.setUTCFullYear(year, monthIndex, day);
+  date.setUTCHours(hour, minute, second, millisecond);
+
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== monthIndex ||
+    date.getUTCDate() !== day ||
+    date.getUTCHours() !== hour ||
+    date.getUTCMinutes() !== minute ||
+    date.getUTCSeconds() !== second ||
+    date.getUTCMilliseconds() !== millisecond
+  ) {
+    return null;
+  }
+
+  return date;
+}
+
+function makeSupportedDate(
+  year: number,
+  monthIndex: number,
+  day: number,
+  hour = 0,
+  minute = 0,
+  second = 0,
+  millisecond = 0
+): Date | null {
+  return (
+    makeValidLocalDate(year, monthIndex, day, hour, minute, second, millisecond) ??
+    makeValidUtcDate(year, monthIndex, day, hour, minute, second, millisecond)
+  );
+}
+
+function parseYearToken(yearRaw: string): number | null {
+  if (!/^[+-]?\d+$/.test(yearRaw)) {
+    return null;
+  }
+
+  const year = Number(yearRaw);
+  return Number.isInteger(year) ? year : null;
+}
+
 function parseYmd(input: string): Date | null {
-  const match = input.trim().match(/^(\d{4})([-/.])(\d{1,2})\2(\d{1,2})$/);
+  const match = input
+    .trim()
+    .match(/^([+-]\d{6}|\d{4})([-/.])(\d{1,2})\2(\d{1,2})$/);
   if (!match) return null;
 
   const year = Number(match[1]);
   const month = Number(match[3]);
   const day = Number(match[4]);
-  return makeValidDate(year, month - 1, day);
+  return makeSupportedDate(year, month - 1, day);
 }
 
 function parseIsoDateTime(input: string): Date | null {
   const match = input
     .trim()
     .match(
-      /^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?(Z|[+-]\d{2}:?\d{2})?)$/
+      /^([+-]\d{6}|\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?(Z|[+-]\d{2}:?\d{2})?)$/
     );
   if (!match) return null;
 
@@ -65,7 +119,7 @@ function parseIsoDateTime(input: string): Date | null {
   const timezone = match[8];
 
   if (timezone === undefined) {
-    return makeValidDate(
+    return makeSupportedDate(
       year,
       month - 1,
       day,
@@ -93,9 +147,20 @@ function parseIsoDateTime(input: string): Date | null {
 
   if (offsetMinutes === null) return null;
 
-  const utcMs =
-    Date.UTC(year, month - 1, day, hour, minute, second, millisecond) -
-    offsetMinutes * 60_000;
+  const base = makeValidUtcDate(
+    year,
+    month - 1,
+    day,
+    hour,
+    minute,
+    second,
+    millisecond
+  );
+  if (!base) return null;
+
+  const utcMs = base.getTime() - offsetMinutes * 60_000;
+  if (!isSupportedTimestamp(utcMs)) return null;
+
   const date = new Date(utcMs);
   const normalized = new Date(utcMs + offsetMinutes * 60_000);
 
@@ -116,7 +181,7 @@ function parseIsoDateTime(input: string): Date | null {
 
 function parseDmy(input: string): Date | null {
   const match = input.match(
-    /^(\d{1,2})(?:st|nd|rd|th|লা|রা|ঠা|ই|শে)?(?:\s+|-)(\S+)(?:\s+|-)(\d{2,4})$/
+    /^(\d{1,2})(?:st|nd|rd|th|লা|রা|ঠা|ই|শে)?(?:\s+|-)(\S+)(?:\s+|-)([+-]\d{6}|\d{4}|\d{2})$/
   );
   if (!match) return null;
 
@@ -127,17 +192,20 @@ function parseDmy(input: string): Date | null {
   const monthIndex = gregorianMonthIndex(monthName);
   if (monthIndex === -1) return null;
 
-  let year = Number(yearRaw);
-  if (yearRaw.length === 2) {
+  const parsedYear = parseYearToken(yearRaw);
+  if (parsedYear === null) return null;
+
+  let year = parsedYear;
+  if (!yearRaw.startsWith("+") && !yearRaw.startsWith("-") && yearRaw.length === 2) {
     year += year >= 50 ? 1900 : 2000;
   }
 
-  return makeValidDate(year, monthIndex, day);
+  return makeSupportedDate(year, monthIndex, day);
 }
 
 function parseMonthDate(input: string): Date | null {
   const match = input.match(
-    /^(\S+)\s+(\d{1,2})(?:st|nd|rd|th|লা|রা|ঠা|ই|শে)?(?:,)?\s+(\d{2,4})$/
+    /^(\S+)\s+(\d{1,2})(?:st|nd|rd|th|লা|রা|ঠা|ই|শে)?(?:,)?\s+([+-]\d{6}|\d{4}|\d{2})$/
   );
   if (!match) return null;
 
@@ -148,12 +216,15 @@ function parseMonthDate(input: string): Date | null {
 
   if (monthIndex === -1) return null;
 
-  let year = Number(yearRaw);
-  if (yearRaw.length === 2) {
+  const parsedYear = parseYearToken(yearRaw);
+  if (parsedYear === null) return null;
+
+  let year = parsedYear;
+  if (!yearRaw.startsWith("+") && !yearRaw.startsWith("-") && yearRaw.length === 2) {
     year += year >= 50 ? 1900 : 2000;
   }
 
-  return makeValidDate(year, monthIndex, day);
+  return makeSupportedDate(year, monthIndex, day);
 }
 
 export function parseDateString(input: string): Date | null {
@@ -165,13 +236,29 @@ export function parseDateString(input: string): Date | null {
   );
 }
 
+export function assertDateRange(
+  date: Date,
+  input: unknown,
+  context?: string
+): Date {
+  const time = date.getTime();
+  if (!isSupportedTimestamp(time)) {
+    const prefix = context === undefined ? "Date input" : `${context} output`;
+    throw new RangeError(
+      `${prefix} is outside the supported range: ${String(input)}`
+    );
+  }
+
+  return date;
+}
+
 export function toDate(input: DateInput): Date {
   if (input instanceof Date) {
     const time = input.getTime();
     if (Number.isNaN(time)) {
       throw new Error(`Invalid date input: ${String(input)}`);
     }
-    return new Date(time);
+    return assertDateRange(new Date(time), input);
   }
 
   if (typeof input === "number") {
@@ -181,9 +268,14 @@ export function toDate(input: DateInput): Date {
 
     const date = new Date(input);
     if (Number.isNaN(date.getTime())) {
+      if (!isSupportedTimestamp(input)) {
+        throw new RangeError(
+          `Date input is outside the supported range: ${String(input)}`
+        );
+      }
       throw new Error(`Invalid date input: ${String(input)}`);
     }
-    return date;
+    return assertDateRange(date, input);
   }
 
   const normalized = toEnglishDigits(input).trim();
@@ -191,7 +283,7 @@ export function toDate(input: DateInput): Date {
   if (!parsed) {
     throw new Error(`Invalid date input: ${String(input)}`);
   }
-  return parsed;
+  return assertDateRange(parsed, input);
 }
 
 export function isToday(input: DateInput): boolean {
@@ -229,19 +321,19 @@ export function isTomorrow(input: DateInput): boolean {
 export function startOfDay(input: DateInput): Date {
   const date = toDate(input);
   date.setHours(0, 0, 0, 0);
-  return date;
+  return assertDateRange(date, input, "startOfDay()");
 }
 
 export function endOfDay(input: DateInput): Date {
   const date = toDate(input);
   date.setHours(23, 59, 59, 999);
-  return date;
+  return assertDateRange(date, input, "endOfDay()");
 }
 
 export function addDays(input: DateInput, days: number): Date {
   const date = toDate(input);
   date.setDate(date.getDate() + days);
-  return date;
+  return assertDateRange(date, input, "addDays()");
 }
 
 export function subDays(input: DateInput, days: number): Date {
@@ -264,7 +356,7 @@ export function addMonths(input: DateInput, months: number): Date {
   );
 
   date.setFullYear(targetYear, targetMonth, targetDay);
-  return date;
+  return assertDateRange(date, input, "addMonths()");
 }
 
 export function subMonths(input: DateInput, months: number): Date {
@@ -280,7 +372,7 @@ export function addYears(input: DateInput, years: number): Date {
   );
 
   date.setFullYear(targetYear, date.getMonth(), targetDay);
-  return date;
+  return assertDateRange(date, input, "addYears()");
 }
 
 export function subYears(input: DateInput, years: number): Date {
@@ -291,28 +383,28 @@ export function startOfMonth(input: DateInput): Date {
   const date = toDate(input);
   date.setDate(1);
   date.setHours(0, 0, 0, 0);
-  return date;
+  return assertDateRange(date, input, "startOfMonth()");
 }
 
 export function endOfMonth(input: DateInput): Date {
   const date = toDate(input);
   date.setMonth(date.getMonth() + 1, 0);
   date.setHours(23, 59, 59, 999);
-  return date;
+  return assertDateRange(date, input, "endOfMonth()");
 }
 
 export function startOfYear(input: DateInput): Date {
   const date = toDate(input);
   date.setMonth(0, 1);
   date.setHours(0, 0, 0, 0);
-  return date;
+  return assertDateRange(date, input, "startOfYear()");
 }
 
 export function endOfYear(input: DateInput): Date {
   const date = toDate(input);
   date.setMonth(11, 31);
   date.setHours(23, 59, 59, 999);
-  return date;
+  return assertDateRange(date, input, "endOfYear()");
 }
 
 export function getBanglaMonth(

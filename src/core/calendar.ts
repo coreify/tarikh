@@ -12,7 +12,7 @@ import {
   BOISHAKH_START_MONTH
 } from "./constants";
 import { toBanglaDigits } from "./digits";
-import { toDate } from "./utils";
+import { assertDateRange, toDate } from "./utils";
 
 function isGregorianLeapYear(year: number): boolean {
   return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
@@ -150,5 +150,9 @@ export function fromBanglaCalendar(
 
   const result = new Date(boishakhStart);
   result.setDate(result.getDate() + totalDays);
-  return result;
+  return assertDateRange(result, {
+    day,
+    monthIndex,
+    year
+  }, "fromBanglaCalendar()");
 }

@@ -3,12 +3,14 @@ import type {
   BanglaCalendarDayFormat,
   BanglaDayFormatOptions,
   BanglaCalendarFormatOptions,
+  HijriCalendarFormatOptions,
   FormatOptions,
   DateFormatOptions,
   HybridDateFormatOptions,
   DateInput
 } from "../types";
 import { toBanglaCalendar } from "./calendar";
+import { toHijriCalendar } from "./hijri";
 import {
   BANGLA_CALENDAR_MONTHS,
   BANGLA_MONTHS_FULL,
@@ -20,7 +22,7 @@ import {
   ENGLISH_WEEKDAYS_FULL,
   ENGLISH_WEEKDAYS_SHORT
 } from "./constants";
-import { toBanglaDigits } from "./digits";
+import { toBanglaDigits, toEnglishDigits } from "./digits";
 import { toDate } from "./utils";
 
 function banglaDayOrdinal(day: number): string {
@@ -65,6 +67,15 @@ function banglaDaySpoken(
     default:
       return banglaDayOrdinal(day);
   }
+}
+
+function hijriBanglaDayOrdinal(day: number): string {
+  const digits = toBanglaDigits(day);
+
+  if (day === 1) return `${digits}লা`;
+  if (day === 2 || day === 3) return `${digits}রা`;
+  if (day === 4) return `${digits}ঠা`;
+  return `${digits}ই`;
 }
 
 export function formatBanglaCalendarDay(
@@ -343,6 +354,11 @@ export function format(input: DateInput, options: FormatOptions): string {
         input,
         options as BanglaCalendarFormatOptions | undefined
       );
+    case "hijri":
+      return formatHijriCalendarCore(
+        input,
+        options as HijriCalendarFormatOptions | undefined
+      );
     case "hybrid":
       return formatHybridDateCore(
         input,
@@ -372,6 +388,23 @@ function formatBanglaCalendarCore(
   }
 
   return `${englishDayOrdinal(calendar.day)} ${calendar.month} ${calendar.year}`;
+}
+
+function formatHijriCalendarCore(
+  input: DateInput,
+  options?: HijriCalendarFormatOptions
+): string {
+  const locale = options?.locale ?? "en-BD";
+
+  if (locale === "bn-BD") {
+    const calendar = toHijriCalendar(input, { locale });
+    const year = toBanglaDigits(calendar.year);
+    const day = Number(toEnglishDigits(calendar.day));
+    return `${hijriBanglaDayOrdinal(day)} ${calendar.month} ${year} হিজরি`;
+  }
+
+  const calendar = toHijriCalendar(input, { locale });
+  return `${englishDayOrdinal(calendar.day)} ${calendar.month} ${calendar.year} AH`;
 }
 
 function formatHybridDateCore(

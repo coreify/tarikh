@@ -124,4 +124,10 @@ describe("fromBanglaCalendar", () => {
       "Invalid Bangla calendar month index"
     );
   });
+
+  it("throws a range error when reverse conversion overflows", () => {
+    expect(() => fromBanglaCalendar(1, 1, 999999)).toThrow(
+      "fromBanglaCalendar() output is outside the supported range"
+    );
+  });
 });

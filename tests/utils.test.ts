@@ -73,6 +73,20 @@ describe("toDate", () => {
     expect(() => toDate(NaN)).toThrow("Invalid date input");
   });
 
+  it("accepts the maximum supported ECMAScript timestamp", () => {
+    const result = toDate(8_640_000_000_000_000);
+    expect(result.toISOString()).toBe("+275760-09-13T00:00:00.000Z");
+  });
+
+  it("throws a range error beyond the supported ECMAScript timestamp", () => {
+    expect(() => toDate(8_640_000_000_000_001)).toThrow(
+      "Date input is outside the supported range"
+    );
+    expect(() => toDate(-8_640_000_000_000_001)).toThrow(
+      "Date input is outside the supported range"
+    );
+  });
+
   it("converts a month-first Gregorian date", () => {
     const result = toDate("March 31, 2026");
     expect(result.getFullYear()).toBe(2026);
@@ -92,6 +106,19 @@ describe("toDate", () => {
     expect(result.getFullYear()).toBe(2026);
     expect(result.getMonth()).toBe(2);
     expect(result.getDate()).toBe(31);
+  });
+
+  it("throws a range error when date arithmetic overflows", () => {
+    const maxDate = new Date(8_640_000_000_000_000);
+    expect(() => addDays(maxDate, 1)).toThrow(
+      "addDays() output is outside the supported range"
+    );
+    expect(() => addMonths(maxDate, 1)).toThrow(
+      "addMonths() output is outside the supported range"
+    );
+    expect(() => addYears(maxDate, 1)).toThrow(
+      "addYears() output is outside the supported range"
+    );
   });
 });
 

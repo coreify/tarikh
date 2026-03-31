@@ -104,6 +104,17 @@ describe("format (standard mode)", () => {
       "Invalid date input"
     );
   });
+
+  it("throws a range error across all formatter modes", () => {
+    const overflow = 8_640_000_000_000_001;
+    const message = "Date input is outside the supported range";
+
+    expect(() => format(overflow, { mode: "standard" })).toThrow(message);
+    expect(() => format(overflow, { mode: "bangla" })).toThrow(message);
+    expect(() => format(overflow, { mode: "hijri" })).toThrow(message);
+    expect(() => format(overflow, { mode: "hybrid" })).toThrow(message);
+    expect(() => format(overflow, { pattern: "DD MMM YYYY" })).toThrow(message);
+  });
 });
 
 describe("format (pattern and mode)", () => {
@@ -124,9 +135,9 @@ describe("format (pattern and mode)", () => {
   });
 
   it("handles bn-BD locale", () => {
-    expect(
-      format(testDate, { pattern: "DD MMMM YYYY", locale: "bn-BD" })
-    ).toBe("৩১ মার্চ ২০২৬");
+    expect(format(testDate, { pattern: "DD MMMM YYYY", locale: "bn-BD" })).toBe(
+      "৩১ মার্চ ২০২৬"
+    );
   });
 
   it("handles single digit day with D token", () => {
@@ -163,9 +174,9 @@ describe("format (pattern and mode)", () => {
 
   it("supports multiple bracket literals in a single pattern", () => {
     const date = new Date(2026, 2, 31, 15, 4, 9);
-    expect(
-      format(date, { pattern: "[Version] DD [of] MMM YYYY" })
-    ).toBe("Version 31 of Mar 2026");
+    expect(format(date, { pattern: "[Version] DD [of] MMM YYYY" })).toBe(
+      "Version 31 of Mar 2026"
+    );
     expect(
       format(date, { pattern: "[Version] DD [of] MMM YYYY", locale: "bn-BD" })
     ).toBe("Version ৩১ of মার্চ ২০২৬");
@@ -190,16 +201,18 @@ describe("format (pattern and mode)", () => {
   });
 
   it("treats unmatched opening bracket as plain text", () => {
-    expect(format(testDate, { pattern: "[Today h:mm a" })).toBe("[Today h:mm a");
+    expect(format(testDate, { pattern: "[Today h:mm a" })).toBe(
+      "[Today h:mm a"
+    );
   });
 
   it("treats empty bracket literals as empty text", () => {
     expect(format(testDate, { pattern: "[] DD MMM YYYY" })).toBe(
       " 31 Mar 2026"
     );
-    expect(format(testDate, { pattern: "[] DD MMM YYYY", locale: "bn-BD" })).toBe(
-      " ৩১ মার্চ ২০২৬"
-    );
+    expect(
+      format(testDate, { pattern: "[] DD MMM YYYY", locale: "bn-BD" })
+    ).toBe(" ৩১ মার্চ ২০২৬");
   });
 
   it("supports adjacent and nested-looking bracket literals", () => {
@@ -222,12 +235,11 @@ describe("format (pattern and mode)", () => {
   });
 
   it("rejects passing mode when pattern is also present", () => {
-    expect(
-      () =>
-        format(testDate, {
-          mode: "bangla",
-          pattern: "DD MMM YYYY"
-        } as never)
+    expect(() =>
+      format(testDate, {
+        mode: "bangla",
+        pattern: "DD MMM YYYY"
+      } as never)
     ).toThrow(
       "Do not pass `mode` when `pattern` is provided. `pattern` formatting does not use mode."
     );
@@ -243,6 +255,40 @@ describe("format (pattern and mode)", () => {
     expect(format(testDate, { mode: "bangla" })).toBe("17th Chaitra 1432");
     expect(format(testDate, { mode: "bangla", locale: "bn-BD" })).toBe(
       "১৭ই চৈত্র ১৪৩২"
+    );
+  });
+
+  it("supports hijri mode", () => {
+    expect(format(testDate, { mode: "hijri" })).toBe("11th Shawwal 1447 AH");
+    expect(format(testDate, { mode: "hijri", locale: "bn-BD" })).toBe(
+      "১১ই শাওয়াল ১৪৪৭ হিজরি"
+    );
+  });
+
+  it("uses ই for Hijri bn-BD days beyond 2", () => {
+    expect(
+      format(new Date(2026, 0, 22), { mode: "hijri", locale: "bn-BD" })
+    ).toMatch(/^২রা /);
+    expect(
+      format(new Date(2026, 0, 23), { mode: "hijri", locale: "bn-BD" })
+    ).toMatch(/^৩রা /);
+    expect(
+      format(new Date(2026, 0, 24), { mode: "hijri", locale: "bn-BD" })
+    ).toMatch(/^৪ঠা /);
+  });
+
+  it("keeps Hijri output stable on Gregorian boundary dates", () => {
+    const april14Utc = new Date(Date.UTC(2026, 3, 14));
+    const dec31Utc = new Date(Date.UTC(2026, 11, 31));
+
+    expect(format(april14Utc, { mode: "hijri" })).toBe("26th Shawwal 1447 AH");
+    expect(format(april14Utc, { mode: "hijri", locale: "bn-BD" })).toBe(
+      "২৬ই শাওয়াল ১৪৪৭ হিজরি"
+    );
+
+    expect(format(dec31Utc, { mode: "hijri" })).toBe("22nd Rajab 1448 AH");
+    expect(format(dec31Utc, { mode: "hijri", locale: "bn-BD" })).toBe(
+      "২২ই রজব ১৪৪৮ হিজরি"
     );
   });
 

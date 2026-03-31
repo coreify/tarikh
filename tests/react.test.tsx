@@ -109,9 +109,16 @@ describe("Tarikh", () => {
           format: "spoken"
         })
       );
+      const hijriHtml = renderToStaticMarkup(
+        createElement(Tarikh.Hijri, {
+          value: new Date(2026, 2, 31),
+          locale: "bn-BD"
+        })
+      );
 
       expect(relativeHtml).toContain("yesterday");
       expect(banglaHtml).toContain("পহেলা বৈশাখ ১৪৩৩");
+      expect(hijriHtml).toContain("১১ই শাওয়াল ১৪৪৭ হিজরি");
     } finally {
       vi.useRealTimers();
     }
@@ -191,5 +198,39 @@ describe("Tarikh.Relative", () => {
       })
     );
     expect(html).toContain("today");
+  });
+
+  it("renders Hijri compound component in English", () => {
+    const html = renderToStaticMarkup(
+      createElement(Tarikh.Hijri, {
+        value: new Date(2026, 2, 31)
+      })
+    );
+    expect(html).toContain("11th Shawwal 1447 AH");
+    expect(html).toContain("<time");
+  });
+
+  it("propagates range validation through all compound variants", () => {
+    const overflow = 8_640_000_000_000_001;
+    const message = "Date input is outside the supported range";
+
+    expect(() =>
+      renderToStaticMarkup(createElement(Tarikh, { value: overflow }))
+    ).toThrow(message);
+    expect(() =>
+      renderToStaticMarkup(
+        createElement(Tarikh.Relative, { value: overflow })
+      )
+    ).toThrow(message);
+    expect(() =>
+      renderToStaticMarkup(
+        createElement(Tarikh.Bangla, { value: overflow, locale: "bn-BD" })
+      )
+    ).toThrow(message);
+    expect(() =>
+      renderToStaticMarkup(
+        createElement(Tarikh.Hijri, { value: overflow, locale: "bn-BD" })
+      )
+    ).toThrow(message);
   });
 });
