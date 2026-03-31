@@ -154,6 +154,28 @@ describe("format (pattern and mode)", () => {
     ).toBe("মঙ্গল, ৩১ মার্চ ২০২৬ ৯:০৪ পূর্বাহ্ণ");
   });
 
+  it("supports bracket-escaped literals in patterns", () => {
+    const date = new Date(2026, 2, 31, 15, 4, 9);
+    expect(format(date, { pattern: "[Today at] h:mm a" })).toBe(
+      "Today at 3:04 pm"
+    );
+  });
+
+  it("does not treat raw placeholder-like text as escaped literals", () => {
+    expect(format(testDate, { pattern: "<<1>> DD MMM YYYY" })).toBe(
+      "<<1>> 31 Mar 2026"
+    );
+  });
+
+  it("treats the first closing bracket as the end of a literal block", () => {
+    const date = new Date(2026, 2, 31, 15, 4, 9);
+    expect(format(date, { pattern: "[x] ] h:mm" })).toBe("x ] 3:04");
+  });
+
+  it("treats unmatched opening bracket as plain text", () => {
+    expect(format(testDate, { pattern: "[Today h:mm a" })).toBe("[Today h:mm a");
+  });
+
   it("supports standard mode", () => {
     expect(format(testDate, { mode: "standard" })).toBe("31 Mar 2026");
     expect(format(testDate, { mode: "standard", locale: "bn-BD" })).toBe(
@@ -161,13 +183,16 @@ describe("format (pattern and mode)", () => {
     );
   });
 
-  it("lets pattern win when mode is also present", () => {
+  it("rejects passing mode when pattern is also present", () => {
     expect(
-      format(testDate, {
-        mode: "bangla",
-        pattern: "DD MMM YYYY"
-      })
-    ).toBe("31 Mar 2026");
+      () =>
+        format(testDate, {
+          mode: "bangla",
+          pattern: "DD MMM YYYY"
+        } as never)
+    ).toThrow(
+      "Do not pass `mode` when `pattern` is provided. `pattern` formatting does not use mode."
+    );
   });
 
   it("supports bangla mode", () => {
@@ -288,6 +313,30 @@ describe("format input validation", () => {
         monthFormat: "wide" as never
       })
     ).toThrow("Invalid month format for hybrid mode");
+  });
+
+  it("rejects invalid mode values", () => {
+    expect(() => format(testDate, { mode: "legacy" as never })).toThrow(
+      "Invalid format mode: legacy"
+    );
+  });
+
+  it("rejects invalid weekday format in standard mode", () => {
+    expect(() =>
+      format(testDate, { mode: "standard", weekday: "wide" as never })
+    ).toThrow("Invalid weekday format for standard mode");
+  });
+
+  it("rejects invalid time token formats in standard mode", () => {
+    expect(() =>
+      format(testDate, { mode: "standard", hour: "wide" as never })
+    ).toThrow("Invalid hour format for standard mode");
+    expect(() =>
+      format(testDate, { mode: "standard", minute: "wide" as never })
+    ).toThrow("Invalid minute format for standard mode");
+    expect(() =>
+      format(testDate, { mode: "standard", second: "wide" as never })
+    ).toThrow("Invalid second format for standard mode");
   });
 });
 

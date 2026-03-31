@@ -69,6 +69,18 @@ describe("parseDate", () => {
     const compactOffset = parseDate("2026-03-31T15:30:00+0600");
     expect(compactOffset).toBeInstanceOf(Date);
     expect(compactOffset!.toISOString()).toBe("2026-03-31T09:30:00.000Z");
+
+    const negativeOffset = parseDate("2026-03-31T15:30:00-05:30");
+    expect(negativeOffset).toBeInstanceOf(Date);
+    expect(negativeOffset!.toISOString()).toBe("2026-03-31T21:00:00.000Z");
+  });
+
+  it("rejects ISO datetime strings with invalid timezone offsets", () => {
+    expect(parseDate("2026-03-31T15:30:00+24:00")).toBeNull();
+    expect(parseDate("2026-03-31T15:30:00+00:60")).toBeNull();
+    expect(parseDate("2026-03-31T15:30:00+9999")).toBeNull();
+    expect(parseDate("2026-03-31T15:30:00-24:00")).toBeNull();
+    expect(parseDate("2026-03-31T15:30:00-00:60")).toBeNull();
   });
 
   it("parses local ISO datetime strings without timezone", () => {

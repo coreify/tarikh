@@ -77,12 +77,18 @@ function parseIsoDateTime(input: string): Date | null {
   }
 
   const offsetMatch = timezone.match(/^([+-])(\d{2}):?(\d{2})$/);
+  const offsetHours = offsetMatch ? Number(offsetMatch[2]) : null;
+  const offsetMins = offsetMatch ? Number(offsetMatch[3]) : null;
+  const isValidOffset =
+    offsetHours !== null &&
+    offsetMins !== null &&
+    offsetHours <= 23 &&
+    offsetMins <= 59;
   const offsetMinutes =
     timezone === "Z"
       ? 0
-      : offsetMatch
-        ? (offsetMatch[1] === "+" ? 1 : -1) *
-          (Number(offsetMatch[2]) * 60 + Number(offsetMatch[3]))
+      : offsetMatch && isValidOffset
+        ? (offsetMatch[1] === "+" ? 1 : -1) * (offsetHours * 60 + offsetMins)
         : null;
 
   if (offsetMinutes === null) return null;

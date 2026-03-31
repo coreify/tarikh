@@ -128,6 +128,34 @@ function formatDateCore(
     ["numeric", "2-digit"],
     "day format for standard mode"
   );
+  if (weekdayFormat !== undefined) {
+    assertAllowedValue(
+      weekdayFormat,
+      ["short", "long"],
+      "weekday format for standard mode"
+    );
+  }
+  if (hourFormat !== undefined) {
+    assertAllowedValue(
+      hourFormat,
+      ["numeric", "2-digit"],
+      "hour format for standard mode"
+    );
+  }
+  if (minuteFormat !== undefined) {
+    assertAllowedValue(
+      minuteFormat,
+      ["numeric", "2-digit"],
+      "minute format for standard mode"
+    );
+  }
+  if (secondFormat !== undefined) {
+    assertAllowedValue(
+      secondFormat,
+      ["numeric", "2-digit"],
+      "second format for standard mode"
+    );
+  }
 
   const day = date.getDate();
   const monthIndex = date.getMonth();
@@ -229,7 +257,30 @@ function formatPatternCore(
 
   const pattern =
     /dddd|ddd|MMMM|MMM|MM|M|DD|D|YYYY|YY|HH|H|hh|h|mm|m|ss|s|A|a/g;
-  const formatted = template.replace(pattern, (match) => tokens[match]!);
+
+  const replaceTokens = (segment: string): string =>
+    segment.replace(pattern, (match) => tokens[match]!);
+
+  let formatted = "";
+  let cursor = 0;
+
+  while (cursor < template.length) {
+    const literalStart = template.indexOf("[", cursor);
+    if (literalStart === -1) {
+      formatted += replaceTokens(template.slice(cursor));
+      break;
+    }
+
+    formatted += replaceTokens(template.slice(cursor, literalStart));
+    const literalEnd = template.indexOf("]", literalStart + 1);
+    if (literalEnd === -1) {
+      formatted += template.slice(literalStart);
+      break;
+    }
+
+    formatted += template.slice(literalStart + 1, literalEnd);
+    cursor = literalEnd + 1;
+  }
 
   return isBn ? toBanglaDigits(formatted) : formatted;
 }
@@ -240,6 +291,11 @@ export function format(input: DateInput, options: FormatOptions): string {
   }
 
   if ("pattern" in options && options.pattern !== undefined) {
+    if ("mode" in options && options.mode !== undefined) {
+      throw new TypeError(
+        "Do not pass `mode` when `pattern` is provided. `pattern` formatting does not use mode."
+      );
+    }
     const locale =
       "locale" in options && options.locale !== undefined ? options.locale : "en-BD";
     return formatPatternCore(input, options.pattern, locale);
@@ -259,6 +315,8 @@ export function format(input: DateInput, options: FormatOptions): string {
         input,
         options as HybridDateFormatOptions | undefined
       );
+    default:
+      throw new TypeError(`Invalid format mode: ${String(mode)}`);
   }
 }
 

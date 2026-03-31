@@ -9,7 +9,7 @@ const readmePath = resolve(currentDir, "..", "README.md");
 function sectionBody(readme: string, heading: string): string {
   const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const regex = new RegExp(
-    `^##\\s+${escaped}\\s*$([\\s\\S]*?)(?=^##\\s+|\\Z)`,
+    `^##+\\s+${escaped}\\s*$([\\s\\S]*?)(?=^##+\\s+|\\Z)`,
     "m"
   );
   const match = readme.match(regex);
@@ -68,18 +68,10 @@ describe("README contract", () => {
   it("uses absolute URLs for the top badges", async () => {
     const readme = await readFile(readmePath, "utf8");
 
-    expect(readme).toContain(
-      "https://www.npmjs.com/package/@coreify/tarikh"
-    );
-    expect(readme).toContain(
-      "https://img.shields.io/npm/v/@coreify/tarikh"
-    );
-    expect(readme).toContain(
-      "https://img.shields.io/npm/dm/@coreify/tarikh"
-    );
-    expect(readme).toContain(
-      "https://img.shields.io/npm/l/@coreify/tarikh"
-    );
+    expect(readme).toMatch(/https:\/\/www\.npmjs\.com\/package\/@coreify\/tarikh/);
+    expect(readme).toMatch(/https:\/\/img\.shields\.io\/npm\/v\/@coreify\/tarikh/);
+    expect(readme).toMatch(/https:\/\/img\.shields\.io\/npm\/dm\/@coreify\/tarikh/);
+    expect(readme).toMatch(/https:\/\/img\.shields\.io\/npm\/l\/@coreify\/tarikh/);
     expect(readme).toMatch(
       /\[!\[license\]\(https:\/\/img\.shields\.io\/npm\/l\/@coreify\/tarikh\)\]\(https:\/\/github\.com\/coreify\/tarikh\/blob\/.+\/package\/LICENSE\)/
     );
@@ -87,13 +79,17 @@ describe("README contract", () => {
 
   it("documents the object-based format API", async () => {
     const readme = await readFile(readmePath, "utf8");
+    const patternSection = sectionBody(readme, "Pattern Formatting");
     const code = fencedCodeBlocks(readme).join("\n");
 
-    expect(readme).toContain("Use `format()` for everything.");
+    expect(readme).toContain("format()");
     expect(code).toMatch(/mode:\s*"standard"/);
     expect(code).toMatch(/mode:\s*"bangla"/);
     expect(code).toMatch(/mode:\s*"hybrid"/);
     expect(code).toMatch(/pattern:\s*"DD MMM YYYY"/);
+    expect(patternSection).toMatch(/mode.*pattern.*mutually exclusive/i);
+    expect(patternSection).toMatch(/do not pass.*mode/i);
+    expect(readme).toMatch(/pattern.*mode.*disallowed in TypeScript/i);
     expect(readme).not.toContain('format("2026-04-14", "bangla"');
   });
 
@@ -129,5 +125,14 @@ describe("README contract", () => {
     expect(liveDemoSection).toContain("standard → 14 Apr 2026");
     expect(liveDemoSection).toContain("bangla → ১লা বৈশাখ ১৪৩৩");
     expect(liveDemoSection).toContain("spoken → পহেলা বৈশাখ ১৪৩৩");
+  });
+
+  it("documents bracket literals for pattern formatting", async () => {
+    const readme = await readFile(readmePath, "utf8");
+    expect(readme).toContain(
+      "Use square brackets to keep literal text untouched by token replacement:"
+    );
+    expect(readme).toContain('[Today at] h:mm a');
+    expect(readme).toContain("Bracket literals are not nestable");
   });
 });

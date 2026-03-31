@@ -184,7 +184,18 @@ format(new Date(2026, 2, 31, 21, 4, 9), {
 
 `format()` is the primary API. Choose `{ mode }` for date behavior or `{ pattern }` for token formatting.
 
+`mode` and `pattern` are mutually exclusive. If you pass `pattern`, do not pass `mode`.
+
 **Tokens:** `dddd`, `ddd`, `DD`, `D`, `MMMM`, `MMM`, `MM`, `M`, `YYYY`, `YY`, `HH`, `H`, `hh`, `h`, `mm`, `m`, `ss`, `s`, `A`, `a`
+
+Use square brackets to keep literal text untouched by token replacement:
+
+```ts
+format(new Date(2026, 2, 31, 15, 4), { pattern: "[Today at] h:mm a" });
+// → "Today at 3:04 pm"
+```
+
+Bracket literals are not nestable; the first `]` closes the literal block.
 
 ## 🇧🇩 Bangla Calendar (Core Feature)
 
@@ -447,6 +458,8 @@ If you're building for Bangladesh, existing libraries are not enough.
 ## TypeScript
 
 Fully typed with strict mode. Core option interfaces and value types are exported from `@coreify/tarikh`.
+
+Type-level contract note: when using `pattern`, `mode` is intentionally disallowed in TypeScript.
 
 ```ts
 import type {
