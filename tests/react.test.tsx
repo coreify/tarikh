@@ -8,7 +8,7 @@ describe("Tarikh", () => {
     const html = renderToStaticMarkup(
       createElement(Tarikh, { value: "2026-03-31" })
     );
-    expect(html).toContain("31 Mar 2026");
+    expect(html).toContain("31st Mar 2026");
     expect(html).toContain("<time");
     expect(html).toContain('dateTime="2026-03-31"');
   });
@@ -36,7 +36,7 @@ describe("Tarikh", () => {
         locale: "bn-BD"
       })
     );
-    expect(html).toContain("৩১ মার্চ ২০২৬");
+    expect(html).toContain("৩১শে মার্চ ২০২৬");
   });
 
   it("supports long month format", () => {
@@ -58,14 +58,14 @@ describe("Tarikh", () => {
         minute: "2-digit"
       })
     );
-    expect(html).toContain("Tue, 31 Mar 2026, 15:04");
+    expect(html).toContain("Tue, 31st Mar 2026, 15:04");
   });
 
   it("includes aria-label", () => {
     const html = renderToStaticMarkup(
       createElement(Tarikh, { value: new Date(2026, 2, 31) })
     );
-    expect(html).toContain('aria-label="31 Mar 2026"');
+    expect(html).toContain('aria-label="31st Mar 2026"');
   });
 
   it("prefers srLabel over aria-label", () => {

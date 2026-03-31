@@ -5,25 +5,25 @@ const testDate = new Date(2026, 2, 31); // March 31, 2026
 
 describe("format (standard mode)", () => {
   it("formats in en-BD by default", () => {
-    expect(format(testDate, { mode: "standard" })).toBe("31 Mar 2026");
+    expect(format(testDate, { mode: "standard" })).toBe("31st Mar 2026");
   });
 
   it("formats in bn-BD with Bangla digits and months", () => {
     expect(format(testDate, { mode: "standard", locale: "bn-BD" })).toBe(
-      "৩১ মার্চ ২০২৬"
+      "৩১শে মার্চ ২০২৬"
     );
   });
 
   it("respects long month format", () => {
     expect(format(testDate, { mode: "standard", month: "long" })).toBe(
-      "31 March 2026"
+      "31st March 2026"
     );
   });
 
   it("respects long month format in bn-BD", () => {
     expect(
       format(testDate, { mode: "standard", locale: "bn-BD", month: "long" })
-    ).toBe("৩১ মার্চ ২০২৬");
+    ).toBe("৩১শে মার্চ ২০২৬");
   });
 
   it("respects 2-digit year", () => {
@@ -41,10 +41,10 @@ describe("format (standard mode)", () => {
 
   it("supports weekday output", () => {
     expect(format(testDate, { mode: "standard", weekday: "short" })).toBe(
-      "Tue, 31 Mar 2026"
+      "Tue, 31st Mar 2026"
     );
     expect(format(testDate, { mode: "standard", weekday: "long" })).toBe(
-      "Tuesday, 31 Mar 2026"
+      "Tuesday, 31st Mar 2026"
     );
   });
 
@@ -56,7 +56,7 @@ describe("format (standard mode)", () => {
         hour: "numeric",
         minute: "2-digit"
       })
-    ).toBe("31 Mar 2026, 15:04");
+    ).toBe("31st Mar 2026, 15:04");
     expect(
       format(date, {
         mode: "standard",
@@ -65,7 +65,7 @@ describe("format (standard mode)", () => {
         second: "2-digit",
         hour12: true
       })
-    ).toBe("31 Mar 2026, 03:04:09 PM");
+    ).toBe("31st Mar 2026, 03:04:09 PM");
   });
 
   it("supports weekday and time in bn-BD", () => {
@@ -80,16 +80,16 @@ describe("format (standard mode)", () => {
         second: "2-digit",
         hour12: true
       })
-    ).toBe("মঙ্গল, ৩১ মার্চ ২০২৬, ৯:০৫:০৭ পূর্বাহ্ণ");
+    ).toBe("মঙ্গল, ৩১শে মার্চ ২০২৬, ৯:০৫:০৭ পূর্বাহ্ণ");
   });
 
   it("accepts string input", () => {
-    expect(format("2026-03-31", { mode: "standard" })).toBe("31 Mar 2026");
+    expect(format("2026-03-31", { mode: "standard" })).toBe("31st Mar 2026");
   });
 
   it("accepts timestamp input", () => {
     expect(format(testDate.getTime(), { mode: "standard" })).toBe(
-      "31 Mar 2026"
+      "31st Mar 2026"
     );
   });
 
@@ -215,9 +215,9 @@ describe("format (pattern and mode)", () => {
   });
 
   it("supports standard mode", () => {
-    expect(format(testDate, { mode: "standard" })).toBe("31 Mar 2026");
+    expect(format(testDate, { mode: "standard" })).toBe("31st Mar 2026");
     expect(format(testDate, { mode: "standard", locale: "bn-BD" })).toBe(
-      "৩১ মার্চ ২০২৬"
+      "৩১শে মার্চ ২০২৬"
     );
   });
 
@@ -261,11 +261,11 @@ describe("format (pattern and mode)", () => {
 
 describe("format (bangla mode)", () => {
   it("defaults to English digits and Latin month names", () => {
-    expect(format("2026-03-31", { mode: "bangla" })).toBe("17 Chaitra 1432");
+    expect(format("2026-03-31", { mode: "bangla" })).toBe("17th Chaitra 1432");
   });
 
   it("formats Pohela Baishakh in English by default", () => {
-    expect(format("2026-04-14", { mode: "bangla" })).toBe("1 Baishakh 1433");
+    expect(format("2026-04-14", { mode: "bangla" })).toBe("1st Baishakh 1433");
   });
 
   it("uses Bangla digits and month names when locale is bn-BD", () => {
@@ -299,7 +299,7 @@ describe("format (bangla mode)", () => {
   });
 
   it("accepts Date object", () => {
-    expect(format(testDate, { mode: "bangla" })).toBe("17 Chaitra 1432");
+    expect(format(testDate, { mode: "bangla" })).toBe("17th Chaitra 1432");
   });
 });
 

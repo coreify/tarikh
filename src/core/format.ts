@@ -33,6 +33,22 @@ function banglaDayOrdinal(day: number): string {
   return `${digits}ই`;
 }
 
+function englishDayOrdinal(day: number): string {
+  const mod100 = day % 100;
+  if (mod100 >= 11 && mod100 <= 13) return `${day}th`;
+
+  switch (day % 10) {
+    case 1:
+      return `${day}st`;
+    case 2:
+      return `${day}nd`;
+    case 3:
+      return `${day}rd`;
+    default:
+      return `${day}th`;
+  }
+}
+
 function banglaDaySpoken(
   day: number,
   variant: "pohela" | "poyla" = "pohela"
@@ -171,7 +187,11 @@ function formatDateCore(
   const year = date.getFullYear();
 
   const dayStr =
-    dayFormat === "2-digit" ? String(day).padStart(2, "0") : String(day);
+    dayFormat === "2-digit"
+      ? String(day).padStart(2, "0")
+      : isBn
+        ? banglaDayOrdinal(day)
+        : englishDayOrdinal(day);
 
   const monthNames = isBn
     ? monthFormat === "short"
@@ -351,7 +371,7 @@ function formatBanglaCalendarCore(
     return `${formatBanglaCalendarDay(calendar.day, dayOptions)} ${BANGLA_CALENDAR_MONTHS[monthIndex]!} ${toBanglaDigits(calendar.year)}`;
   }
 
-  return `${calendar.day} ${calendar.month} ${calendar.year}`;
+  return `${englishDayOrdinal(calendar.day)} ${calendar.month} ${calendar.year}`;
 }
 
 function formatHybridDateCore(

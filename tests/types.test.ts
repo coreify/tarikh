@@ -24,7 +24,7 @@ describe("type-level format contract", () => {
     acceptsFormatOptions({ mode: "bangla", pattern: "DD MMM YYYY" });
 
     expect(format("2026-03-31", patternOnly)).toBe("31 Mar 2026");
-    expect(format("2026-03-31", standardOnly)).toBe("31 Mar 2026");
+    expect(format("2026-03-31", standardOnly)).toBe("31st Mar 2026");
     expect(format("2026-03-31", banglaOnly)).toBe("17 Chaitra 1432");
     expect(format("2026-03-31", hybridOnly)).toBe("31 মার্চ 2026");
   });

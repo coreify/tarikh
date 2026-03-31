@@ -28,7 +28,7 @@ External demo: [tarikh.js.org](https://tarikh.js.org)
 JavaScript's `Intl.DateTimeFormat` and libraries like Day.js / date-fns don't solve these problems:
 
 - **Bangla calendar** — Convert Gregorian dates to Bengali calendar (বৈশাখ, চৈত্র, etc.)
-- **Bangla digits** — Render `৩১ মার্চ ২০২৬` instead of `31 March 2026`
+- **Bangla digits** — Render `৩১শে মার্চ ২০২৬` instead of `31st March 2026`
 - **Hybrid formatting** — Mix English and Bangla in a single date string
 - **Weekday and time formatting** — Render weekday, hour, minute, and second output
 - **Natural relative time** — Use `yesterday`, `tomorrow`, `গতকাল`, `আগামীকাল`, etc.
@@ -69,7 +69,7 @@ toBanglaCalendar("2026-03-31", { locale: "bn-BD" });
 // → { day: "১৭", month: "চৈত্র", monthIndex: 12, year: "১৪৩২" }
 
 format("2026-03-31", { mode: "bangla" });
-// → "17 Chaitra 1432"
+// → "17th Chaitra 1432"
 
 format("2026-03-31", { mode: "bangla", locale: "bn-BD" });
 // → "১৭ই চৈত্র ১৪৩২"
@@ -83,7 +83,7 @@ format(new Date(2026, 2, 31, 15, 4), {
   hour: "numeric",
   minute: "2-digit"
 });
-// → "Tue, 31 Mar 2026, 15:04"
+// → "Tue, 31st Mar 2026, 15:04"
 
 format(new Date(2026, 2, 31, 21, 4, 9), {
   mode: "standard",
@@ -93,7 +93,7 @@ format(new Date(2026, 2, 31, 21, 4, 9), {
   second: "2-digit",
   hour12: true
 });
-// → "Tuesday, 31 Mar 2026, 09:04:09 PM"
+// → "Tuesday, 31st Mar 2026, 09:04:09 PM"
 
 fromNow(new Date(Date.now() - 86400000), { numeric: "auto" });
 // → "yesterday"
@@ -118,13 +118,13 @@ format(new Date(), { mode: "bangla", locale: "bn-BD" });
 import { format } from "@coreify/tarikh";
 
 format(new Date(), { mode: "standard" });
-// → "31 Mar 2026"
+// → "31st Mar 2026"
 
 format(new Date(), { mode: "standard", locale: "bn-BD" });
-// → "৩১ মার্চ ২০২৬"
+// → "৩১শে মার্চ ২০২৬"
 
 format(new Date(), { mode: "standard", month: "long", year: "2-digit" });
-// → "31 March 26"
+// → "31st March 26"
 
 format(new Date(2026, 2, 31, 15, 4, 9), {
   mode: "standard",
@@ -134,7 +134,7 @@ format(new Date(2026, 2, 31, 15, 4, 9), {
   second: "2-digit",
   hour12: true
 });
-// → "Tuesday, 31 Mar 2026, 03:04:09 PM"
+// → "Tuesday, 31st Mar 2026, 03:04:09 PM"
 ```
 
 **Options:** `locale` (`"en-BD"` | `"bn-BD"`), `month` (`"short"` | `"long"`), `year` (`"numeric"` | `"2-digit"`), `day` (`"numeric"` | `"2-digit"`), `weekday` (`"short"` | `"long"`), `hour` / `minute` / `second` (`"numeric"` | `"2-digit"`), `hour12` (`boolean`)
@@ -218,7 +218,7 @@ format("2026-03-31", { mode: "bangla", locale: "bn-BD" });
 // → "১৭ই চৈত্র ১৪৩২"
 
 format("2026-04-14", { mode: "bangla" });
-// → "1 Baishakh 1433"
+// → "1st Baishakh 1433"
 
 format("2026-04-14", { mode: "bangla", locale: "bn-BD", format: "spoken" });
 // → "পহেলা বৈশাখ ১৪৩৩"
