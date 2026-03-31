@@ -116,14 +116,11 @@ describe("README contract", () => {
     const reactSection = sectionBody(readme, "React Components");
 
     expect(reactSection).toContain('import { Tarikh } from "@coreify/tarikh/react";');
-    expect(reactSection).toContain("<Tarikh value={new Date()} />");
-    expect(reactSection).toContain("<Tarikh.Relative value={new Date()} />");
-    expect(reactSection).toContain(
-      '<Tarikh.Bangla value={new Date()} locale="bn-BD" />'
-    );
-    expect(reactSection).toContain(
-      '<Tarikh.Hijri value={new Date()} locale="bn-BD" />'
-    );
+    expect(reactSection).toContain('const date = "2026-03-31";');
+    expect(reactSection).toContain('<Tarikh value={date} />');
+    expect(reactSection).toContain('<Tarikh.Relative value={date} />');
+    expect(reactSection).toContain('<Tarikh.Bangla value={date} locale="bn-BD" />');
+    expect(reactSection).toContain('<Tarikh.Hijri value={date} locale="bn-BD" />');
     expect(reactSection).not.toContain("import { RelativeTime");
     expect(reactSection).not.toContain("import { BanglaDate");
   });

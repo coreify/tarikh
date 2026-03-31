@@ -71,13 +71,13 @@ import {
 const [defaultHijriZone, utcHijriZone] = HIJRI_TIME_ZONES;
 
 // Preferred entry points:
-format(new Date(), { mode: "standard" });
-format(new Date(), { mode: "bangla" });
-format(new Date(), { mode: "hijri" });
-format(new Date(), { mode: "hybrid" });
+format("2026-03-31", { mode: "standard" });
+format("2026-03-31", { mode: "bangla" });
+format("2026-03-31", { mode: "hijri" });
+format("2026-03-31", { mode: "hybrid" });
 
 // Token-based output still works.
-format(new Date(), { pattern: "DD MMM YYYY" });
+format("2026-03-31", { pattern: "DD MMM YYYY" });
 // → "31 Mar 2026"
 
 // Structured Bangla calendar conversion
@@ -139,17 +139,17 @@ format(new Date(2026, 2, 31, 21, 4, 9), {
 // → "Tuesday, 31st Mar 2026, 09:04:09 PM"
 
 fromNow(new Date(Date.now() - 86400000), { numeric: "auto" });
-// → "yesterday"
+// Output depends on the current clock.
 
 fromNow(new Date(), { numeric: "auto" });
-// → "today"
+// Output depends on the current clock.
 ```
 
 > Use `format()` for everything. Choose a mode (`standard`, `bangla`, `hijri`, `hybrid`) or pass a token pattern.
 
 ```ts
 // Show today's Bangla date in your app header
-format(new Date(), { mode: "bangla", locale: "bn-BD" });
+format("2026-03-31", { mode: "bangla", locale: "bn-BD" });
 // → "১৭ চৈত্র ১৪৩২ বঙ্গাব্দ"
 ```
 
@@ -160,13 +160,13 @@ format(new Date(), { mode: "bangla", locale: "bn-BD" });
 ```ts
 import { format } from "@coreify/tarikh";
 
-format(new Date(), { mode: "standard" });
+format("2026-03-31", { mode: "standard" });
 // → "31st Mar 2026"
 
-format(new Date(), { mode: "standard", locale: "bn-BD" });
+format("2026-03-31", { mode: "standard", locale: "bn-BD" });
 // → "৩১শে মার্চ ২০২৬ খ্রিস্টাব্দ"
 
-format(new Date(), { mode: "standard", month: "long", year: "2-digit" });
+format("2026-03-31", { mode: "standard", month: "long", year: "2-digit" });
 // → "31st March 26"
 
 format(new Date(2026, 2, 31, 15, 4, 9), {
@@ -187,13 +187,13 @@ format(new Date(2026, 2, 31, 15, 4, 9), {
 ```ts
 import { format } from "@coreify/tarikh";
 
-format(new Date(), { pattern: "DD MMM YYYY" });
+format("2026-03-31", { pattern: "DD MMM YYYY" });
 // → "31 Mar 2026"
 
-format(new Date(), { pattern: "DD MMMM YYYY", locale: "bn-BD" });
+format("2026-03-31", { pattern: "DD MMMM YYYY", locale: "bn-BD" });
 // → "৩১ মার্চ ২০২৬"
 
-format(new Date(), { pattern: "DD/MM/YYYY" });
+format("2026-03-31", { pattern: "DD/MM/YYYY" });
 // → "31/03/2026"
 
 format(new Date(2026, 2, 31, 15, 4, 9), {
@@ -272,7 +272,7 @@ format("2026-04-14", {
 // → "পয়লা বৈশাখ ১৪৩৩ বঙ্গাব্দ"
 
 // Show today's Bangla date in your app header
-format(new Date(), { mode: "bangla", locale: "bn-BD" });
+format("2026-03-31", { mode: "bangla", locale: "bn-BD" });
 // → "১৭ চৈত্র ১৪৩২ বঙ্গাব্দ" (example; depends on the current date)
 
 formatBanglaCalendarDay(21);
@@ -334,10 +334,10 @@ format("2026-03-31", { mode: "hijri", locale: "bn-BD" });
 ```ts
 import { format } from "@coreify/tarikh";
 
-format(new Date(), { mode: "hybrid" });
+format("2026-03-31", { mode: "hybrid" });
 // → "31 মার্চ 2026"
 
-format(new Date(), {
+format("2026-03-31", {
   mode: "hybrid",
   digits: "bn",
   month: "bn",
@@ -364,22 +364,22 @@ toEnglishDigits("৩১ মার্চ ২০২৬");
 import { fromNow } from "@coreify/tarikh";
 
 fromNow(new Date(Date.now() - 86400000));
-// → "1 day ago"
+// Output depends on the current clock.
 
 fromNow(new Date(Date.now() - 86400000), { locale: "bn-BD" });
-// → "১ দিন আগে"
+// Output depends on the current clock.
 
 fromNow(new Date(Date.now() + 3600000));
-// → "in 1 hour"
+// Output depends on the current clock.
 
 fromNow(new Date(Date.now() - 86400000), { numeric: "auto" });
-// → "yesterday"
+// Output depends on the current clock.
 
 fromNow(new Date(Date.now() + 86400000), {
   locale: "bn-BD",
   numeric: "auto"
 });
-// → "আগামীকাল"
+// Output depends on the current clock.
 ```
 
 ### Parsing
@@ -497,10 +497,12 @@ import {
 ```tsx
 import { Tarikh } from "@coreify/tarikh/react";
 
-<Tarikh value={new Date()} />
-<Tarikh.Relative value={new Date()} />
-<Tarikh.Bangla value={new Date()} locale="bn-BD" />
-<Tarikh.Hijri value={new Date()} locale="bn-BD" />
+const date = "2026-03-31";
+
+<Tarikh value={date} />
+<Tarikh.Relative value={date} />
+<Tarikh.Bangla value={date} locale="bn-BD" />
+<Tarikh.Hijri value={date} locale="bn-BD" />
 ```
 
 ```bash
