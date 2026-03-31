@@ -1,8 +1,37 @@
 # @coreify/tarikh
 
-The Bangladeshi date toolkit for modern apps.
+[![npm version](https://img.shields.io/npm/v/@coreify/tarikh)](https://www.npmjs.com/package/@coreify/tarikh)
+[![downloads](https://img.shields.io/npm/dm/@coreify/tarikh)](https://www.npmjs.com/package/@coreify/tarikh)
+[![license](https://img.shields.io/npm/l/@coreify/tarikh)](https://github.com/coreify/tarikh/blob/main/package/LICENSE)
 
-Format dates, render Bangla calendar, and handle localization correctly.
+The first JavaScript date library with full Bangla calendar support.
+
+Built for Bangla dates, Bengali calendar conversion, and culturally correct formatting.
+
+## At a Glance
+
+```ts
+format("2026-04-14", {
+  mode: "bangla",
+  locale: "bn-BD",
+  format: "spoken"
+});
+// → "পহেলা বৈশাখ ১৪৩৩"
+```
+
+## Live Demo
+
+Try the interactive docs demo at [tarikh.js.org](https://tarikh.js.org) to compare standard, Bangla, spoken, and hybrid outputs side by side.
+
+```text
+Input:
+2026-04-14
+
+Output:
+standard → 14 Apr 2026
+bangla → ১লা বৈশাখ ১৪৩৩
+spoken → পহেলা বৈশাখ ১৪৩৩
+```
 
 ## Why this exists
 
@@ -27,14 +56,19 @@ npm install @coreify/tarikh
 
 ```ts
 import {
-  formatDate,
-  formatBanglaCalendar,
+  format,
   fromNow,
   toBanglaCalendar
 } from "@coreify/tarikh";
 
-formatDate(new Date(), { locale: "bn-BD" });
-// → "৩১ মার্চ ২০২৬"
+// Preferred entry points:
+format(new Date(), { mode: "standard" });
+format(new Date(), { mode: "bangla" });
+format(new Date(), { mode: "hybrid" });
+
+// Token-based output still works.
+format(new Date(), { pattern: "DD MMM YYYY" });
+// → "31 Mar 2026"
 
 // Structured Bangla calendar conversion
 // `monthIndex` stays numeric; `bn-BD` localizes `day`, `month`, and `year`.
@@ -44,23 +78,25 @@ toBanglaCalendar("2026-03-31");
 toBanglaCalendar("2026-03-31", { locale: "bn-BD" });
 // → { day: "১৭", month: "চৈত্র", monthIndex: 12, year: "১৪৩২" }
 
-formatBanglaCalendar("2026-03-31");
+format("2026-03-31", { mode: "bangla" });
 // → "17 Chaitra 1432"
 
-formatBanglaCalendar("2026-03-31", { locale: "bn-BD" });
+format("2026-03-31", { mode: "bangla", locale: "bn-BD" });
 // → "১৭ই চৈত্র ১৪৩২"
 
-formatBanglaCalendar("2026-04-14", { locale: "bn-BD" });
+format("2026-04-14", { mode: "bangla", locale: "bn-BD" });
 // → "১লা বৈশাখ ১৪৩৩"
 
-formatDate(new Date(2026, 2, 31, 15, 4), {
+format(new Date(2026, 2, 31, 15, 4), {
+  mode: "standard",
   weekday: "short",
   hour: "numeric",
   minute: "2-digit"
 });
 // → "Tue, 31 Mar 2026, 15:04"
 
-formatDate(new Date(2026, 2, 31, 21, 4, 9), {
+format(new Date(2026, 2, 31, 21, 4, 9), {
+  mode: "standard",
   weekday: "long",
   hour: "2-digit",
   minute: "2-digit",
@@ -76,23 +112,32 @@ fromNow(new Date(), { numeric: "auto" });
 // → "today"
 ```
 
-## Features
-
-### Date Formatting
+Use `format()` for everything. Choose a mode (`standard`, `bangla`, `hybrid`) or pass a token pattern.
 
 ```ts
-import { formatDate } from "@coreify/tarikh";
+// Show today's Bangla date in your app header
+format(new Date(), { mode: "bangla", locale: "bn-BD" });
+// → "১৭ চৈত্র ১৪৩২"
+```
 
-formatDate(new Date());
+## Features
+
+### Standard Formatting
+
+```ts
+import { format } from "@coreify/tarikh";
+
+format(new Date(), { mode: "standard" });
 // → "31 Mar 2026"
 
-formatDate(new Date(), { locale: "bn-BD" });
+format(new Date(), { mode: "standard", locale: "bn-BD" });
 // → "৩১ মার্চ ২০২৬"
 
-formatDate(new Date(), { month: "long", year: "2-digit" });
+format(new Date(), { mode: "standard", month: "long", year: "2-digit" });
 // → "31 March 26"
 
-formatDate(new Date(2026, 2, 31, 15, 4, 9), {
+format(new Date(2026, 2, 31, 15, 4, 9), {
+  mode: "standard",
   weekday: "long",
   hour: "2-digit",
   minute: "2-digit",
@@ -102,51 +147,63 @@ formatDate(new Date(2026, 2, 31, 15, 4, 9), {
 // → "Tuesday, 31 Mar 2026, 03:04:09 PM"
 ```
 
+Use `format()` for everything. Pass an object with `mode` (`standard`, `bangla`, `hybrid`) or `pattern`.
+
 **Options:** `locale` (`"en-BD"` | `"bn-BD"`), `month` (`"short"` | `"long"`), `year` (`"numeric"` | `"2-digit"`), `day` (`"numeric"` | `"2-digit"`), `weekday` (`"short"` | `"long"`), `hour` / `minute` / `second` (`"numeric"` | `"2-digit"`), `hour12` (`boolean`)
 
-### Token-based Formatting
+### Pattern Formatting
 
 ```ts
 import { format } from "@coreify/tarikh";
 
-format(new Date(), "DD MMM YYYY");
+format(new Date(), { pattern: "DD MMM YYYY" });
 // → "31 Mar 2026"
 
-format(new Date(), "DD MMMM YYYY", { locale: "bn-BD" });
+format(new Date(), { pattern: "DD MMMM YYYY", locale: "bn-BD" });
 // → "৩১ মার্চ ২০২৬"
 
-format(new Date(), "DD/MM/YYYY");
+format(new Date(), { pattern: "DD/MM/YYYY" });
 // → "31/03/2026"
 
-format(new Date(2026, 2, 31, 15, 4, 9), "ddd, D MMM YYYY HH:mm:ss");
+format(new Date(2026, 2, 31, 15, 4, 9), {
+  pattern: "ddd, D MMM YYYY HH:mm:ss"
+});
 // → "Tue, 31 Mar 2026 15:04:09"
 
-format(new Date(2026, 2, 31, 9, 4), "ddd, D MMM YYYY h:mm a", {
+format(new Date(2026, 2, 31, 9, 4), {
+  pattern: "ddd, D MMM YYYY h:mm a",
   locale: "bn-BD"
 });
 // → "মঙ্গল, ৩১ মার্চ ২০২৬ ৯:০৪ পূর্বাহ্ণ"
 
-format(new Date(2026, 2, 31, 21, 4, 9), "dddd, D MMM YYYY hh:mm:ss A");
+format(new Date(2026, 2, 31, 21, 4, 9), {
+  pattern: "dddd, D MMM YYYY hh:mm:ss A"
+});
 // → "Tuesday, 31 Mar 2026 09:04:09 PM"
 ```
 
+`format()` is the primary API. Choose `{ mode }` for date behavior or `{ pattern }` for token formatting.
+
 **Tokens:** `dddd`, `ddd`, `DD`, `D`, `MMMM`, `MMM`, `MM`, `M`, `YYYY`, `YY`, `HH`, `H`, `hh`, `h`, `mm`, `m`, `ss`, `s`, `A`, `a`
 
-### Bangla Calendar
+## 🇧🇩 Bangla Calendar (Core Feature)
+
+This is the reason `@coreify/tarikh` exists.
 
 Convert Gregorian dates to the Bengali calendar (Bangladesh Revised Calendar, 1987).
 
+- **Top feature:** `format("2026-04-14", { mode: "bangla", locale: "bn-BD", format: "spoken" })` returns `পহেলা বৈশাখ ১৪৩৩`.
 - `toBanglaCalendar()` returns a structured object.
 - Default output: English digits + Latin month names (`en-BD`).
 - Locale-aware output: Bangla date words like `১লা`, `২রা`, `৩রা`, `৪ঠা`, `৫ই`, `১৯শে` plus Bangla month names (`bn-BD`).
 - `monthIndex` remains numeric in both cases.
-- `formatBanglaCalendar(..., { locale: "bn-BD", format: "spoken" })` returns spoken day words like `পহেলা`, `দোসরা`, `তেসরা`, `চৌঠা`.
+- `format(..., { mode: "bangla", locale: "bn-BD", format: "spoken" })` returns spoken day words like `পহেলা`, `দোসরা`, `তেসরা`, `চৌঠা`.
 - `formatBanglaCalendarDay(day, { format: "spoken" })` returns colloquial spoken forms for the first four days: `পহেলা`, `দোসরা`, `তেসরা`, `চৌঠা`.
 - Pass `{ variant: "pohela" }` to keep the standard `পহেলা` spelling explicitly, or `{ variant: "poyla" }` to get `পয়লা` for day 1. The parser also accepts the common `পয়লা` spelling.
 
 ```ts
 import {
-  formatBanglaCalendar,
+  format,
   formatBanglaCalendarDay,
   toBanglaCalendar
 } from "@coreify/tarikh";
@@ -157,24 +214,29 @@ toBanglaCalendar("2026-03-31");
 toBanglaCalendar("2026-03-31", { locale: "bn-BD" });
 // → { day: "১৭", month: "চৈত্র", monthIndex: 12, year: "১৪৩২" }
 
-formatBanglaCalendar("2026-03-31");
+format("2026-03-31", { mode: "bangla" });
 // → "17 Chaitra 1432"
 
-formatBanglaCalendar("2026-03-31", { locale: "bn-BD" });
+format("2026-03-31", { mode: "bangla", locale: "bn-BD" });
 // → "১৭ই চৈত্র ১৪৩২"
 
-formatBanglaCalendar("2026-04-14");
+format("2026-04-14", { mode: "bangla" });
 // → "1 Baishakh 1433"
 
-formatBanglaCalendar("2026-04-14", { locale: "bn-BD", format: "spoken" });
+format("2026-04-14", { mode: "bangla", locale: "bn-BD", format: "spoken" });
 // → "পহেলা বৈশাখ ১৪৩৩"
 
-formatBanglaCalendar("2026-04-14", {
+format("2026-04-14", {
+  mode: "bangla",
   locale: "bn-BD",
   format: "spoken",
   variant: "poyla"
 });
 // → "পয়লা বৈশাখ ১৪৩৩"
+
+// Show today's Bangla date in your app header
+format(new Date(), { mode: "bangla", locale: "bn-BD" });
+// → "১৭ চৈত্র ১৪৩২" (example; depends on the current date)
 
 formatBanglaCalendarDay(21);
 // → "২১শে"
@@ -194,12 +256,17 @@ formatBanglaCalendarDay(1, { format: "spoken", variant: "pohela" });
 Mix English and Bangla independently for day, month, and year.
 
 ```ts
-import { formatHybridDate } from "@coreify/tarikh";
+import { format } from "@coreify/tarikh";
 
-formatHybridDate(new Date());
+format(new Date(), { mode: "hybrid" });
 // → "31 মার্চ 2026"
 
-formatHybridDate(new Date(), { digits: "bn", month: "bn", year: "en" });
+format(new Date(), {
+  mode: "hybrid",
+  digits: "bn",
+  month: "bn",
+  year: "en"
+});
 // → "৩১ মার্চ 2026"
 ```
 
@@ -344,91 +411,29 @@ import {
 
 Optional entry point — only included if you import from `@coreify/tarikh/react`.
 
-```bash
-npm install @coreify/tarikh react
-```
+Primary React API:
 
-### Tarikh
+Use `Tarikh` for the default formatter, then reach for the nested variants when you want relative time or Bangla calendar rendering.
 
 ```tsx
 import { Tarikh } from "@coreify/tarikh/react";
 
 <Tarikh value={new Date()} />
-// → <time>31 Mar 2026</time>
-
-<Tarikh value={new Date()} locale="bn-BD" />
-// → <time>৩১ মার্চ ২০২৬</time>
-
-<Tarikh value={new Date()} month="long" />
-// → <time>31 March 2026</time>
-
-<Tarikh
-  value={new Date(2026, 2, 31, 15, 4)}
-  weekday="short"
-  hour="numeric"
-  minute="2-digit"
-/>
-// → <time>Tue, 31 Mar 2026, 15:04</time>
-
-<Tarikh
-  value={new Date(2026, 2, 31, 15, 4, 9)}
-  weekday="long"
-  hour="2-digit"
-  minute="2-digit"
-  second="2-digit"
-  hour12
-  locale="bn-BD"
-/>
-// → <time>মঙ্গলবার, ৩১ মার্চ ২০২৬, ০৩:০৪:০৯ অপরাহ্ণ</time>
-
-<Tarikh value="31 March 2026" />
-// → <time dateTime="2026-03-31">31 Mar 2026</time>
+<Tarikh.Relative value={new Date()} />
+<Tarikh.Bangla value={new Date()} locale="bn-BD" />
 ```
 
-### RelativeTime
-
-```tsx
-import { RelativeTime } from "@coreify/tarikh/react";
-
-<RelativeTime value={someDate} />
-// → <time>2 days ago</time>
-
-<RelativeTime value={someDate} locale="bn-BD" />
-// → <time>২ দিন আগে</time>
-
-<RelativeTime value={someDate} numeric="auto" />
-// → <time>yesterday</time> (for a 1-day past date)
-
-<RelativeTime value={someDate} locale="bn-BD" numeric="auto" />
-// → <time>আগামীকাল</time> (for a 1-day future date)
-```
-
-### BanglaDate
-
-```tsx
-import { BanglaDate } from "@coreify/tarikh/react";
-
-<BanglaDate value={new Date()} />
-// → <time>17 Chaitra 1432</time> (example; depends on date)
-
-<BanglaDate value={new Date()} locale="bn-BD" />
-// → <time>১৭ই চৈত্র ১৪৩২</time> (example; depends on date)
-
-<BanglaDate
-  value={new Date()}
-  locale="bn-BD"
-  format="spoken"
-  variant="poyla"
-/>
-// → spoken day + Bangla month (e.g. পয়লা বৈশাখ … on Pohela Baishakh)
-
-<BanglaDate value="31 March 2026" />
-// → <time dateTime="2026-03-31">17 Chaitra 1432</time> (example; depends on date)
+```bash
+npm install @coreify/tarikh react
 ```
 
 All components render semantic `<time>` elements with `dateTime` and `aria-label` attributes. They are SSR-safe, tree-shakeable, and have zero runtime dependencies beyond React.
 
+`Tarikh` handles standard date formatting, `Tarikh.Relative` handles relative time, and `Tarikh.Bangla` handles Bangla calendar output.
+
 ## What `Intl.DateTimeFormat` cannot do
+
+If you're building for Bangladesh, existing libraries are not enough.
 
 | Feature                         | Intl    | @coreify/tarikh |
 | ------------------------------- | ------- | --------------- |
@@ -453,6 +458,8 @@ import type {
   YearFormat,
   WeekdayFormat,
   TimeFormat,
+  FormatMode,
+  FormatOptions,
   BanglaCalendarOptions,
   RelativeTimeOptions,
   BanglaCalendarFormatOptions,

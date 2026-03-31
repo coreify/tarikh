@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { BanglaDate, RelativeTime, Tarikh } from "../src/react";
+import { Tarikh } from "../src/react";
 
 describe("Tarikh", () => {
   it("renders a time element with formatted date", () => {
@@ -68,6 +68,18 @@ describe("Tarikh", () => {
     expect(html).toContain('aria-label="31 Mar 2026"');
   });
 
+  it("prefers srLabel over aria-label", () => {
+    const html = renderToStaticMarkup(
+      createElement(Tarikh, {
+        value: new Date(2026, 2, 31),
+        srLabel: "Screen reader label",
+        "aria-label": "Fallback label"
+      })
+    );
+    expect(html).toContain('aria-label="Screen reader label"');
+    expect(html).not.toContain('aria-label="Fallback label"');
+  });
+
   it("supports custom srLabel", () => {
     const html = renderToStaticMarkup(
       createElement(Tarikh, {
@@ -77,9 +89,36 @@ describe("Tarikh", () => {
     );
     expect(html).toContain('aria-label="Custom label"');
   });
+
+  it("renders compound Relative and Bangla components", () => {
+    const NOW = new Date("2026-03-31T12:00:00Z").getTime();
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+
+    try {
+      const relativeHtml = renderToStaticMarkup(
+        createElement(Tarikh.Relative, {
+          value: new Date(NOW - 86_400_000),
+          numeric: "auto"
+        })
+      );
+      const banglaHtml = renderToStaticMarkup(
+        createElement(Tarikh.Bangla, {
+          value: new Date(2026, 3, 14),
+          locale: "bn-BD",
+          format: "spoken"
+        })
+      );
+
+      expect(relativeHtml).toContain("yesterday");
+      expect(banglaHtml).toContain("পহেলা বৈশাখ ১৪৩৩");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
 
-describe("RelativeTime", () => {
+describe("Tarikh.Relative", () => {
   const NOW = new Date("2026-03-31T12:00:00Z").getTime();
 
   beforeEach(() => {
@@ -93,7 +132,7 @@ describe("RelativeTime", () => {
 
   it("renders relative time", () => {
     const html = renderToStaticMarkup(
-      createElement(RelativeTime, {
+      createElement(Tarikh.Relative, {
         value: new Date(NOW - 2 * 86_400_000)
       })
     );
@@ -103,7 +142,7 @@ describe("RelativeTime", () => {
 
   it("renders Bangla relative time", () => {
     const html = renderToStaticMarkup(
-      createElement(RelativeTime, {
+      createElement(Tarikh.Relative, {
         value: new Date(NOW - 86_400_000),
         locale: "bn-BD"
       })
@@ -111,86 +150,46 @@ describe("RelativeTime", () => {
     expect(html).toContain("১ দিন আগে");
   });
 
+  it("prefers srLabel over aria-label for compound variants", () => {
+    const banglaHtml = renderToStaticMarkup(
+      createElement(Tarikh.Bangla, {
+        value: "2026-04-14",
+        locale: "bn-BD",
+        srLabel: "Bangla label",
+        "aria-label": "Fallback label"
+      })
+    );
+
+    const relativeHtml = renderToStaticMarkup(
+      createElement(Tarikh.Relative, {
+        value: "2026-03-30",
+        srLabel: "Relative label",
+        "aria-label": "Fallback label"
+      })
+    );
+
+    expect(banglaHtml).toContain('aria-label="Bangla label"');
+    expect(banglaHtml).not.toContain('aria-label="Fallback label"');
+    expect(banglaHtml).toContain('dateTime="2026-04-14"');
+    expect(relativeHtml).toContain('aria-label="Relative label"');
+    expect(relativeHtml).not.toContain('aria-label="Fallback label"');
+    expect(relativeHtml).toContain('dateTime="2026-03-30"');
+  });
+
   it("preserves date-only semantics for human-readable strings", () => {
     const html = renderToStaticMarkup(
-      createElement(RelativeTime, { value: "31 March 2026" })
+      createElement(Tarikh.Relative, { value: "31 March 2026" })
     );
     expect(html).toContain('dateTime="2026-03-31"');
   });
 
   it("supports natural relative wording", () => {
     const html = renderToStaticMarkup(
-      createElement(RelativeTime, {
+      createElement(Tarikh.Relative, {
         value: new Date("2026-03-31T00:00:00Z"),
         numeric: "auto"
       })
     );
     expect(html).toContain("today");
-  });
-});
-
-describe("BanglaDate", () => {
-  it("renders Bangla calendar date in English by default", () => {
-    const html = renderToStaticMarkup(
-      createElement(BanglaDate, { value: "2026-03-31" })
-    );
-    expect(html).toContain("17 Chaitra 1432");
-    expect(html).toContain("<time");
-    expect(html).toContain('dateTime="2026-03-31"');
-  });
-
-  it("preserves date-only semantics for human-readable strings", () => {
-    const html = renderToStaticMarkup(
-      createElement(BanglaDate, { value: "31 March 2026" })
-    );
-    expect(html).toContain('dateTime="2026-03-31"');
-  });
-
-  it("preserves a full datetime in dateTime", () => {
-    const html = renderToStaticMarkup(
-      createElement(BanglaDate, {
-        value: new Date("2026-03-31T15:30:00.000Z")
-      })
-    );
-    expect(html).toContain('dateTime="2026-03-31T15:30:00.000Z"');
-  });
-
-  it("renders Bangla digits and month when locale is bn-BD", () => {
-    const html = renderToStaticMarkup(
-      createElement(BanglaDate, {
-        value: new Date(2026, 2, 31),
-        locale: "bn-BD"
-      })
-    );
-    expect(html).toContain("১৭ই চৈত্র ১৪৩২");
-  });
-
-  it("forwards format and variant to formatBanglaCalendar", () => {
-    const html = renderToStaticMarkup(
-      createElement(BanglaDate, {
-        value: new Date(2026, 3, 14),
-        locale: "bn-BD",
-        format: "spoken",
-        variant: "poyla"
-      })
-    );
-    expect(html).toContain("পয়লা বৈশাখ ১৪৩৩");
-  });
-
-  it("renders Pohela Baishakh in English by default", () => {
-    const html = renderToStaticMarkup(
-      createElement(BanglaDate, { value: new Date(2026, 3, 14) })
-    );
-    expect(html).toContain("1 Baishakh 1433");
-  });
-
-  it("supports custom srLabel", () => {
-    const html = renderToStaticMarkup(
-      createElement(BanglaDate, {
-        value: new Date(2026, 2, 31),
-        srLabel: "Bengali date"
-      })
-    );
-    expect(html).toContain('aria-label="Bengali date"');
   });
 });

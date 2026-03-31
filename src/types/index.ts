@@ -5,6 +5,7 @@ export type YearFormat = "numeric" | "2-digit";
 export type DayFormat = "numeric" | "2-digit";
 export type WeekdayFormat = "short" | "long";
 export type TimeFormat = "numeric" | "2-digit";
+export type FormatMode = "standard" | "bangla" | "hybrid";
 
 export type DateInput = Date | string | number;
 
@@ -20,8 +21,22 @@ export interface DateFormatOptions {
   hour12?: boolean;
 }
 
-export interface TokenFormatOptions {
+export interface FormatOptions {
+  mode?: FormatMode;
+  pattern?: string;
   locale?: Locale;
+  month?: MonthFormat | Language;
+  year?: YearFormat | Language;
+  day?: DayFormat | Language;
+  weekday?: WeekdayFormat;
+  hour?: TimeFormat;
+  minute?: TimeFormat;
+  second?: TimeFormat;
+  hour12?: boolean;
+  digits?: Language;
+  monthFormat?: MonthFormat;
+  format?: BanglaCalendarDayFormat;
+  variant?: BanglaCalendarDaySpokenVariant;
 }
 
 export interface HybridDateFormatOptions {

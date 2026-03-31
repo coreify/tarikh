@@ -21,10 +21,7 @@ export {
 export { toBanglaDigits, toEnglishDigits } from "./core/digits";
 export {
   format,
-  formatBanglaCalendar,
-  formatBanglaCalendarDay,
-  formatDate,
-  formatHybridDate
+  formatBanglaCalendarDay
 } from "./core/format";
 export { parseDate } from "./core/parse";
 export { fromNow } from "./core/relative";
@@ -58,13 +55,14 @@ export type {
   DateInput,
   DayFormat,
   DateFormatOptions,
+  FormatMode,
+  FormatOptions,
   HybridDateFormatOptions,
   DateParseOptions,
   Language,
   Locale,
   MonthFormat,
   RelativeTimeOptions,
-  TokenFormatOptions,
   TimeFormat,
   WeekdayFormat,
   YearFormat

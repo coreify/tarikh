@@ -1,6 +1,6 @@
-import type { ReactElement } from "react";
+import type { ForwardRefExoticComponent, ReactElement, RefAttributes } from "react";
 import { createElement, forwardRef } from "react";
-import { formatBanglaCalendar, formatDate } from "../core/format";
+import { format as formatDateString } from "../core/format";
 import { parseDate } from "../core/parse";
 import { fromNow } from "../core/relative";
 import { toDate } from "../core/utils";
@@ -44,6 +44,13 @@ export type {
   TarikhProps
 } from "../types/react";
 
+type TarikhCompoundComponent = ForwardRefExoticComponent<
+  TarikhProps & RefAttributes<HTMLTimeElement>
+> & {
+  Relative: typeof RelativeTimeComponent;
+  Bangla: typeof BanglaDateComponent;
+};
+
 export const Tarikh = forwardRef<HTMLTimeElement, TarikhProps>(function Tarikh(
   {
     value,
@@ -74,7 +81,10 @@ export const Tarikh = forwardRef<HTMLTimeElement, TarikhProps>(function Tarikh(
     ...(second !== undefined && { second }),
     ...(hour12 !== undefined && { hour12 })
   };
-  const formatted = formatDate(date, formatOptions);
+  const formatted = formatDateString(date, {
+    mode: "standard",
+    ...formatOptions
+  });
   const dateTime = dateTimeAttribute(value, date);
   const ariaLabel = srLabel ?? ariaLabelProp ?? formatted;
 
@@ -83,11 +93,11 @@ export const Tarikh = forwardRef<HTMLTimeElement, TarikhProps>(function Tarikh(
     { ...props, ref, dateTime, "aria-label": ariaLabel },
     formatted
   );
-});
+}) as TarikhCompoundComponent;
 
 Tarikh.displayName = "Tarikh";
 
-export const RelativeTime = forwardRef<HTMLTimeElement, RelativeTimeProps>(
+const RelativeTimeComponent = forwardRef<HTMLTimeElement, RelativeTimeProps>(
   function RelativeTime(
     { value, locale, numeric, srLabel, "aria-label": ariaLabelProp, ...props },
     ref
@@ -114,9 +124,9 @@ export const RelativeTime = forwardRef<HTMLTimeElement, RelativeTimeProps>(
   }
 );
 
-RelativeTime.displayName = "RelativeTime";
+RelativeTimeComponent.displayName = "RelativeTime";
 
-export const BanglaDate = forwardRef<HTMLTimeElement, BanglaDateProps>(
+const BanglaDateComponent = forwardRef<HTMLTimeElement, BanglaDateProps>(
   function BanglaDate(
     {
       value,
@@ -135,11 +145,12 @@ export const BanglaDate = forwardRef<HTMLTimeElement, BanglaDateProps>(
       ...(format !== undefined && { format }),
       ...(variant !== undefined && { variant })
     };
-    const formatted = formatBanglaCalendar(
+    const formatted = formatDateString(
       date,
-      Object.keys(calendarFormatOptions).length > 0
-        ? calendarFormatOptions
-        : undefined
+      {
+        mode: "bangla",
+        ...calendarFormatOptions
+      }
     );
     const dateTime = dateTimeAttribute(value, date);
     const ariaLabel = srLabel ?? ariaLabelProp ?? formatted;
@@ -152,4 +163,7 @@ export const BanglaDate = forwardRef<HTMLTimeElement, BanglaDateProps>(
   }
 );
 
-BanglaDate.displayName = "BanglaDate";
+BanglaDateComponent.displayName = "BanglaDate";
+
+Tarikh.Relative = RelativeTimeComponent;
+Tarikh.Bangla = BanglaDateComponent;

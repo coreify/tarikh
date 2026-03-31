@@ -3,8 +3,8 @@ import type {
   BanglaCalendarDayFormat,
   BanglaDayFormatOptions,
   BanglaCalendarFormatOptions,
+  FormatOptions,
   DateFormatOptions,
-  TokenFormatOptions,
   HybridDateFormatOptions,
   DateInput
 } from "../types";
@@ -84,7 +84,7 @@ function getMeridiem(
   return lowercase ? meridiem.toLowerCase() : meridiem;
 }
 
-export function formatDate(
+function formatDateCore(
   input: DateInput,
   options?: DateFormatOptions
 ): string {
@@ -156,13 +156,12 @@ export function formatDate(
   return isBn ? toBanglaDigits(formatted) : formatted;
 }
 
-export function format(
+function formatPatternCore(
   input: DateInput,
   template: string,
-  options?: TokenFormatOptions
+  locale: "en-BD" | "bn-BD" = "en-BD"
 ): string {
   const date = toDate(input);
-  const locale = options?.locale ?? "en-BD";
   const isBn = locale === "bn-BD";
 
   const day = date.getDate();
@@ -206,7 +205,33 @@ export function format(
   return isBn ? toBanglaDigits(formatted) : formatted;
 }
 
-export function formatBanglaCalendar(
+export function format(input: DateInput, options: FormatOptions): string {
+  if (options === null || typeof options !== "object" || Array.isArray(options)) {
+    throw new TypeError("format() expects an options object");
+  }
+
+  if (options.pattern !== undefined) {
+    return formatPatternCore(input, options.pattern, options.locale ?? "en-BD");
+  }
+
+  const mode = options.mode ?? "standard";
+  switch (mode) {
+    case "standard":
+      return formatDateCore(input, options as DateFormatOptions | undefined);
+    case "bangla":
+      return formatBanglaCalendarCore(
+        input,
+        options as BanglaCalendarFormatOptions | undefined
+      );
+    case "hybrid":
+      return formatHybridDateCore(
+        input,
+        options as HybridDateFormatOptions | undefined
+      );
+  }
+}
+
+function formatBanglaCalendarCore(
   input: DateInput,
   options?: BanglaCalendarFormatOptions
 ): string {
@@ -227,7 +252,7 @@ export function formatBanglaCalendar(
   return `${calendar.day} ${calendar.month} ${calendar.year}`;
 }
 
-export function formatHybridDate(
+function formatHybridDateCore(
   input: DateInput,
   options?: HybridDateFormatOptions
 ): string {

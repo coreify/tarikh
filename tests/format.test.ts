@@ -1,56 +1,65 @@
 import { describe, expect, it } from "vitest";
-import {
-  format,
-  formatBanglaCalendar,
-  formatBanglaCalendarDay,
-  formatDate,
-  formatHybridDate
-} from "../src/core/format";
+import { format, formatBanglaCalendarDay } from "../src/core/format";
 
 const testDate = new Date(2026, 2, 31); // March 31, 2026
 
-describe("formatDate", () => {
+describe("format (standard mode)", () => {
   it("formats in en-BD by default", () => {
-    expect(formatDate(testDate)).toBe("31 Mar 2026");
+    expect(format(testDate, { mode: "standard" })).toBe("31 Mar 2026");
   });
 
   it("formats in bn-BD with Bangla digits and months", () => {
-    expect(formatDate(testDate, { locale: "bn-BD" })).toBe("৩১ মার্চ ২০২৬");
-  });
-
-  it("respects long month format", () => {
-    expect(formatDate(testDate, { month: "long" })).toBe("31 March 2026");
-  });
-
-  it("respects long month format in bn-BD", () => {
-    expect(formatDate(testDate, { locale: "bn-BD", month: "long" })).toBe(
+    expect(format(testDate, { mode: "standard", locale: "bn-BD" })).toBe(
       "৩১ মার্চ ২০২৬"
     );
   });
 
+  it("respects long month format", () => {
+    expect(format(testDate, { mode: "standard", month: "long" })).toBe(
+      "31 March 2026"
+    );
+  });
+
+  it("respects long month format in bn-BD", () => {
+    expect(
+      format(testDate, { mode: "standard", locale: "bn-BD", month: "long" })
+    ).toBe("৩১ মার্চ ২০২৬");
+  });
+
   it("respects 2-digit year", () => {
-    expect(formatDate(testDate, { year: "2-digit" })).toBe("31 Mar 26");
+    expect(format(testDate, { mode: "standard", year: "2-digit" })).toBe(
+      "31 Mar 26"
+    );
   });
 
   it("respects 2-digit day", () => {
     const jan1 = new Date(2026, 0, 5);
-    expect(formatDate(jan1, { day: "2-digit" })).toBe("05 Jan 2026");
+    expect(format(jan1, { mode: "standard", day: "2-digit" })).toBe(
+      "05 Jan 2026"
+    );
   });
 
   it("supports weekday output", () => {
-    expect(formatDate(testDate, { weekday: "short" })).toBe("Tue, 31 Mar 2026");
-    expect(formatDate(testDate, { weekday: "long" })).toBe(
+    expect(format(testDate, { mode: "standard", weekday: "short" })).toBe(
+      "Tue, 31 Mar 2026"
+    );
+    expect(format(testDate, { mode: "standard", weekday: "long" })).toBe(
       "Tuesday, 31 Mar 2026"
     );
   });
 
   it("supports time output", () => {
     const date = new Date(2026, 2, 31, 15, 4, 9);
-    expect(formatDate(date, { hour: "numeric", minute: "2-digit" })).toBe(
-      "31 Mar 2026, 15:04"
-    );
     expect(
-      formatDate(date, {
+      format(date, {
+        mode: "standard",
+        hour: "numeric",
+        minute: "2-digit"
+      })
+    ).toBe("31 Mar 2026, 15:04");
+    expect(
+      format(date, {
+        mode: "standard",
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
@@ -62,7 +71,8 @@ describe("formatDate", () => {
   it("supports weekday and time in bn-BD", () => {
     const date = new Date(2026, 2, 31, 9, 5, 7);
     expect(
-      formatDate(date, {
+      format(date, {
+        mode: "standard",
         locale: "bn-BD",
         weekday: "short",
         hour: "numeric",
@@ -74,101 +84,144 @@ describe("formatDate", () => {
   });
 
   it("accepts string input", () => {
-    expect(formatDate("2026-03-31")).toBe("31 Mar 2026");
+    expect(format("2026-03-31", { mode: "standard" })).toBe("31 Mar 2026");
   });
 
   it("accepts timestamp input", () => {
-    expect(formatDate(testDate.getTime())).toBe("31 Mar 2026");
+    expect(format(testDate.getTime(), { mode: "standard" })).toBe(
+      "31 Mar 2026"
+    );
   });
 
   it("throws on invalid Date objects", () => {
-    expect(() => formatDate(new Date("invalid"))).toThrow("Invalid date input");
+    expect(() => format(new Date("invalid"), { mode: "standard" })).toThrow(
+      "Invalid date input"
+    );
   });
 
   it("throws on invalid numeric timestamps", () => {
-    expect(() => formatDate(NaN)).toThrow("Invalid date input");
+    expect(() => format(NaN, { mode: "standard" })).toThrow(
+      "Invalid date input"
+    );
   });
 });
 
-describe("format (token-based)", () => {
+describe("format (pattern and mode)", () => {
   it("replaces DD MMM YYYY", () => {
-    expect(format(testDate, "DD MMM YYYY")).toBe("31 Mar 2026");
+    expect(format(testDate, { pattern: "DD MMM YYYY" })).toBe("31 Mar 2026");
   });
 
   it("replaces D MMMM YYYY", () => {
-    expect(format(testDate, "D MMMM YYYY")).toBe("31 March 2026");
+    expect(format(testDate, { pattern: "D MMMM YYYY" })).toBe("31 March 2026");
   });
 
   it("replaces DD/MM/YYYY", () => {
-    expect(format(testDate, "DD/MM/YYYY")).toBe("31/03/2026");
+    expect(format(testDate, { pattern: "DD/MM/YYYY" })).toBe("31/03/2026");
   });
 
   it("replaces YY", () => {
-    expect(format(testDate, "DD MMM YY")).toBe("31 Mar 26");
+    expect(format(testDate, { pattern: "DD MMM YY" })).toBe("31 Mar 26");
   });
 
   it("handles bn-BD locale", () => {
-    expect(format(testDate, "DD MMMM YYYY", { locale: "bn-BD" })).toBe(
-      "৩১ মার্চ ২০২৬"
-    );
+    expect(
+      format(testDate, { pattern: "DD MMMM YYYY", locale: "bn-BD" })
+    ).toBe("৩১ মার্চ ২০২৬");
   });
 
   it("handles single digit day with D token", () => {
     const jan5 = new Date(2026, 0, 5);
-    expect(format(jan5, "D MMM YYYY")).toBe("5 Jan 2026");
+    expect(format(jan5, { pattern: "D MMM YYYY" })).toBe("5 Jan 2026");
   });
 
   it("pads day with DD token", () => {
     const jan5 = new Date(2026, 0, 5);
-    expect(format(jan5, "DD MMM YYYY")).toBe("05 Jan 2026");
+    expect(format(jan5, { pattern: "DD MMM YYYY" })).toBe("05 Jan 2026");
   });
 
   it("supports weekday and time tokens", () => {
     const date = new Date(2026, 2, 31, 15, 4, 9);
-    expect(format(date, "ddd, D MMM YYYY HH:mm:ss")).toBe(
+    expect(format(date, { pattern: "ddd, D MMM YYYY HH:mm:ss" })).toBe(
       "Tue, 31 Mar 2026 15:04:09"
     );
-    expect(format(date, "dddd h:mm A")).toBe("Tuesday 3:04 PM");
+    expect(format(date, { pattern: "dddd h:mm A" })).toBe("Tuesday 3:04 PM");
   });
 
   it("supports localized weekday and meridiem tokens", () => {
     const date = new Date(2026, 2, 31, 9, 4, 9);
-    expect(format(date, "ddd, D MMM YYYY h:mm a", { locale: "bn-BD" })).toBe(
-      "মঙ্গল, ৩১ মার্চ ২০২৬ ৯:০৪ পূর্বাহ্ণ"
+    expect(
+      format(date, { pattern: "ddd, D MMM YYYY h:mm a", locale: "bn-BD" })
+    ).toBe("মঙ্গল, ৩১ মার্চ ২০২৬ ৯:০৪ পূর্বাহ্ণ");
+  });
+
+  it("supports standard mode", () => {
+    expect(format(testDate, { mode: "standard" })).toBe("31 Mar 2026");
+    expect(format(testDate, { mode: "standard", locale: "bn-BD" })).toBe(
+      "৩১ মার্চ ২০২৬"
     );
+  });
+
+  it("lets pattern win when mode is also present", () => {
+    expect(
+      format(testDate, {
+        mode: "bangla",
+        pattern: "DD MMM YYYY"
+      })
+    ).toBe("31 Mar 2026");
+  });
+
+  it("supports bangla mode", () => {
+    expect(format(testDate, { mode: "bangla" })).toBe("17 Chaitra 1432");
+    expect(format(testDate, { mode: "bangla", locale: "bn-BD" })).toBe(
+      "১৭ই চৈত্র ১৪৩২"
+    );
+  });
+
+  it("supports hybrid mode", () => {
+    expect(format(testDate, { mode: "hybrid" })).toBe("31 মার্চ 2026");
+    expect(
+      format(testDate, {
+        mode: "hybrid",
+        digits: "bn",
+        month: "bn",
+        year: "en"
+      })
+    ).toBe("৩১ মার্চ 2026");
   });
 });
 
-describe("formatBanglaCalendar", () => {
+describe("format (bangla mode)", () => {
   it("defaults to English digits and Latin month names", () => {
-    expect(formatBanglaCalendar("2026-03-31")).toBe("17 Chaitra 1432");
+    expect(format("2026-03-31", { mode: "bangla" })).toBe("17 Chaitra 1432");
   });
 
   it("formats Pohela Baishakh in English by default", () => {
-    expect(formatBanglaCalendar("2026-04-14")).toBe("1 Baishakh 1433");
+    expect(format("2026-04-14", { mode: "bangla" })).toBe("1 Baishakh 1433");
   });
 
   it("uses Bangla digits and month names when locale is bn-BD", () => {
-    expect(formatBanglaCalendar("2026-03-31", { locale: "bn-BD" })).toBe(
+    expect(format("2026-03-31", { mode: "bangla", locale: "bn-BD" })).toBe(
       "১৭ই চৈত্র ১৪৩২"
     );
-    expect(formatBanglaCalendar("2026-04-14", { locale: "bn-BD" })).toBe(
+    expect(format("2026-04-14", { mode: "bangla", locale: "bn-BD" })).toBe(
       "১লা বৈশাখ ১৪৩৩"
     );
-    expect(formatBanglaCalendar("2026-05-04", { locale: "bn-BD" })).toBe(
+    expect(format("2026-05-04", { mode: "bangla", locale: "bn-BD" })).toBe(
       "২১শে বৈশাখ ১৪৩৩"
     );
   });
 
   it("supports spoken Bangla day words in the calendar formatter", () => {
     expect(
-      formatBanglaCalendar("2026-04-14", {
+      format("2026-04-14", {
+        mode: "bangla",
         locale: "bn-BD",
         format: "spoken"
       })
     ).toBe("পহেলা বৈশাখ ১৪৩৩");
     expect(
-      formatBanglaCalendar("2026-04-14", {
+      format("2026-04-14", {
+        mode: "bangla",
         locale: "bn-BD",
         format: "spoken",
         variant: "poyla"
@@ -177,7 +230,7 @@ describe("formatBanglaCalendar", () => {
   });
 
   it("accepts Date object", () => {
-    expect(formatBanglaCalendar(testDate)).toBe("17 Chaitra 1432");
+    expect(format(testDate, { mode: "bangla" })).toBe("17 Chaitra 1432");
   });
 });
 
@@ -202,20 +255,46 @@ describe("formatBanglaCalendarDay", () => {
   });
 });
 
-describe("formatHybridDate", () => {
+describe("format input validation", () => {
+  it("rejects legacy positional mode strings", () => {
+    expect(() => format(testDate, "bangla" as never)).toThrow(
+      "format() expects an options object"
+    );
+  });
+
+  it("rejects null options", () => {
+    expect(() => format(testDate, null as never)).toThrow(
+      "format() expects an options object"
+    );
+  });
+
+  it("rejects array options", () => {
+    expect(() => format(testDate, [] as never)).toThrow(
+      "format() expects an options object"
+    );
+  });
+});
+
+describe("format (hybrid mode)", () => {
   it("defaults to English digits + Bangla month + English year", () => {
-    expect(formatHybridDate(testDate)).toBe("31 মার্চ 2026");
+    expect(format(testDate, { mode: "hybrid" })).toBe("31 মার্চ 2026");
   });
 
   it("supports Bangla digits with English year", () => {
     expect(
-      formatHybridDate(testDate, { digits: "bn", month: "bn", year: "en" })
+      format(testDate, {
+        mode: "hybrid",
+        digits: "bn",
+        month: "bn",
+        year: "en"
+      })
     ).toBe("৩১ মার্চ 2026");
   });
 
   it("supports all Bangla", () => {
     expect(
-      formatHybridDate(testDate, {
+      format(testDate, {
+        mode: "hybrid",
         digits: "bn",
         month: "bn",
         year: "bn"
@@ -225,7 +304,8 @@ describe("formatHybridDate", () => {
 
   it("supports all English", () => {
     expect(
-      formatHybridDate(testDate, {
+      format(testDate, {
+        mode: "hybrid",
         digits: "en",
         month: "en",
         year: "en"
@@ -235,7 +315,8 @@ describe("formatHybridDate", () => {
 
   it("supports short month format", () => {
     expect(
-      formatHybridDate(testDate, {
+      format(testDate, {
+        mode: "hybrid",
         month: "en",
         monthFormat: "short"
       })
@@ -244,7 +325,8 @@ describe("formatHybridDate", () => {
 
   it("supports independent day language", () => {
     expect(
-      formatHybridDate(testDate, {
+      format(testDate, {
+        mode: "hybrid",
         day: "bn",
         month: "bn",
         year: "en"
