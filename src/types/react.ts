@@ -44,5 +44,6 @@ export interface HijriDateProps extends Omit<
 > {
   value: DateInput;
   locale?: Locale;
+  timeZone?: string;
   srLabel?: string;
 }

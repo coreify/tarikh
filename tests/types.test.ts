@@ -29,6 +29,9 @@ describe("type-level format contract", () => {
     expect(format("2026-03-31", standardOnly)).toBe("31st Mar 2026");
     expect(format("2026-03-31", banglaOnly)).toBe("17th Chaitra 1432");
     expect(format("2026-03-31", hijriOnly)).toBe("12th Shawwal 1447 AH");
+    expect(
+      format("2026-03-31", { mode: "hijri", timeZone: "UTC" })
+    ).toBe("11th Shawwal 1447 AH");
     expect(format("2026-03-31", hybridOnly)).toBe("31 মার্চ 2026");
   });
 });

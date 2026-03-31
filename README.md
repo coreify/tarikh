@@ -86,8 +86,14 @@ toHijriCalendar("2026-03-31");
 toHijriCalendar("2026-03-31", { locale: "bn-BD" });
 // → { day: "১১", month: "শাওয়াল", monthIndex: 10, year: "১৪৪৭" }
 
+toHijriCalendar("2026-03-31", { timeZone: "UTC" });
+// → { day: 11, month: "Shawwal", monthIndex: 10, year: 1447 }
+
 format("2026-03-31", { mode: "hijri" });
 // → "12th Shawwal 1447 AH"
+
+format("2026-03-31", { mode: "hijri", timeZone: "UTC" });
+// → "11th Shawwal 1447 AH"
 
 format("2026-03-31", { mode: "hijri", locale: "bn-BD" });
 // → "১২ই শাওয়াল ১৪৪৭ হিজরি"
@@ -277,8 +283,14 @@ toHijriCalendar("2026-03-31");
 toHijriCalendar("2026-03-31", { locale: "bn-BD" });
 // → { day: "১১", month: "শাওয়াল", monthIndex: 10, year: "১৪৪৭" }
 
+toHijriCalendar("2026-03-31", { timeZone: "UTC" });
+// → { day: 11, month: "Shawwal", monthIndex: 10, year: 1447 }
+
 format("2026-03-31", { mode: "hijri" });
 // → "12th Shawwal 1447 AH"
+
+format("2026-03-31", { mode: "hijri", timeZone: "UTC" });
+// → "11th Shawwal 1447 AH"
 
 format("2026-03-31", { mode: "hijri", locale: "bn-BD" });
 // → "১২ই শাওয়াল ১৪৪৭ হিজরি"

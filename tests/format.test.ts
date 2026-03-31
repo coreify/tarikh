@@ -263,6 +263,12 @@ describe("format (pattern and mode)", () => {
     expect(format(testDate, { mode: "hijri", locale: "bn-BD" })).toBe(
       "১২ই শাওয়াল ১৪৪৭ হিজরি"
     );
+    expect(
+      format(testDate, { mode: "hijri", timeZone: "UTC" })
+    ).toBe("11th Shawwal 1447 AH");
+    expect(
+      format(testDate, { mode: "hijri", locale: "bn-BD", timeZone: "UTC" })
+    ).toBe("১১ই শাওয়াল ১৪৪৭ হিজরি");
   });
 
   it("uses ই for Hijri bn-BD days beyond 2", () => {

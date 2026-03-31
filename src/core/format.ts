@@ -394,15 +394,28 @@ function formatHijriCalendarCore(
   options?: HijriCalendarFormatOptions
 ): string {
   const locale = options?.locale ?? "en-BD";
+  const timeZone = options?.timeZone;
 
   if (locale === "bn-BD") {
-    const calendar = toHijriCalendar(input, { locale });
+    const hijriOptions: HijriCalendarFormatOptions & { locale: "bn-BD" } = {
+      locale
+    };
+    if (timeZone !== undefined) {
+      hijriOptions.timeZone = timeZone;
+    }
+    const calendar = toHijriCalendar(input, hijriOptions);
     const year = toBanglaDigits(calendar.year);
     const day = Number(toEnglishDigits(calendar.day));
     return `${hijriBanglaDayOrdinal(day)} ${calendar.month} ${year} হিজরি`;
   }
 
-  const calendar = toHijriCalendar(input, { locale });
+  const hijriOptions: HijriCalendarFormatOptions & { locale: "en-BD" } = {
+    locale
+  };
+  if (timeZone !== undefined) {
+    hijriOptions.timeZone = timeZone;
+  }
+  const calendar = toHijriCalendar(input, hijriOptions);
   return `${englishDayOrdinal(calendar.day)} ${calendar.month} ${calendar.year} AH`;
 }
 

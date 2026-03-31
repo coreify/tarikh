@@ -8,7 +8,7 @@ import { toBanglaDigits, toEnglishDigits } from "./digits";
 import { toDate } from "./utils";
 
 const HIJRI_CALENDAR = "islamic-umalqura";
-const HIJRI_TIME_ZONE = "Asia/Dhaka";
+const DEFAULT_HIJRI_TIME_ZONE = "Asia/Dhaka";
 
 function hijriLocale(locale: "en-BD" | "bn-BD"): string {
   return `${locale}-u-ca-${HIJRI_CALENDAR}`;
@@ -29,7 +29,8 @@ function getPart(
 
 function formatHijriParts(
   date: Date,
-  locale: "en-BD" | "bn-BD"
+  locale: "en-BD" | "bn-BD",
+  timeZone: string
 ): {
   day: string;
   month: string;
@@ -41,13 +42,13 @@ function formatHijriParts(
     day: "numeric",
     month: "numeric",
     year: "numeric",
-    timeZone: HIJRI_TIME_ZONE
+    timeZone
   }).formatToParts(date);
   const monthParts = new Intl.DateTimeFormat(intlLocale, {
     day: "numeric",
     month: "long",
     year: "numeric",
-    timeZone: HIJRI_TIME_ZONE
+    timeZone
   }).formatToParts(date);
 
   const day = getPart(numericParts, "day");
@@ -71,8 +72,9 @@ export function toHijriCalendar(
   options?: HijriCalendarOptions
 ): HijriCalendarDate | HijriCalendarDateLocalized {
   const locale = options?.locale ?? "en-BD";
+  const timeZone = options?.timeZone ?? DEFAULT_HIJRI_TIME_ZONE;
   const date = toDate(input);
-  const parts = formatHijriParts(date, locale);
+  const parts = formatHijriParts(date, locale, timeZone);
 
   if (locale === "bn-BD") {
     return {

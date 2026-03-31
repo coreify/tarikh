@@ -210,6 +210,16 @@ describe("Tarikh.Relative", () => {
     expect(html).toContain("<time");
   });
 
+  it("supports overriding the Hijri timezone", () => {
+    const html = renderToStaticMarkup(
+      createElement(Tarikh.Hijri, {
+        value: new Date(2026, 2, 31),
+        timeZone: "UTC"
+      })
+    );
+    expect(html).toContain("11th Shawwal 1447 AH");
+  });
+
   it("propagates range validation through all compound variants", () => {
     const overflow = 8_640_000_000_000_001;
     const message = "Date input is outside the supported range";

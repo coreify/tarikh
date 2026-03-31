@@ -170,12 +170,13 @@ BanglaDateComponent.displayName = "BanglaDate";
 
 const HijriDateComponent = forwardRef<HTMLTimeElement, HijriDateProps>(
   function HijriDate(
-    { value, locale, srLabel, "aria-label": ariaLabelProp, ...props },
+    { value, locale, timeZone, srLabel, "aria-label": ariaLabelProp, ...props },
     ref
   ): ReactElement {
     const date = toDate(value);
     const calendarFormatOptions = {
-      ...(locale !== undefined && { locale })
+      ...(locale !== undefined && { locale }),
+      ...(timeZone !== undefined && { timeZone })
     };
     const formatted = formatDate(date, {
       mode: "hijri",

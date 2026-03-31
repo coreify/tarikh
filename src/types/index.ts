@@ -97,6 +97,7 @@ export interface BanglaCalendarFormatOptions {
 
 export interface HijriCalendarOptions {
   locale?: Locale;
+  timeZone?: string;
 }
 
 export interface HijriCalendarDate {
@@ -115,6 +116,7 @@ export interface HijriCalendarDateLocalized {
 
 export interface HijriCalendarFormatOptions {
   locale?: Locale;
+  timeZone?: string;
 }
 
 export type BanglaCalendarDayFormat = "ordinal" | "spoken";
