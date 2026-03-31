@@ -71,6 +71,16 @@ function formatNumericValue(
   return format === "2-digit" ? String(value).padStart(2, "0") : String(value);
 }
 
+function assertAllowedValue<T extends string>(
+  value: string,
+  allowedValues: readonly T[],
+  optionLabel: string
+): asserts value is T {
+  if (!allowedValues.includes(value as T)) {
+    throw new TypeError(`Invalid ${optionLabel}: ${value}`);
+  }
+}
+
 function getMeridiem(
   hours24: number,
   locale: "en-BD" | "bn-BD",
@@ -90,62 +100,81 @@ function formatDateCore(
 ): string {
   const date = toDate(input);
   const locale = options?.locale ?? "en-BD";
-  const monthFmt = options?.month ?? "short";
-  const yearFmt = options?.year ?? "numeric";
-  const dayFmt = options?.day ?? "numeric";
-  const weekdayFmt = options?.weekday;
-  const hourFmt = options?.hour;
-  const minuteFmt = options?.minute;
-  const secondFmt = options?.second;
-  const includeTime =
-    hourFmt !== undefined || minuteFmt !== undefined || secondFmt !== undefined;
+  const monthFormat = options?.month ?? "short";
+  const yearFormat = options?.year ?? "numeric";
+  const dayFormat = options?.day ?? "numeric";
+  const weekdayFormat = options?.weekday;
+  const hourFormat = options?.hour;
+  const minuteFormat = options?.minute;
+  const secondFormat = options?.second;
+  const shouldIncludeTime =
+    hourFormat !== undefined ||
+    minuteFormat !== undefined ||
+    secondFormat !== undefined;
   const isBn = locale === "bn-BD";
+
+  assertAllowedValue(
+    monthFormat,
+    ["short", "long"],
+    "month format for standard mode"
+  );
+  assertAllowedValue(
+    yearFormat,
+    ["numeric", "2-digit"],
+    "year format for standard mode"
+  );
+  assertAllowedValue(
+    dayFormat,
+    ["numeric", "2-digit"],
+    "day format for standard mode"
+  );
 
   const day = date.getDate();
   const monthIndex = date.getMonth();
   const year = date.getFullYear();
 
   const dayStr =
-    dayFmt === "2-digit" ? String(day).padStart(2, "0") : String(day);
+    dayFormat === "2-digit" ? String(day).padStart(2, "0") : String(day);
 
   const monthNames = isBn
-    ? monthFmt === "short"
+    ? monthFormat === "short"
       ? BANGLA_MONTHS_SHORT
       : BANGLA_MONTHS_FULL
-    : monthFmt === "short"
+    : monthFormat === "short"
       ? ENGLISH_MONTHS_SHORT
       : ENGLISH_MONTHS_FULL;
   const monthStr = monthNames[monthIndex]!;
 
-  const yearStr = yearFmt === "2-digit" ? String(year).slice(-2) : String(year);
+  const yearStr =
+    yearFormat === "2-digit" ? String(year).slice(-2) : String(year);
 
   const datePart = `${dayStr} ${monthStr} ${yearStr}`;
   const weekdayNames = isBn
-    ? weekdayFmt === "short"
+    ? weekdayFormat === "short"
       ? BANGLA_WEEKDAYS_SHORT
       : BANGLA_WEEKDAYS_FULL
-    : weekdayFmt === "short"
+    : weekdayFormat === "short"
       ? ENGLISH_WEEKDAYS_SHORT
       : ENGLISH_WEEKDAYS_FULL;
   const weekdayPart =
-    weekdayFmt !== undefined ? `${weekdayNames[date.getDay()]!}, ` : "";
+    weekdayFormat !== undefined ? `${weekdayNames[date.getDay()]!}, ` : "";
 
   let timePart = "";
-  if (includeTime) {
+  if (shouldIncludeTime) {
     const useHour12 = options?.hour12 ?? false;
     const hours24 = date.getHours();
     const hours = useHour12 ? hours24 % 12 || 12 : hours24;
-    const resolvedHourFmt = hourFmt ?? "numeric";
-    const resolvedMinuteFmt =
-      minuteFmt ?? (secondFmt !== undefined ? "2-digit" : undefined);
-    const hourStr = formatNumericValue(hours, resolvedHourFmt);
+    const resolvedHourFormat = hourFormat ?? "numeric";
+    const resolvedMinuteFormat =
+      minuteFormat ?? (secondFormat !== undefined ? "2-digit" : undefined);
+    const hourStr = formatNumericValue(hours, resolvedHourFormat);
     const minuteStr =
-      resolvedMinuteFmt !== undefined
-        ? `:${formatNumericValue(date.getMinutes(), resolvedMinuteFmt)}`
+      resolvedMinuteFormat !== undefined
+        ? `:${formatNumericValue(date.getMinutes(), resolvedMinuteFormat)}`
         : "";
     const secondStr =
-      secondFmt !== undefined
-        ? `:${formatNumericValue(date.getSeconds(), secondFmt)}`
+      secondFormat !== undefined
+        ? `:${formatNumericValue(date.getSeconds(), secondFormat)}`
         : "";
     const meridiem = useHour12 ? ` ${getMeridiem(hours24, locale, false)}` : "";
 
@@ -210,8 +239,10 @@ export function format(input: DateInput, options: FormatOptions): string {
     throw new TypeError("format() expects an options object");
   }
 
-  if (options.pattern !== undefined) {
-    return formatPatternCore(input, options.pattern, options.locale ?? "en-BD");
+  if ("pattern" in options && options.pattern !== undefined) {
+    const locale =
+      "locale" in options && options.locale !== undefined ? options.locale : "en-BD";
+    return formatPatternCore(input, options.pattern, locale);
   }
 
   const mode = options.mode ?? "standard";
@@ -261,7 +292,17 @@ function formatHybridDateCore(
   const monthLang = options?.month ?? "bn";
   const yearLang = options?.year ?? "en";
   const dayLang = options?.day ?? digitLang;
-  const monthFmt = options?.monthFormat ?? "long";
+  const monthFormat = options?.monthFormat ?? "long";
+
+  assertAllowedValue(digitLang, ["en", "bn"], "digits language for hybrid mode");
+  assertAllowedValue(monthLang, ["en", "bn"], "month language for hybrid mode");
+  assertAllowedValue(yearLang, ["en", "bn"], "year language for hybrid mode");
+  assertAllowedValue(dayLang, ["en", "bn"], "day language for hybrid mode");
+  assertAllowedValue(
+    monthFormat,
+    ["short", "long"],
+    "month format for hybrid mode"
+  );
 
   const day = date.getDate();
   const monthIndex = date.getMonth();
@@ -269,10 +310,10 @@ function formatHybridDateCore(
 
   const monthNames =
     monthLang === "bn"
-      ? monthFmt === "short"
+      ? monthFormat === "short"
         ? BANGLA_MONTHS_SHORT
         : BANGLA_MONTHS_FULL
-      : monthFmt === "short"
+      : monthFormat === "short"
         ? ENGLISH_MONTHS_SHORT
         : ENGLISH_MONTHS_FULL;
 

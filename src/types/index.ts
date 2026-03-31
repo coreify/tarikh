@@ -21,23 +21,29 @@ export interface DateFormatOptions {
   hour12?: boolean;
 }
 
-export interface FormatOptions {
-  mode?: FormatMode;
-  pattern?: string;
+export type PatternFormatOptions = {
+  pattern: string;
   locale?: Locale;
-  month?: MonthFormat | Language;
-  year?: YearFormat | Language;
-  day?: DayFormat | Language;
-  weekday?: WeekdayFormat;
-  hour?: TimeFormat;
-  minute?: TimeFormat;
-  second?: TimeFormat;
-  hour12?: boolean;
-  digits?: Language;
-  monthFormat?: MonthFormat;
-  format?: BanglaCalendarDayFormat;
-  variant?: BanglaCalendarDaySpokenVariant;
-}
+  mode?: FormatMode;
+};
+
+export type StandardFormatOptions = DateFormatOptions & {
+  mode?: "standard";
+};
+
+export type BanglaFormatOptions = BanglaCalendarFormatOptions & {
+  mode: "bangla";
+};
+
+export type HybridFormatOptions = HybridDateFormatOptions & {
+  mode: "hybrid";
+};
+
+export type FormatOptions =
+  | PatternFormatOptions
+  | StandardFormatOptions
+  | BanglaFormatOptions
+  | HybridFormatOptions;
 
 export interface HybridDateFormatOptions {
   digits?: Language;

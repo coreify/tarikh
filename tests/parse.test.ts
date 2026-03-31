@@ -61,6 +61,27 @@ describe("parseDate", () => {
     expect(result!.toISOString()).toBe("2026-03-31T15:30:00.123Z");
   });
 
+  it("parses ISO datetime strings with timezone offsets", () => {
+    const colonOffset = parseDate("2026-03-31T15:30:00+06:00");
+    expect(colonOffset).toBeInstanceOf(Date);
+    expect(colonOffset!.toISOString()).toBe("2026-03-31T09:30:00.000Z");
+
+    const compactOffset = parseDate("2026-03-31T15:30:00+0600");
+    expect(compactOffset).toBeInstanceOf(Date);
+    expect(compactOffset!.toISOString()).toBe("2026-03-31T09:30:00.000Z");
+  });
+
+  it("parses local ISO datetime strings without timezone", () => {
+    const result = parseDate("2026-03-31 15:30:00");
+    expect(result).toBeInstanceOf(Date);
+    expect(result!.getFullYear()).toBe(2026);
+    expect(result!.getMonth()).toBe(2);
+    expect(result!.getDate()).toBe(31);
+    expect(result!.getHours()).toBe(15);
+    expect(result!.getMinutes()).toBe(30);
+    expect(result!.getSeconds()).toBe(0);
+  });
+
   it("parses month-first Gregorian dates", () => {
     const result = parseDate("March 31, 2026");
     expect(result).toBeInstanceOf(Date);

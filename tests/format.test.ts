@@ -273,6 +273,22 @@ describe("format input validation", () => {
       "format() expects an options object"
     );
   });
+
+  it("rejects hybrid language options in standard mode", () => {
+    expect(() =>
+      format(testDate, { mode: "standard", month: "bn" as never })
+    ).toThrow("Invalid month format for standard mode");
+  });
+
+  it("rejects invalid hybrid month formats", () => {
+    expect(() =>
+      format(testDate, {
+        mode: "hybrid",
+        month: "bn",
+        monthFormat: "wide" as never
+      })
+    ).toThrow("Invalid month format for hybrid mode");
+  });
 });
 
 describe("format (hybrid mode)", () => {

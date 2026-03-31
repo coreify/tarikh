@@ -1,6 +1,6 @@
 import type { ForwardRefExoticComponent, ReactElement, RefAttributes } from "react";
 import { createElement, forwardRef } from "react";
-import { format as formatDateString } from "../core/format";
+import { format as formatDate } from "../core/format";
 import { parseDate } from "../core/parse";
 import { fromNow } from "../core/relative";
 import { toDate } from "../core/utils";
@@ -18,7 +18,7 @@ function localDateOnlyString(date: Date): string {
 }
 
 function hasTimeComponent(input: string): boolean {
-  return /(?:T|\s)\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:?\d{2})?$/i.test(
+  return /(?:T|\s)\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})?$/i.test(
     input.trim()
   );
 }
@@ -81,7 +81,7 @@ export const Tarikh = forwardRef<HTMLTimeElement, TarikhProps>(function Tarikh(
     ...(second !== undefined && { second }),
     ...(hour12 !== undefined && { hour12 })
   };
-  const formatted = formatDateString(date, {
+  const formatted = formatDate(date, {
     mode: "standard",
     ...formatOptions
   });
@@ -145,7 +145,7 @@ const BanglaDateComponent = forwardRef<HTMLTimeElement, BanglaDateProps>(
       ...(format !== undefined && { format }),
       ...(variant !== undefined && { variant })
     };
-    const formatted = formatDateString(
+    const formatted = formatDate(
       date,
       {
         mode: "bangla",
