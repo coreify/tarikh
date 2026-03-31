@@ -141,14 +141,15 @@ describe("README contract", () => {
 
     expect(hijriSection).toContain('format("2026-03-31", {');
     expect(hijriSection).toContain('mode: "hijri"');
-    expect(hijriSection).toContain('import { format, toHijriCalendar }');
+    expect(hijriSection).toContain('import { HIJRI_TIME_ZONES, format, toHijriCalendar }');
   });
 
   it("includes a simple external demo link", async () => {
     const readme = await readFile(readmePath, "utf8");
     const demoSection = sectionBody(readme, "Demo");
 
-    expect(demoSection).toContain("External demo:");
+    expect(demoSection).toContain("| Demo | Link |");
+    expect(demoSection).toContain("| Live demo |");
     expect(demoSection).toContain("https://tarikh.js.org");
   });
 

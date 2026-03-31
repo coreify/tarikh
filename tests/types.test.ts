@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { FormatOptions } from "../src";
+import { HIJRI_TIME_ZONES } from "../src";
+import type { FormatOptions, HijriTimeZone } from "../src";
 import { format } from "../src";
 
 describe("type-level format contract", () => {
@@ -33,6 +34,22 @@ describe("type-level format contract", () => {
       format("2026-03-31", { mode: "hijri", timeZone: "UTC" })
     ).toBe("11th Shawwal 1447 AH");
     expect(format("2026-03-31", hybridOnly)).toBe("31 মার্চ 2026");
+  });
+
+  it("limits Hijri time zone values to the documented set", () => {
+    const [defaultZone, utcZone] = HIJRI_TIME_ZONES;
+
+    expect(defaultZone).toBe("Asia/Dhaka");
+    expect(utcZone).toBe("UTC");
+
+    const typedDefault: HijriTimeZone = defaultZone;
+    const typedUtc: HijriTimeZone = utcZone;
+    expect(typedDefault).toBe("Asia/Dhaka");
+    expect(typedUtc).toBe("UTC");
+
+    // @ts-expect-error - unsupported Hijri time zones are rejected by the type contract
+    const invalidZone: HijriTimeZone = "America/New_York";
+    expectType(invalidZone);
   });
 });
 

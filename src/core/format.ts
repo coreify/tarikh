@@ -195,6 +195,7 @@ function formatDateCore(
   const day = date.getDate();
   const monthIndex = date.getMonth();
   const year = date.getFullYear();
+  const yearSuffix = isBn ? " খ্রিস্টাব্দ" : "";
 
   const dayStr =
     dayFormat === "2-digit"
@@ -215,7 +216,7 @@ function formatDateCore(
   const yearStr =
     yearFormat === "2-digit" ? String(year).slice(-2) : String(year);
 
-  const datePart = `${dayStr} ${monthStr} ${yearStr}`;
+  const datePart = `${dayStr} ${monthStr} ${yearStr}${yearSuffix}`;
   const weekdayNames = isBn
     ? weekdayFormat === "short"
       ? BANGLA_WEEKDAYS_SHORT
@@ -383,7 +384,7 @@ function formatBanglaCalendarCore(
     if (variant !== undefined) {
       dayOptions.variant = variant;
     }
-    return `${formatBanglaCalendarDay(calendar.day, dayOptions)} ${BANGLA_CALENDAR_MONTHS[monthIndex]!} ${toBanglaDigits(calendar.year)}`;
+    return `${formatBanglaCalendarDay(calendar.day, dayOptions)} ${BANGLA_CALENDAR_MONTHS[monthIndex]!} ${toBanglaDigits(calendar.year)} বঙ্গাব্দ`;
   }
 
   return `${englishDayOrdinal(calendar.day)} ${calendar.month} ${calendar.year}`;

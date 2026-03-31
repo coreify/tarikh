@@ -20,6 +20,7 @@ describe("package exports", () => {
       "ENGLISH_MONTHS_SHORT",
       "ENGLISH_WEEKDAYS_FULL",
       "ENGLISH_WEEKDAYS_SHORT",
+      "HIJRI_TIME_ZONES",
       "RELATIVE_TIME_BN",
       "RELATIVE_TIME_EN",
       "addDays",

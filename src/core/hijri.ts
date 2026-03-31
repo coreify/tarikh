@@ -4,6 +4,7 @@ import type {
   HijriCalendarDateLocalized,
   HijriCalendarOptions
 } from "../types";
+import { HIJRI_TIME_ZONES } from "../types";
 import { toBanglaDigits, toEnglishDigits } from "./digits";
 import { toDate } from "./utils";
 
@@ -12,6 +13,14 @@ const DEFAULT_HIJRI_TIME_ZONE = "Asia/Dhaka";
 
 function hijriLocale(locale: "en-BD" | "bn-BD"): string {
   return `${locale}-u-ca-${HIJRI_CALENDAR}`;
+}
+
+function assertHijriTimeZone(timeZone: string): asserts timeZone is (typeof HIJRI_TIME_ZONES)[number] {
+  if (!HIJRI_TIME_ZONES.includes(timeZone as (typeof HIJRI_TIME_ZONES)[number])) {
+    throw new RangeError(
+      `Unsupported Hijri time zone: ${timeZone}. Supported values: ${HIJRI_TIME_ZONES.join(", ")}`
+    );
+  }
 }
 
 type DateTimePartType = Intl.DateTimeFormatPart["type"];
@@ -73,6 +82,7 @@ export function toHijriCalendar(
 ): HijriCalendarDate | HijriCalendarDateLocalized {
   const locale = options?.locale ?? "en-BD";
   const timeZone = options?.timeZone ?? DEFAULT_HIJRI_TIME_ZONE;
+  assertHijriTimeZone(timeZone);
   const date = toDate(input);
   const parts = formatHijriParts(date, locale, timeZone);
 

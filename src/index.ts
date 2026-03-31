@@ -20,6 +20,7 @@ export {
   RELATIVE_TIME_EN
 } from "./core/constants";
 export { toBanglaDigits, toEnglishDigits } from "./core/digits";
+export { HIJRI_TIME_ZONES } from "./types";
 export {
   format,
   formatBanglaCalendarDay
@@ -58,6 +59,7 @@ export type {
   HijriCalendarDateLocalized,
   HijriCalendarFormatOptions,
   HijriCalendarOptions,
+  HijriTimeZone,
   DateInput,
   DayFormat,
   DateFormatOptions,

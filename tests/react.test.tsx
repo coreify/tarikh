@@ -36,7 +36,7 @@ describe("Tarikh", () => {
         locale: "bn-BD"
       })
     );
-    expect(html).toContain("৩১শে মার্চ ২০২৬");
+    expect(html).toContain("৩১শে মার্চ ২০২৬ খ্রিস্টাব্দ");
   });
 
   it("supports long month format", () => {
@@ -117,7 +117,7 @@ describe("Tarikh", () => {
       );
 
       expect(relativeHtml).toContain("yesterday");
-      expect(banglaHtml).toContain("পহেলা বৈশাখ ১৪৩৩");
+      expect(banglaHtml).toContain("পহেলা বৈশাখ ১৪৩৩ বঙ্গাব্দ");
       expect(hijriHtml).toContain("১২ই শাওয়াল ১৪৪৭ হিজরি");
     } finally {
       vi.useRealTimers();

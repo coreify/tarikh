@@ -10,7 +10,7 @@ describe("format (standard mode)", () => {
 
   it("formats in bn-BD with Bangla digits and months", () => {
     expect(format(testDate, { mode: "standard", locale: "bn-BD" })).toBe(
-      "৩১শে মার্চ ২০২৬"
+      "৩১শে মার্চ ২০২৬ খ্রিস্টাব্দ"
     );
   });
 
@@ -23,7 +23,7 @@ describe("format (standard mode)", () => {
   it("respects long month format in bn-BD", () => {
     expect(
       format(testDate, { mode: "standard", locale: "bn-BD", month: "long" })
-    ).toBe("৩১শে মার্চ ২০২৬");
+    ).toBe("৩১শে মার্চ ২০২৬ খ্রিস্টাব্দ");
   });
 
   it("respects 2-digit year", () => {
@@ -80,7 +80,7 @@ describe("format (standard mode)", () => {
         second: "2-digit",
         hour12: true
       })
-    ).toBe("মঙ্গল, ৩১শে মার্চ ২০২৬, ৯:০৫:০৭ পূর্বাহ্ণ");
+    ).toBe("মঙ্গল, ৩১শে মার্চ ২০২৬ খ্রিস্টাব্দ, ৯:০৫:০৭ পূর্বাহ্ণ");
   });
 
   it("accepts string input", () => {
@@ -230,7 +230,7 @@ describe("format (pattern and mode)", () => {
   it("supports standard mode", () => {
     expect(format(testDate, { mode: "standard" })).toBe("31st Mar 2026");
     expect(format(testDate, { mode: "standard", locale: "bn-BD" })).toBe(
-      "৩১শে মার্চ ২০২৬"
+      "৩১শে মার্চ ২০২৬ খ্রিস্টাব্দ"
     );
   });
 
@@ -254,7 +254,7 @@ describe("format (pattern and mode)", () => {
   it("supports bangla mode", () => {
     expect(format(testDate, { mode: "bangla" })).toBe("17th Chaitra 1432");
     expect(format(testDate, { mode: "bangla", locale: "bn-BD" })).toBe(
-      "১৭ই চৈত্র ১৪৩২"
+      "১৭ই চৈত্র ১৪৩২ বঙ্গাব্দ"
     );
   });
 
@@ -269,6 +269,17 @@ describe("format (pattern and mode)", () => {
     expect(
       format(testDate, { mode: "hijri", locale: "bn-BD", timeZone: "UTC" })
     ).toBe("১১ই শাওয়াল ১৪৪৭ হিজরি");
+  });
+
+  it("rejects unsupported Hijri time zones at runtime", () => {
+    expect(() =>
+      format(testDate, {
+        mode: "hijri",
+        timeZone: "America/New_York" as never
+      })
+    ).toThrow(
+      "Unsupported Hijri time zone: America/New_York. Supported values: Asia/Dhaka, UTC"
+    );
   });
 
   it("uses ই for Hijri bn-BD days beyond 2", () => {
@@ -322,13 +333,13 @@ describe("format (bangla mode)", () => {
 
   it("uses Bangla digits and month names when locale is bn-BD", () => {
     expect(format("2026-03-31", { mode: "bangla", locale: "bn-BD" })).toBe(
-      "১৭ই চৈত্র ১৪৩২"
+      "১৭ই চৈত্র ১৪৩২ বঙ্গাব্দ"
     );
     expect(format("2026-04-14", { mode: "bangla", locale: "bn-BD" })).toBe(
-      "১লা বৈশাখ ১৪৩৩"
+      "১লা বৈশাখ ১৪৩৩ বঙ্গাব্দ"
     );
     expect(format("2026-05-04", { mode: "bangla", locale: "bn-BD" })).toBe(
-      "২১শে বৈশাখ ১৪৩৩"
+      "২১শে বৈশাখ ১৪৩৩ বঙ্গাব্দ"
     );
   });
 
@@ -339,7 +350,7 @@ describe("format (bangla mode)", () => {
         locale: "bn-BD",
         format: "spoken"
       })
-    ).toBe("পহেলা বৈশাখ ১৪৩৩");
+    ).toBe("পহেলা বৈশাখ ১৪৩৩ বঙ্গাব্দ");
     expect(
       format("2026-04-14", {
         mode: "bangla",
@@ -347,7 +358,7 @@ describe("format (bangla mode)", () => {
         format: "spoken",
         variant: "poyla"
       })
-    ).toBe("পয়লা বৈশাখ ১৪৩৩");
+    ).toBe("পয়লা বৈশাখ ১৪৩৩ বঙ্গাব্দ");
   });
 
   it("accepts Date object", () => {

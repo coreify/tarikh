@@ -6,6 +6,8 @@ export type DayFormat = "numeric" | "2-digit";
 export type WeekdayFormat = "short" | "long";
 export type TimeFormat = "numeric" | "2-digit";
 export type FormatMode = "standard" | "bangla" | "hijri" | "hybrid";
+export const HIJRI_TIME_ZONES = ["Asia/Dhaka", "UTC"] as const;
+export type HijriTimeZone = (typeof HIJRI_TIME_ZONES)[number];
 
 export type DateInput = Date | string | number;
 
@@ -97,7 +99,7 @@ export interface BanglaCalendarFormatOptions {
 
 export interface HijriCalendarOptions {
   locale?: Locale;
-  timeZone?: string;
+  timeZone?: HijriTimeZone;
 }
 
 export interface HijriCalendarDate {
@@ -116,7 +118,7 @@ export interface HijriCalendarDateLocalized {
 
 export interface HijriCalendarFormatOptions {
   locale?: Locale;
-  timeZone?: string;
+  timeZone?: HijriTimeZone;
 }
 
 export type BanglaCalendarDayFormat = "ordinal" | "spoken";
