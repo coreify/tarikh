@@ -99,6 +99,9 @@ function parseBanglaCalendarDayToken(token: string): number | null {
   const ordinalMatch = token.match(/^(\d{1,2})(?:লা|রা|ঠা|ই|শে)$/);
   if (ordinalMatch) return Number(ordinalMatch[1]);
 
+  const englishOrdinalMatch = token.match(/^(\d{1,2})(?:st|nd|rd|th)$/i);
+  if (englishOrdinalMatch) return Number(englishOrdinalMatch[1]);
+
   const plain = Number(token);
   if (Number.isInteger(plain) && plain >= 1 && plain <= 31) return plain;
 

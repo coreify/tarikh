@@ -28,7 +28,7 @@ describe("format (standard mode)", () => {
 
   it("respects 2-digit year", () => {
     expect(format(testDate, { mode: "standard", year: "2-digit" })).toBe(
-      "31 Mar 26"
+      "31st Mar 26"
     );
   });
 
@@ -240,7 +240,7 @@ describe("format (pattern and mode)", () => {
   });
 
   it("supports bangla mode", () => {
-    expect(format(testDate, { mode: "bangla" })).toBe("17 Chaitra 1432");
+    expect(format(testDate, { mode: "bangla" })).toBe("17th Chaitra 1432");
     expect(format(testDate, { mode: "bangla", locale: "bn-BD" })).toBe(
       "১৭ই চৈত্র ১৪৩২"
     );

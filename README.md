@@ -212,7 +212,7 @@ toBanglaCalendar("2026-03-31", { locale: "bn-BD" });
 // → { day: "১৭", month: "চৈত্র", monthIndex: 12, year: "১৪৩২" }
 
 format("2026-03-31", { mode: "bangla" });
-// → "17 Chaitra 1432"
+// → "17th Chaitra 1432"
 
 format("2026-03-31", { mode: "bangla", locale: "bn-BD" });
 // → "১৭ই চৈত্র ১৪৩২"

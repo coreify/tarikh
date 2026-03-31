@@ -46,7 +46,7 @@ describe("Tarikh", () => {
         month: "long"
       })
     );
-    expect(html).toContain("31 March 2026");
+    expect(html).toContain("31st March 2026");
   });
 
   it("supports weekday and time props", () => {

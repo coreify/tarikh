@@ -136,6 +136,14 @@ describe("parseDate", () => {
     expect(result!.getDate()).toBe(31);
   });
 
+  it("parses Bangla calendar date with English ordinal day words (Chaitra)", () => {
+    const result = parseDate("17th Chaitra 1432", { calendar: "bangla" });
+    expect(result).toBeInstanceOf(Date);
+    expect(result!.getFullYear()).toBe(2026);
+    expect(result!.getMonth()).toBe(2);
+    expect(result!.getDate()).toBe(31);
+  });
+
   it("still parses legacy English spellings (Choitro, Boishakh)", () => {
     expect(
       parseDate("17 Choitro 1432", { calendar: "bangla" })!.getDate()
@@ -203,6 +211,14 @@ describe("parseDate", () => {
     expect(result!.getDate()).toBe(14);
   });
 
+  it("parses 1st Baishakh", () => {
+    const result = parseDate("1st Baishakh 1433", { calendar: "bangla" });
+    expect(result).toBeInstanceOf(Date);
+    expect(result!.getFullYear()).toBe(2026);
+    expect(result!.getMonth()).toBe(3);
+    expect(result!.getDate()).toBe(14);
+  });
+
   it("returns null for invalid Bangla calendar dates", () => {
     expect(parseDate("31 Poush 1432", { calendar: "bangla" })).toBeNull();
     expect(parseDate("31 Chaitra 1432", { calendar: "bangla" })).toBeNull();
@@ -227,5 +243,39 @@ describe("parseDate", () => {
     const result = parseDate("৩১ মার্চ ২০২৬");
     expect(result).toBeInstanceOf(Date);
     expect(result!.getMonth()).toBe(2);
+  });
+
+  it("parses Bangla short month names with Bangla ordinal suffixes", () => {
+    const result = parseDate("৩১শে মার্চ ২০২৬");
+    expect(result).toBeInstanceOf(Date);
+    expect(result!.getFullYear()).toBe(2026);
+    expect(result!.getMonth()).toBe(2);
+    expect(result!.getDate()).toBe(31);
+  });
+
+  it("parses Bangla ordinal suffixes for low days", () => {
+    const one = parseDate("১লা মার্চ ২০২৬");
+    const two = parseDate("২রা মার্চ ২০২৬");
+    const three = parseDate("৩রা মার্চ ২০২৬");
+    const four = parseDate("৪ঠা মার্চ ২০২৬");
+
+    expect(one).toBeInstanceOf(Date);
+    expect(one!.getDate()).toBe(1);
+    expect(two).toBeInstanceOf(Date);
+    expect(two!.getDate()).toBe(2);
+    expect(three).toBeInstanceOf(Date);
+    expect(three!.getDate()).toBe(3);
+    expect(four).toBeInstanceOf(Date);
+    expect(four!.getDate()).toBe(4);
+  });
+
+  it("parses Bangla ordinal suffixes for high days", () => {
+    const nineteen = parseDate("১৯শে মার্চ ২০২৬");
+    const twentyOne = parseDate("২১শে মার্চ ২০২৬");
+
+    expect(nineteen).toBeInstanceOf(Date);
+    expect(nineteen!.getDate()).toBe(19);
+    expect(twentyOne).toBeInstanceOf(Date);
+    expect(twentyOne!.getDate()).toBe(21);
   });
 });

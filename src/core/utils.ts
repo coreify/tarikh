@@ -116,7 +116,7 @@ function parseIsoDateTime(input: string): Date | null {
 
 function parseDmy(input: string): Date | null {
   const match = input.match(
-    /^(\d{1,2})(?:st|nd|rd|th)?(?:\s+|-)(\S+)(?:\s+|-)(\d{2,4})$/
+    /^(\d{1,2})(?:st|nd|rd|th|লা|রা|ঠা|ই|শে)?(?:\s+|-)(\S+)(?:\s+|-)(\d{2,4})$/
   );
   if (!match) return null;
 
@@ -137,7 +137,7 @@ function parseDmy(input: string): Date | null {
 
 function parseMonthDate(input: string): Date | null {
   const match = input.match(
-    /^(\S+)\s+(\d{1,2})(?:st|nd|rd|th)?(?:,)?\s+(\d{2,4})$/
+    /^(\S+)\s+(\d{1,2})(?:st|nd|rd|th|লা|রা|ঠা|ই|শে)?(?:,)?\s+(\d{2,4})$/
   );
   if (!match) return null;
 
