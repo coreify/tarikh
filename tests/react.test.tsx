@@ -211,9 +211,10 @@ describe("Tarikh.Relative", () => {
   });
 
   it("supports overriding the Hijri timezone", () => {
+    const hijriInstant = new Date("2026-03-30T18:00:00.000Z");
     const html = renderToStaticMarkup(
       createElement(Tarikh.Hijri, {
-        value: new Date(2026, 2, 31),
+        value: hijriInstant,
         timeZone: "UTC"
       })
     );

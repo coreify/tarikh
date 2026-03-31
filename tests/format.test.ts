@@ -259,15 +259,19 @@ describe("format (pattern and mode)", () => {
   });
 
   it("supports hijri mode", () => {
-    expect(format(testDate, { mode: "hijri" })).toBe("12th Shawwal 1447 AH");
-    expect(format(testDate, { mode: "hijri", locale: "bn-BD" })).toBe(
+    const hijriInstant = new Date("2026-03-30T18:00:00.000Z");
+
+    expect(format(hijriInstant, { mode: "hijri" })).toBe(
+      "12th Shawwal 1447 AH"
+    );
+    expect(format(hijriInstant, { mode: "hijri", locale: "bn-BD" })).toBe(
       "১২ই শাওয়াল ১৪৪৭ হিজরি"
     );
     expect(
-      format(testDate, { mode: "hijri", timeZone: "UTC" })
+      format(hijriInstant, { mode: "hijri", timeZone: "UTC" })
     ).toBe("11th Shawwal 1447 AH");
     expect(
-      format(testDate, { mode: "hijri", locale: "bn-BD", timeZone: "UTC" })
+      format(hijriInstant, { mode: "hijri", locale: "bn-BD", timeZone: "UTC" })
     ).toBe("১১ই শাওয়াল ১৪৪৭ হিজরি");
   });
 
