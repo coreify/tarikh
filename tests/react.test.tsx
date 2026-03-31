@@ -118,7 +118,7 @@ describe("Tarikh", () => {
 
       expect(relativeHtml).toContain("yesterday");
       expect(banglaHtml).toContain("পহেলা বৈশাখ ১৪৩৩");
-      expect(hijriHtml).toContain("১১ই শাওয়াল ১৪৪৭ হিজরি");
+      expect(hijriHtml).toContain("১২ই শাওয়াল ১৪৪৭ হিজরি");
     } finally {
       vi.useRealTimers();
     }
@@ -206,7 +206,7 @@ describe("Tarikh.Relative", () => {
         value: new Date(2026, 2, 31)
       })
     );
-    expect(html).toContain("11th Shawwal 1447 AH");
+    expect(html).toContain("12th Shawwal 1447 AH");
     expect(html).toContain("<time");
   });
 

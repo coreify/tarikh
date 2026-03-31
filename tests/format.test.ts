@@ -259,22 +259,22 @@ describe("format (pattern and mode)", () => {
   });
 
   it("supports hijri mode", () => {
-    expect(format(testDate, { mode: "hijri" })).toBe("11th Shawwal 1447 AH");
+    expect(format(testDate, { mode: "hijri" })).toBe("12th Shawwal 1447 AH");
     expect(format(testDate, { mode: "hijri", locale: "bn-BD" })).toBe(
-      "১১ই শাওয়াল ১৪৪৭ হিজরি"
+      "১২ই শাওয়াল ১৪৪৭ হিজরি"
     );
   });
 
   it("uses ই for Hijri bn-BD days beyond 2", () => {
     expect(
       format(new Date(2026, 0, 22), { mode: "hijri", locale: "bn-BD" })
-    ).toMatch(/^২রা /);
+    ).toMatch(/^৩ই /);
     expect(
       format(new Date(2026, 0, 23), { mode: "hijri", locale: "bn-BD" })
-    ).toMatch(/^৩রা /);
+    ).toMatch(/^৪ই /);
     expect(
       format(new Date(2026, 0, 24), { mode: "hijri", locale: "bn-BD" })
-    ).toMatch(/^৪ঠা /);
+    ).toMatch(/^৫ই /);
   });
 
   it("keeps Hijri output stable on Gregorian boundary dates", () => {

@@ -8,6 +8,7 @@ import { toBanglaDigits, toEnglishDigits } from "./digits";
 import { toDate } from "./utils";
 
 const HIJRI_CALENDAR = "islamic-umalqura";
+const HIJRI_TIME_ZONE = "Asia/Dhaka";
 
 function hijriLocale(locale: "en-BD" | "bn-BD"): string {
   return `${locale}-u-ca-${HIJRI_CALENDAR}`;
@@ -40,13 +41,13 @@ function formatHijriParts(
     day: "numeric",
     month: "numeric",
     year: "numeric",
-    timeZone: "UTC"
+    timeZone: HIJRI_TIME_ZONE
   }).formatToParts(date);
   const monthParts = new Intl.DateTimeFormat(intlLocale, {
     day: "numeric",
     month: "long",
     year: "numeric",
-    timeZone: "UTC"
+    timeZone: HIJRI_TIME_ZONE
   }).formatToParts(date);
 
   const day = getPart(numericParts, "day");

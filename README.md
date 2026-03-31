@@ -87,10 +87,10 @@ toHijriCalendar("2026-03-31", { locale: "bn-BD" });
 // → { day: "১১", month: "শাওয়াল", monthIndex: 10, year: "১৪৪৭" }
 
 format("2026-03-31", { mode: "hijri" });
-// → "11th Shawwal 1447 AH"
+// → "12th Shawwal 1447 AH"
 
 format("2026-03-31", { mode: "hijri", locale: "bn-BD" });
-// → "১১ই শাওয়াল ১৪৪৭ হিজরি"
+// → "১২ই শাওয়াল ১৪৪৭ হিজরি"
 
 format(new Date(2026, 2, 31, 15, 4), {
   mode: "standard",
@@ -278,10 +278,10 @@ toHijriCalendar("2026-03-31", { locale: "bn-BD" });
 // → { day: "১১", month: "শাওয়াল", monthIndex: 10, year: "১৪৪৭" }
 
 format("2026-03-31", { mode: "hijri" });
-// → "11th Shawwal 1447 AH"
+// → "12th Shawwal 1447 AH"
 
 format("2026-03-31", { mode: "hijri", locale: "bn-BD" });
-// → "১১ই শাওয়াল ১৪৪৭ হিজরি"
+// → "১২ই শাওয়াল ১৪৪৭ হিজরি"
 ```
 
 ### Hybrid Formatting

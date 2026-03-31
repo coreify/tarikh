@@ -73,8 +73,7 @@ function hijriBanglaDayOrdinal(day: number): string {
   const digits = toBanglaDigits(day);
 
   if (day === 1) return `${digits}লা`;
-  if (day === 2 || day === 3) return `${digits}রা`;
-  if (day === 4) return `${digits}ঠা`;
+  if (day === 2) return `${digits}রা`;
   return `${digits}ই`;
 }
 
