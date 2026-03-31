@@ -7,13 +7,31 @@ const currentDir = dirname(fileURLToPath(import.meta.url));
 const readmePath = resolve(currentDir, "..", "README.md");
 
 function sectionBody(readme: string, heading: string): string {
+  const lines = readme.split(/\r?\n/);
   const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const regex = new RegExp(
-    `^##+\\s+${escaped}\\s*$([\\s\\S]*?)(?=^##+\\s+|\\Z)`,
-    "m"
-  );
-  const match = readme.match(regex);
-  return match?.[1]?.trim() ?? "";
+  const headingPattern = new RegExp(`^(#{1,6})\\s+${escaped}\\s*$`);
+  let startIndex = -1;
+  let headingLevel = 0;
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const match = lines[index]!.match(headingPattern);
+    if (!match) continue;
+    startIndex = index + 1;
+    headingLevel = match[1]!.length;
+    break;
+  }
+
+  if (startIndex === -1) return "";
+
+  const body: string[] = [];
+  for (let index = startIndex; index < lines.length; index += 1) {
+    const line = lines[index]!;
+    const headingMatch = line.match(/^(#{1,6})\s+/);
+    if (headingMatch && headingMatch[1]!.length <= headingLevel) break;
+    body.push(line);
+  }
+
+  return body.join("\n").trim();
 }
 
 function fencedCodeBlocks(readme: string): string[] {
@@ -57,7 +75,7 @@ describe("README contract", () => {
     expect(sectionBody(readme, "Quick Start")).not.toBe("");
     expect(sectionBody(readme, "🇧🇩 Bangla Calendar (Core Feature)")).not.toBe("");
     expect(sectionBody(readme, "React Components")).not.toBe("");
-    expect(sectionBody(readme, "Live Demo")).not.toBe("");
+    expect(sectionBody(readme, "Demo")).not.toBe("");
   });
 
   it("keeps code fences balanced", async () => {
@@ -88,7 +106,7 @@ describe("README contract", () => {
     expect(code).toMatch(/mode:\s*"hybrid"/);
     expect(code).toMatch(/pattern:\s*"DD MMM YYYY"/);
     expect(patternSection).toMatch(/mode.*pattern.*mutually exclusive/i);
-    expect(patternSection).toMatch(/do not pass.*mode/i);
+    expect(patternSection).toContain("`format()` is the primary API.");
     expect(readme).toMatch(/pattern.*mode.*disallowed in TypeScript/i);
     expect(readme).not.toContain('format("2026-04-14", "bangla"');
   });
@@ -116,15 +134,12 @@ describe("README contract", () => {
     expect(banglaSection).toContain('format: "spoken"');
   });
 
-  it("includes a concrete live demo snippet", async () => {
+  it("includes a simple external demo link", async () => {
     const readme = await readFile(readmePath, "utf8");
-    const liveDemoSection = sectionBody(readme, "Live Demo");
+    const demoSection = sectionBody(readme, "Demo");
 
-    expect(liveDemoSection).toContain("Input:");
-    expect(liveDemoSection).toContain("2026-04-14");
-    expect(liveDemoSection).toContain("standard → 14 Apr 2026");
-    expect(liveDemoSection).toContain("bangla → ১লা বৈশাখ ১৪৩৩");
-    expect(liveDemoSection).toContain("spoken → পহেলা বৈশাখ ১৪৩৩");
+    expect(demoSection).toContain("External demo:");
+    expect(demoSection).toContain("https://tarikh.js.org");
   });
 
   it("documents bracket literals for pattern formatting", async () => {

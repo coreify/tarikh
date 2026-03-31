@@ -71,6 +71,15 @@ function formatNumericValue(
   return format === "2-digit" ? String(value).padStart(2, "0") : String(value);
 }
 
+function formatPatternNumericValue(
+  value: number,
+  locale: "en-BD" | "bn-BD",
+  format: "numeric" | "2-digit"
+): string {
+  const formatted = formatNumericValue(value, format);
+  return locale === "bn-BD" ? toBanglaDigits(formatted) : formatted;
+}
+
 function assertAllowedValue<T extends string>(
   value: string,
   allowedValues: readonly T[],
@@ -237,22 +246,22 @@ function formatPatternCore(
     ddd: weekdaysShort[date.getDay()]!,
     MMMM: monthsLong[monthIndex]!,
     MMM: monthsShort[monthIndex]!,
-    MM: String(monthIndex + 1).padStart(2, "0"),
-    M: String(monthIndex + 1),
-    DD: String(day).padStart(2, "0"),
-    D: String(day),
-    HH: String(hours24).padStart(2, "0"),
-    H: String(hours24),
-    hh: String(hours12).padStart(2, "0"),
-    h: String(hours12),
-    mm: String(date.getMinutes()).padStart(2, "0"),
-    m: String(date.getMinutes()),
-    ss: String(date.getSeconds()).padStart(2, "0"),
-    s: String(date.getSeconds()),
+    MM: formatPatternNumericValue(monthIndex + 1, locale, "2-digit"),
+    M: formatPatternNumericValue(monthIndex + 1, locale, "numeric"),
+    DD: formatPatternNumericValue(day, locale, "2-digit"),
+    D: formatPatternNumericValue(day, locale, "numeric"),
+    HH: formatPatternNumericValue(hours24, locale, "2-digit"),
+    H: formatPatternNumericValue(hours24, locale, "numeric"),
+    hh: formatPatternNumericValue(hours12, locale, "2-digit"),
+    h: formatPatternNumericValue(hours12, locale, "numeric"),
+    mm: formatPatternNumericValue(date.getMinutes(), locale, "2-digit"),
+    m: formatPatternNumericValue(date.getMinutes(), locale, "numeric"),
+    ss: formatPatternNumericValue(date.getSeconds(), locale, "2-digit"),
+    s: formatPatternNumericValue(date.getSeconds(), locale, "numeric"),
     A: getMeridiem(hours24, locale, false),
     a: getMeridiem(hours24, locale, true),
-    YYYY: String(year),
-    YY: String(year).slice(-2)
+    YYYY: formatPatternNumericValue(year, locale, "numeric"),
+    YY: formatPatternNumericValue(Number(String(year).slice(-2)), locale, "2-digit")
   };
 
   const pattern =
@@ -282,7 +291,7 @@ function formatPatternCore(
     cursor = literalEnd + 1;
   }
 
-  return isBn ? toBanglaDigits(formatted) : formatted;
+  return formatted;
 }
 
 export function format(input: DateInput, options: FormatOptions): string {
@@ -301,7 +310,11 @@ export function format(input: DateInput, options: FormatOptions): string {
     return formatPatternCore(input, options.pattern, locale);
   }
 
-  const mode = options.mode ?? "standard";
+  if (!("mode" in options) || options.mode === undefined) {
+    throw new TypeError("format() expects `mode` or `pattern`");
+  }
+
+  const mode = options.mode;
   switch (mode) {
     case "standard":
       return formatDateCore(input, options as DateFormatOptions | undefined);

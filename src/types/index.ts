@@ -24,19 +24,22 @@ export interface DateFormatOptions {
 export type PatternFormatOptions = {
   pattern: string;
   locale?: Locale;
-  mode?: FormatMode;
+  mode?: never;
 };
 
 export type StandardFormatOptions = DateFormatOptions & {
-  mode?: "standard";
+  mode: "standard";
+  pattern?: never;
 };
 
 export type BanglaFormatOptions = BanglaCalendarFormatOptions & {
   mode: "bangla";
+  pattern?: never;
 };
 
 export type HybridFormatOptions = HybridDateFormatOptions & {
   mode: "hybrid";
+  pattern?: never;
 };
 
 export type FormatOptions =

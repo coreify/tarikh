@@ -161,6 +161,23 @@ describe("format (pattern and mode)", () => {
     );
   });
 
+  it("supports multiple bracket literals in a single pattern", () => {
+    const date = new Date(2026, 2, 31, 15, 4, 9);
+    expect(
+      format(date, { pattern: "[Version] DD [of] MMM YYYY" })
+    ).toBe("Version 31 of Mar 2026");
+    expect(
+      format(date, { pattern: "[Version] DD [of] MMM YYYY", locale: "bn-BD" })
+    ).toBe("Version ৩১ of মার্চ ২০২৬");
+  });
+
+  it("keeps bracket literals unchanged in bn-BD", () => {
+    const date = new Date(2026, 2, 31, 15, 4, 9);
+    expect(
+      format(date, { pattern: "[Version 2] D MMM YYYY", locale: "bn-BD" })
+    ).toBe("Version 2 ৩১ মার্চ ২০২৬");
+  });
+
   it("does not treat raw placeholder-like text as escaped literals", () => {
     expect(format(testDate, { pattern: "<<1>> DD MMM YYYY" })).toBe(
       "<<1>> 31 Mar 2026"
@@ -174,6 +191,27 @@ describe("format (pattern and mode)", () => {
 
   it("treats unmatched opening bracket as plain text", () => {
     expect(format(testDate, { pattern: "[Today h:mm a" })).toBe("[Today h:mm a");
+  });
+
+  it("treats empty bracket literals as empty text", () => {
+    expect(format(testDate, { pattern: "[] DD MMM YYYY" })).toBe(
+      " 31 Mar 2026"
+    );
+    expect(format(testDate, { pattern: "[] DD MMM YYYY", locale: "bn-BD" })).toBe(
+      " ৩১ মার্চ ২০২৬"
+    );
+  });
+
+  it("supports adjacent and nested-looking bracket literals", () => {
+    expect(format(testDate, { pattern: "[A][B]DD MMM YYYY" })).toBe(
+      "AB31 Mar 2026"
+    );
+    expect(format(testDate, { pattern: "[[A]] DD MMM YYYY" })).toBe(
+      "[A] 31 Mar 2026"
+    );
+    expect(
+      format(testDate, { pattern: "[[A]] DD MMM YYYY", locale: "bn-BD" })
+    ).toBe("[A] ৩১ মার্চ ২০২৬");
   });
 
   it("supports standard mode", () => {
@@ -192,6 +230,12 @@ describe("format (pattern and mode)", () => {
         } as never)
     ).toThrow(
       "Do not pass `mode` when `pattern` is provided. `pattern` formatting does not use mode."
+    );
+  });
+
+  it("rejects empty option objects", () => {
+    expect(() => format(testDate, {} as never)).toThrow(
+      "format() expects `mode` or `pattern`"
     );
   });
 

@@ -19,19 +19,9 @@ format("2026-04-14", {
 // → "পহেলা বৈশাখ ১৪৩৩"
 ```
 
-## Live Demo
+## Demo
 
-Try the interactive docs demo at [tarikh.js.org](https://tarikh.js.org) to compare standard, Bangla, spoken, and hybrid outputs side by side.
-
-```text
-Input:
-2026-04-14
-
-Output:
-standard → 14 Apr 2026
-bangla → ১লা বৈশাখ ১৪৩৩
-spoken → পহেলা বৈশাখ ১৪৩৩
-```
+External demo: [tarikh.js.org](https://tarikh.js.org)
 
 ## Why this exists
 
@@ -147,8 +137,6 @@ format(new Date(2026, 2, 31, 15, 4, 9), {
 // → "Tuesday, 31 Mar 2026, 03:04:09 PM"
 ```
 
-Use `format()` for everything. Pass an object with `mode` (`standard`, `bangla`, `hybrid`) or `pattern`.
-
 **Options:** `locale` (`"en-BD"` | `"bn-BD"`), `month` (`"short"` | `"long"`), `year` (`"numeric"` | `"2-digit"`), `day` (`"numeric"` | `"2-digit"`), `weekday` (`"short"` | `"long"`), `hour` / `minute` / `second` (`"numeric"` | `"2-digit"`), `hour12` (`boolean`)
 
 ### Pattern Formatting
@@ -182,9 +170,7 @@ format(new Date(2026, 2, 31, 21, 4, 9), {
 // → "Tuesday, 31 Mar 2026 09:04:09 PM"
 ```
 
-`format()` is the primary API. Choose `{ mode }` for date behavior or `{ pattern }` for token formatting.
-
-`mode` and `pattern` are mutually exclusive. If you pass `pattern`, do not pass `mode`.
+`format()` is the primary API. Use `{ mode }` for date behavior or `{ pattern }` for token formatting. `mode` and `pattern` are mutually exclusive.
 
 **Tokens:** `dddd`, `ddd`, `DD`, `D`, `MMMM`, `MMM`, `MM`, `M`, `YYYY`, `YY`, `HH`, `H`, `hh`, `h`, `mm`, `m`, `ss`, `s`, `A`, `a`
 
@@ -457,40 +443,20 @@ If you're building for Bangladesh, existing libraries are not enough.
 
 ## TypeScript
 
-Fully typed with strict mode. Core option interfaces and value types are exported from `@coreify/tarikh`.
+Fully typed with strict mode. Start with the primary types below; the package also exports the lower-level calendar and helper types for advanced use.
 
 Type-level contract note: when using `pattern`, `mode` is intentionally disallowed in TypeScript.
 
 ```ts
 import type {
-  DateInput,
-  DayFormat,
-  MonthFormat,
   Locale,
-  Language,
-  YearFormat,
-  WeekdayFormat,
-  TimeFormat,
   FormatMode,
   FormatOptions,
-  BanglaCalendarOptions,
-  RelativeTimeOptions,
-  BanglaCalendarFormatOptions,
-  BanglaCalendarDayFormat,
-  BanglaCalendarDaySpokenVariant,
-  BanglaDayFormatOptions,
-  DateFormatOptions,
-  BanglaCalendarDate,
-  HybridDateFormatOptions
+  DateInput,
+  RelativeTimeOptions
 } from "@coreify/tarikh";
-```
 
-```ts
-import type {
-  BanglaDateProps,
-  RelativeTimeProps,
-  TarikhProps
-} from "@coreify/tarikh/react";
+import type { TarikhProps } from "@coreify/tarikh/react";
 ```
 
 ## License
