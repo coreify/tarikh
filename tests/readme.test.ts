@@ -111,8 +111,11 @@ describe("README contract", () => {
     expect(readme).toContain("format()");
     expect(code).toMatch(/mode:\s*"standard"/);
     expect(code).toMatch(/mode:\s*"bangla"/);
+    expect(code).toMatch(/mode:\s*"hijri"/);
     expect(code).toMatch(/mode:\s*"hybrid"/);
     expect(code).toMatch(/pattern:\s*"DD MMM YYYY"/);
+    expect(code).toMatch(/preset:\s*"dateTime"/);
+    expect(code).toMatch(/preset:\s*"isoLike"/);
     expect(patternSection).toMatch(/mode.*pattern.*mutually exclusive/i);
     expect(patternSection).toContain("`format()` is the primary API.");
     expect(readme).toMatch(/pattern.*mode.*disallowed in TypeScript/i);
@@ -135,6 +138,9 @@ describe("README contract", () => {
     expect(reactSection).toContain(
       '<Tarikh.Hijri value={date} locale="bn-BD" />'
     );
+    expect(reactSection).toContain(
+      '<Tarikh.Relative value={date} relativeStyle="short" />'
+    );
     expect(reactSection).not.toContain("import { RelativeTime");
     expect(reactSection).not.toContain("import { BanglaDate");
   });
@@ -155,13 +161,14 @@ describe("README contract", () => {
     expect(hijriSection).toContain(
       "import { HIJRI_TIME_ZONES, format, toHijriCalendar }"
     );
+    expect(hijriSection).toContain('hijriSystem: "islamic-civil"');
   });
 
   it("includes a simple external demo link", async () => {
     const readme = await readFile(readmePath, "utf8");
     const demoSection = sectionBody(readme, "Demo");
 
-    expect(demoSection).toContain("| Demo | Link |");
+    expect(demoSection).toMatch(/\|\s*Demo\s*\|\s*Link\s*\|/);
     expect(demoSection).toContain("| Live demo |");
     expect(demoSection).toContain("https://tarikh.js.org");
   });
@@ -173,5 +180,20 @@ describe("README contract", () => {
     );
     expect(readme).toContain("[Today at] h:mm a");
     expect(readme).toContain("Bracket literals are not nestable");
+  });
+
+  it("documents the latest defaults, parsing, relative-time, and type APIs", async () => {
+    const readme = await readFile(readmePath, "utf8");
+
+    expect(readme).toContain("setDefaults()");
+    expect(readme).toContain("getDefaults()");
+    expect(readme).toContain("parseDateDetailed()");
+    expect(readme).toContain('strict: true');
+    expect(readme).toContain('baseDate: "2026-03-31T12:00:00Z"');
+    expect(readme).toContain('style: "short"');
+    expect(readme).toContain("BanglaCalendarResult<TLocale>");
+    expect(readme).toContain("HijriCalendarResult<TLocale>");
+    expect(readme).toContain("BanglaCalendarOptions<TLocale>");
+    expect(readme).toContain("HijriCalendarOptions<TLocale>");
   });
 });
