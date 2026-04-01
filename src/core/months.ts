@@ -71,16 +71,7 @@ const GREGORIAN_MONTH_ALIASES: Readonly<Record<string, number>> = {
   নভেম্বর: 10,
   নভেম্বার: 10,
   ডিসেম্বর: 11,
-  ডিসেম্বার: 11,
-  জানু: 0,
-  ফেব্রু: 1,
-  এপ্রি: 3,
-  জুলা: 6,
-  আগ: 7,
-  সেপ্টে: 8,
-  অক্টো: 9,
-  নভে: 10,
-  ডিসে: 11
+  ডিসেম্বার: 11
 };
 
 export function gregorianMonthIndex(name: string): number {

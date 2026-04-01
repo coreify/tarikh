@@ -135,7 +135,7 @@ function formatDateCore(
 ): string {
   const date = toDate(input);
   const locale = options?.locale ?? "en-BD";
-  const monthFormat = options?.month ?? "short";
+  const monthFormat = options?.month ?? (locale === "bn-BD" ? "long" : "short");
   const yearFormat = options?.year ?? "numeric";
   const dayFormat = options?.day ?? "numeric";
   const weekdayFormat = options?.weekday;
