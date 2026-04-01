@@ -4,6 +4,7 @@ import type {
   BanglaCalendarDayFormat,
   DateInput,
   DateFormatOptions,
+  HijriCalendarSystem,
   HijriTimeZone,
   Locale,
   RelativeTimeOptions
@@ -25,6 +26,9 @@ export interface RelativeTimeProps extends Omit<
   value: DateInput;
   locale?: Locale;
   numeric?: RelativeTimeOptions["numeric"];
+  baseDate?: RelativeTimeOptions["baseDate"];
+  relativeStyle?: RelativeTimeOptions["style"];
+  threshold?: RelativeTimeOptions["threshold"];
   srLabel?: string;
 }
 
@@ -46,5 +50,6 @@ export interface HijriDateProps extends Omit<
   value: DateInput;
   locale?: Locale;
   timeZone?: HijriTimeZone;
+  hijriSystem?: HijriCalendarSystem;
   srLabel?: string;
 }

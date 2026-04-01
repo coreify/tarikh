@@ -75,7 +75,15 @@ function makeSupportedDate(
   millisecond = 0
 ): Date | null {
   return (
-    makeValidLocalDate(year, monthIndex, day, hour, minute, second, millisecond) ??
+    makeValidLocalDate(
+      year,
+      monthIndex,
+      day,
+      hour,
+      minute,
+      second,
+      millisecond
+    ) ??
     makeValidUtcDate(year, monthIndex, day, hour, minute, second, millisecond)
   );
 }
@@ -196,7 +204,11 @@ function parseDmy(input: string): Date | null {
   if (parsedYear === null) return null;
 
   let year = parsedYear;
-  if (!yearRaw.startsWith("+") && !yearRaw.startsWith("-") && yearRaw.length === 2) {
+  if (
+    !yearRaw.startsWith("+") &&
+    !yearRaw.startsWith("-") &&
+    yearRaw.length === 2
+  ) {
     year += year >= 50 ? 1900 : 2000;
   }
 
@@ -220,7 +232,11 @@ function parseMonthDate(input: string): Date | null {
   if (parsedYear === null) return null;
 
   let year = parsedYear;
-  if (!yearRaw.startsWith("+") && !yearRaw.startsWith("-") && yearRaw.length === 2) {
+  if (
+    !yearRaw.startsWith("+") &&
+    !yearRaw.startsWith("-") &&
+    yearRaw.length === 2
+  ) {
     year += year >= 50 ? 1900 : 2000;
   }
 

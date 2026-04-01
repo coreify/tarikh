@@ -49,6 +49,17 @@ describe("Tarikh", () => {
     expect(html).toContain("31st March 2026");
   });
 
+  it("applies preset formatting in the main Tarikh component", () => {
+    const html = renderToStaticMarkup(
+      createElement(Tarikh, {
+        value: new Date(2026, 2, 31, 15, 30),
+        preset: "dateTime"
+      })
+    );
+    expect(html).toContain("31st Mar 2026, 15:30");
+    expect(html).toContain('aria-label="31st Mar 2026, 15:30"');
+  });
+
   it("supports weekday and time props", () => {
     const html = renderToStaticMarkup(
       createElement(Tarikh, {
@@ -229,9 +240,7 @@ describe("Tarikh.Relative", () => {
       renderToStaticMarkup(createElement(Tarikh, { value: overflow }))
     ).toThrow(message);
     expect(() =>
-      renderToStaticMarkup(
-        createElement(Tarikh.Relative, { value: overflow })
-      )
+      renderToStaticMarkup(createElement(Tarikh.Relative, { value: overflow }))
     ).toThrow(message);
     expect(() =>
       renderToStaticMarkup(

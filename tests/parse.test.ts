@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseDate } from "../src/core/parse";
+import { parseDate, parseDateDetailed } from "../src/core/parse";
 
 describe("parseDate", () => {
   it("parses ISO string", () => {
@@ -257,6 +257,58 @@ describe("parseDate", () => {
   it("returns null for invalid input", () => {
     expect(parseDate("not a date")).toBeNull();
     expect(parseDate("03/04/2026")).toBeNull();
+  });
+
+  it("supports strict Gregorian parsing", () => {
+    const strictIso = parseDate("2026-03-31", { strict: true });
+    expect(strictIso).toBeInstanceOf(Date);
+    expect(parseDate("31 Mar 26", { strict: true })).toBeNull();
+    expect(parseDate("2026/3/1", { strict: true })).toBeNull();
+  });
+
+  it("supports strict Bangla calendar parsing without legacy aliases", () => {
+    expect(
+      parseDate("17 Chaitra 1432", { calendar: "bangla", strict: true })
+    ).toBeInstanceOf(Date);
+    expect(
+      parseDate("17 Choitro 1432", { calendar: "bangla", strict: true })
+    ).toBeNull();
+  });
+
+  it("returns detailed parse metadata for successful parses", () => {
+    const result = parseDateDetailed("2026-03-31", { strict: true });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.format).toBe("ymd");
+      expect(result.strict).toBe(true);
+      expect(result.normalizedInput).toBe("2026-03-31");
+      expect(result.date.getFullYear()).toBe(2026);
+      expect(result.date.getMonth()).toBe(2);
+      expect(result.date.getDate()).toBe(31);
+    }
+  });
+
+  it("returns detailed parse metadata for strict mismatches", () => {
+    const result = parseDateDetailed("31 Mar 26", { strict: true });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.reason).toBe("strict_mismatch");
+      expect(result.message).toMatch(/strict/i);
+    }
+  });
+
+  it("returns detailed parse metadata for invalid Bangla calendar dates", () => {
+    const result = parseDateDetailed("31 Poush 1432", {
+      calendar: "bangla",
+      strict: true
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.reason).toBe("invalid_bangla_calendar_date");
+    }
   });
 
   it("returns null for invalid Date object", () => {

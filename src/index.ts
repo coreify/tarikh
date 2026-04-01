@@ -1,4 +1,5 @@
 export { toBanglaCalendar, fromBanglaCalendar } from "./core/calendar";
+export { getDefaults, setDefaults } from "./core/defaults";
 export { toHijriCalendar } from "./core/hijri";
 export {
   BANGLA_CALENDAR_MONTH_DAYS,
@@ -21,11 +22,8 @@ export {
 } from "./core/constants";
 export { toBanglaDigits, toEnglishDigits } from "./core/digits";
 export { HIJRI_TIME_ZONES } from "./types";
-export {
-  format,
-  formatBanglaCalendarDay
-} from "./core/format";
-export { parseDate } from "./core/parse";
+export { format, formatBanglaCalendarDay } from "./core/format";
+export { parseDate, parseDateDetailed } from "./core/parse";
 export { fromNow } from "./core/relative";
 export {
   addDays,
@@ -52,11 +50,17 @@ export type {
   BanglaDayFormatOptions,
   BanglaCalendarDate,
   BanglaCalendarDateLocalized,
+  BanglaCalendarResult,
   BanglaCalendarDayFormat,
   BanglaCalendarDaySpokenVariant,
+  DateParseDetailedResult,
+  DateParseFailureReason,
+  DateParseFormat,
   HijriFormatOptions,
   HijriCalendarDate,
   HijriCalendarDateLocalized,
+  HijriCalendarResult,
+  HijriCalendarSystem,
   HijriCalendarFormatOptions,
   HijriCalendarOptions,
   HijriTimeZone,
@@ -65,12 +69,18 @@ export type {
   DateFormatOptions,
   FormatMode,
   FormatOptions,
+  GlobalDefaults,
+  GlobalDefaultsInput,
   HybridDateFormatOptions,
   DateParseOptions,
   Language,
   Locale,
   MonthFormat,
+  RelativeTimeStyle,
   RelativeTimeOptions,
+  RelativeTimeThresholdOptions,
+  ResolvableFormatOptions,
+  StandardFormatPreset,
   TimeFormat,
   WeekdayFormat,
   YearFormat

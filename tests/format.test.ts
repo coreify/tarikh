@@ -1,7 +1,27 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { getDefaults, setDefaults, toHijriCalendar } from "../src";
 import { format, formatBanglaCalendarDay } from "../src/core/format";
 
 const testDate = new Date(2026, 2, 31); // March 31, 2026
+const initialDefaults = getDefaults();
+
+function resetDefaults(): void {
+  setDefaults({
+    locale: initialDefaults.locale,
+    mode: initialDefaults.mode,
+    month: initialDefaults.month ?? null,
+    timeZone: initialDefaults.timeZone,
+    hijriSystem: initialDefaults.hijriSystem
+  });
+}
+
+beforeEach(() => {
+  resetDefaults();
+});
+
+afterEach(() => {
+  resetDefaults();
+});
 
 describe("format (standard mode)", () => {
   it("formats in en-BD by default", () => {
@@ -91,6 +111,28 @@ describe("format (standard mode)", () => {
     expect(format(testDate.getTime(), { mode: "standard" })).toBe(
       "31st Mar 2026"
     );
+  });
+
+  it("uses the default mode when options are omitted or empty", () => {
+    expect(format(testDate)).toBe("31st Mar 2026");
+    expect(format(testDate, {})).toBe("31st Mar 2026");
+  });
+
+  it("supports standard formatting presets", () => {
+    const date = new Date(2026, 2, 31, 15, 4, 9);
+
+    expect(format(date, { mode: "standard", preset: "date" })).toBe(
+      "31st Mar 2026"
+    );
+    expect(format(date, { mode: "standard", preset: "dateTime" })).toBe(
+      "31st Mar 2026, 15:04"
+    );
+    expect(format(date, { mode: "standard", preset: "isoLike" })).toBe(
+      "2026-03-31 15:04:09"
+    );
+    expect(
+      format(date, { mode: "standard", preset: "isoLike", locale: "bn-BD" })
+    ).toBe("২০২৬-০৩-৩১ ১৫:০৪:০৯");
   });
 
   it("throws on invalid Date objects", () => {
@@ -245,9 +287,11 @@ describe("format (pattern and mode)", () => {
     );
   });
 
-  it("rejects empty option objects", () => {
-    expect(() => format(testDate, {} as never)).toThrow(
-      "format() expects `mode` or `pattern`"
+  it("resolves mode from defaults when only generic options are passed", () => {
+    setDefaults({ mode: "bangla", locale: "bn-BD" });
+
+    expect(format("2026-04-14", { locale: "bn-BD" })).toBe(
+      "১লা বৈশাখ ১৪৩৩ বঙ্গাব্দ"
     );
   });
 
@@ -267,12 +311,42 @@ describe("format (pattern and mode)", () => {
     expect(format(hijriInstant, { mode: "hijri", locale: "bn-BD" })).toBe(
       "১২ই শাওয়াল ১৪৪৭ হিজরি"
     );
-    expect(
-      format(hijriInstant, { mode: "hijri", timeZone: "UTC" })
-    ).toBe("11th Shawwal 1447 AH");
+    expect(format(hijriInstant, { mode: "hijri", timeZone: "UTC" })).toBe(
+      "11th Shawwal 1447 AH"
+    );
     expect(
       format(hijriInstant, { mode: "hijri", locale: "bn-BD", timeZone: "UTC" })
     ).toBe("১১ই শাওয়াল ১৪৪৭ হিজরি");
+  });
+
+  it("accepts configurable Hijri calendar systems", () => {
+    const hijriInstant = new Date("2026-03-30T18:00:00.000Z");
+    const umalqura = format(hijriInstant, {
+      mode: "hijri",
+      hijriSystem: "islamic-umalqura"
+    });
+    const civil = format(hijriInstant, {
+      mode: "hijri",
+      hijriSystem: "islamic-civil"
+    });
+
+    expect(format(hijriInstant, { mode: "hijri" })).toBe(umalqura);
+    expect(umalqura).toMatch(/AH$/);
+    expect(civil).toMatch(/AH$/);
+  });
+
+  it("keeps structured Hijri conversion shape stable when only defaults.locale changes", () => {
+    setDefaults({ locale: "bn-BD" });
+
+    const result = toHijriCalendar("2026-03-31");
+    expect(typeof result.day).toBe("number");
+    expect(typeof result.year).toBe("number");
+    expect(result).toEqual({
+      day: 12,
+      month: "Shawwal",
+      monthIndex: 10,
+      year: 1447
+    });
   });
 
   it("rejects unsupported Hijri time zones at runtime", () => {
@@ -508,5 +582,20 @@ describe("format (hybrid mode)", () => {
         year: "en"
       })
     ).toBe("৩১ মার্চ 2026");
+  });
+
+  it("respects configured global defaults", () => {
+    setDefaults({
+      locale: "bn-BD",
+      mode: "standard",
+      month: "long"
+    });
+
+    expect(getDefaults()).toMatchObject({
+      locale: "bn-BD",
+      mode: "standard",
+      month: "long"
+    });
+    expect(format(testDate)).toBe("৩১শে মার্চ ২০২৬ খ্রিস্টাব্দ");
   });
 });

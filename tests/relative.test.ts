@@ -1,16 +1,30 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { getDefaults, setDefaults } from "../src";
 import { fromNow } from "../src/core/relative";
 
 describe("fromNow", () => {
   const NOW = new Date("2026-03-31T12:00:00Z").getTime();
+  const initialDefaults = getDefaults();
+
+  function resetDefaults(): void {
+    setDefaults({
+      locale: initialDefaults.locale,
+      mode: initialDefaults.mode,
+      month: initialDefaults.month ?? null,
+      timeZone: initialDefaults.timeZone,
+      hijriSystem: initialDefaults.hijriSystem
+    });
+  }
 
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
+    resetDefaults();
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    resetDefaults();
   });
 
   it("returns 'just now' for very recent dates", () => {
@@ -73,7 +87,36 @@ describe("fromNow", () => {
     expect(fromNow(new Date(NOW + 3 * 3_600_000))).toBe("in 3 hours");
   });
 
-  // Bangla locale tests
+  it("supports a custom base date", () => {
+    expect(
+      fromNow("2026-03-31T10:00:00Z", {
+        baseDate: "2026-03-31T12:00:00Z"
+      })
+    ).toBe("2 hours ago");
+  });
+
+  it("supports short style output", () => {
+    expect(fromNow(new Date(NOW - 3 * 3_600_000), { style: "short" })).toBe(
+      "3h ago"
+    );
+    expect(fromNow(new Date(NOW + 2 * 86_400_000), { style: "short" })).toBe(
+      "in 2d"
+    );
+  });
+
+  it("supports custom thresholds", () => {
+    expect(
+      fromNow(new Date(NOW - 30_000), {
+        threshold: { justNow: 60_000 }
+      })
+    ).toBe("just now");
+    expect(
+      fromNow(new Date(NOW - 10 * 86_400_000), {
+        threshold: { week: 14 * 86_400_000 }
+      })
+    ).toBe("10 days ago");
+  });
+
   it("returns Bangla 'just now'", () => {
     expect(fromNow(new Date(NOW - 500), { locale: "bn-BD" })).toBe("এইমাত্র");
   });
@@ -139,5 +182,10 @@ describe("fromNow", () => {
         numeric: "auto"
       })
     ).toBe("আগামী মাসে");
+  });
+
+  it("uses configured defaults when locale is omitted", () => {
+    setDefaults({ locale: "bn-BD" });
+    expect(fromNow(new Date(NOW - 500))).toBe("এইমাত্র");
   });
 });

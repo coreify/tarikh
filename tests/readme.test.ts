@@ -86,10 +86,18 @@ describe("README contract", () => {
   it("uses absolute URLs for the top badges", async () => {
     const readme = await readFile(readmePath, "utf8");
 
-    expect(readme).toMatch(/https:\/\/www\.npmjs\.com\/package\/@coreify\/tarikh/);
-    expect(readme).toMatch(/https:\/\/img\.shields\.io\/npm\/v\/@coreify\/tarikh/);
-    expect(readme).toMatch(/https:\/\/img\.shields\.io\/npm\/dm\/@coreify\/tarikh/);
-    expect(readme).toMatch(/https:\/\/img\.shields\.io\/npm\/l\/@coreify\/tarikh/);
+    expect(readme).toMatch(
+      /https:\/\/www\.npmjs\.com\/package\/@coreify\/tarikh/
+    );
+    expect(readme).toMatch(
+      /https:\/\/img\.shields\.io\/npm\/v\/@coreify\/tarikh/
+    );
+    expect(readme).toMatch(
+      /https:\/\/img\.shields\.io\/npm\/dm\/@coreify\/tarikh/
+    );
+    expect(readme).toMatch(
+      /https:\/\/img\.shields\.io\/npm\/l\/@coreify\/tarikh/
+    );
     expect(readme).toMatch(
       /\[!\[license\]\(https:\/\/img\.shields\.io\/npm\/l\/@coreify\/tarikh\)\]\(https:\/\/github\.com\/coreify\/tarikh\/blob\/.+\/package\/LICENSE\)/
     );
@@ -115,12 +123,18 @@ describe("README contract", () => {
     const readme = await readFile(readmePath, "utf8");
     const reactSection = sectionBody(readme, "React Components");
 
-    expect(reactSection).toContain('import { Tarikh } from "@coreify/tarikh/react";');
+    expect(reactSection).toContain(
+      'import { Tarikh } from "@coreify/tarikh/react";'
+    );
     expect(reactSection).toContain('const date = "2026-03-31";');
-    expect(reactSection).toContain('<Tarikh value={date} />');
-    expect(reactSection).toContain('<Tarikh.Relative value={date} />');
-    expect(reactSection).toContain('<Tarikh.Bangla value={date} locale="bn-BD" />');
-    expect(reactSection).toContain('<Tarikh.Hijri value={date} locale="bn-BD" />');
+    expect(reactSection).toContain("<Tarikh value={date} />");
+    expect(reactSection).toContain("<Tarikh.Relative value={date} />");
+    expect(reactSection).toContain(
+      '<Tarikh.Bangla value={date} locale="bn-BD" />'
+    );
+    expect(reactSection).toContain(
+      '<Tarikh.Hijri value={date} locale="bn-BD" />'
+    );
     expect(reactSection).not.toContain("import { RelativeTime");
     expect(reactSection).not.toContain("import { BanglaDate");
   });
@@ -138,7 +152,9 @@ describe("README contract", () => {
 
     expect(hijriSection).toContain('format("2026-03-31", {');
     expect(hijriSection).toContain('mode: "hijri"');
-    expect(hijriSection).toContain('import { HIJRI_TIME_ZONES, format, toHijriCalendar }');
+    expect(hijriSection).toContain(
+      "import { HIJRI_TIME_ZONES, format, toHijriCalendar }"
+    );
   });
 
   it("includes a simple external demo link", async () => {
@@ -155,7 +171,7 @@ describe("README contract", () => {
     expect(readme).toContain(
       "Use square brackets to keep literal text untouched by token replacement:"
     );
-    expect(readme).toContain('[Today at] h:mm a');
+    expect(readme).toContain("[Today at] h:mm a");
     expect(readme).toContain("Bracket literals are not nestable");
   });
 });

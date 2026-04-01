@@ -7,20 +7,22 @@
 > The first JavaScript date library with Bangla and Hijri calendar support.
 > Built for Bangla dates, Bengali calendar conversion, and culturally correct formatting.
 
-| Main export | What it does |
-| ----------- | ------------ |
-| `format()` | Standard, Bangla, Hijri, and hybrid date formatting |
-| `toBanglaCalendar()` | Convert Gregorian dates into the Bangla calendar |
-| `toHijriCalendar()` | Convert Gregorian dates into the Hijri calendar |
-| `fromNow()` | Render relative time like today, yesterday, and tomorrow |
-| `HIJRI_TIME_ZONES` | Canonical supported Hijri time zones |
+| Main export                       | What it does                                             |
+| --------------------------------- | -------------------------------------------------------- |
+| `format()`                        | Standard, Bangla, Hijri, and hybrid date formatting      |
+| `toBanglaCalendar()`              | Convert Gregorian dates into the Bangla calendar         |
+| `toHijriCalendar()`               | Convert Gregorian dates into the Hijri calendar          |
+| `setDefaults()` / `getDefaults()` | Configure reusable package-wide defaults                 |
+| `parseDateDetailed()`             | Parse with structured success/failure metadata           |
+| `fromNow()`                       | Render relative time like today, yesterday, and tomorrow |
+| `HIJRI_TIME_ZONES`                | Canonical supported Hijri time zones                     |
 
 ## At a Glance
 
-| Snapshot | Example |
-| -------- | ------- |
+| Snapshot             | Example                                                                       |
+| -------------------- | ----------------------------------------------------------------------------- |
 | Bangla spoken format | `format("2026-04-14", { mode: "bangla", locale: "bn-BD", format: "spoken" })` |
-| Rendered output | `পহেলা বৈশাখ ১৪৩৩ বঙ্গাব্দ` |
+| Rendered output      | `পহেলা বৈশাখ ১৪৩৩ বঙ্গাব্দ`                                                   |
 
 ```ts
 format("2026-04-14", {
@@ -33,21 +35,22 @@ format("2026-04-14", {
 
 ## Demo
 
-| Demo | Link |
-| ---- | ---- |
+| Demo      | Link                                   |
+| --------- | -------------------------------------- |
 | Live demo | [tarikh.js.org](https://tarikh.js.org) |
 
 ## Why this exists
 
-| Why this exists | Summary |
-| --------------- | ------- |
-| Bangla calendar | Convert Gregorian dates to Bengali calendar values like বৈশাখ and চৈত্র |
-| Hijri calendar | Render Islamic calendar dates alongside Bangla and Gregorian output |
-| Bangla digits | Render `৩১শে মার্চ ২০২৬ খ্রিস্টাব্দ` instead of `31st March 2026` |
-| Hybrid formatting | Mix English and Bangla in a single date string |
-| Weekday/time | Render weekday, hour, minute, and second output |
-| Relative time | Use `yesterday`, `tomorrow`, `গতকাল`, `আগামীকাল`, etc. |
-| Cultural correctness | Bangladeshi locale-aware formatting out of the box |
+| Why this exists      | Summary                                                                    |
+| -------------------- | -------------------------------------------------------------------------- |
+| Bangla calendar      | Convert Gregorian dates to Bengali calendar values like বৈশাখ and চৈত্র    |
+| Hijri calendar       | Render Islamic calendar dates alongside Bangla and Gregorian output        |
+| Bangla digits        | Render `৩১শে মার্চ ২০২৬ খ্রিস্টাব্দ` instead of `31st March 2026`          |
+| Hybrid formatting    | Mix English and Bangla in a single date string                             |
+| Weekday/time         | Render weekday, hour, minute, and second output                            |
+| Relative time        | Use `yesterday`, `tomorrow`, `গতকাল`, `আগামীকাল`, etc.                     |
+| Global defaults      | Reuse locale, mode, month, Hijri timezone, and Hijri backend across an app |
+| Cultural correctness | Bangladeshi locale-aware formatting out of the box                         |
 
 > `@coreify/tarikh` is a zero-dependency, tree-shakeable, SSR-safe toolkit purpose-built for Bangladesh.
 
@@ -64,6 +67,9 @@ import {
   HIJRI_TIME_ZONES,
   format,
   fromNow,
+  getDefaults,
+  parseDateDetailed,
+  setDefaults,
   toBanglaCalendar,
   toHijriCalendar
 } from "@coreify/tarikh";
@@ -76,9 +82,25 @@ format("2026-03-31", { mode: "bangla" });
 format("2026-03-31", { mode: "hijri" });
 format("2026-03-31", { mode: "hybrid" });
 
+setDefaults({ locale: "bn-BD", mode: "standard", month: "long" });
+getDefaults();
+// → { locale: "bn-BD", mode: "standard", month: "long", timeZone: "Asia/Dhaka", hijriSystem: "islamic-umalqura" }
+
 // Token-based output still works.
 format("2026-03-31", { pattern: "DD MMM YYYY" });
 // → "31 Mar 2026"
+
+format(new Date(2026, 2, 31, 15, 4, 9), {
+  mode: "standard",
+  preset: "dateTime"
+});
+// → "31st Mar 2026, 15:04"
+
+format(new Date(2026, 2, 31, 15, 4, 9), {
+  mode: "standard",
+  preset: "isoLike"
+});
+// → "2026-03-31 15:04:09"
 
 // Structured Bangla calendar conversion
 // `monthIndex` stays numeric; `bn-BD` localizes `day`, `month`, and `year`.
@@ -87,6 +109,17 @@ toBanglaCalendar("2026-03-31");
 
 toBanglaCalendar("2026-03-31", { locale: "bn-BD" });
 // → { day: "১৭", month: "চৈত্র", monthIndex: 12, year: "১৪৩২" }
+
+const dynamicLocale: "en-BD" | "bn-BD" =
+  Math.random() > 0.5 ? "en-BD" : "bn-BD";
+const structuredBangla = toBanglaCalendar("2026-03-31", {
+  locale: dynamicLocale
+});
+// → BanglaCalendarResult<"en-BD" | "bn-BD">
+
+const locale: "en-BD" | "bn-BD" = Math.random() > 0.5 ? "en-BD" : "bn-BD";
+const structuredBangla = toBanglaCalendar("2026-03-31", { locale });
+// → TypeScript infers BanglaCalendarResult<"en-BD" | "bn-BD">
 
 format("2026-03-31", { mode: "bangla" });
 // → "17th Chaitra 1432"
@@ -102,6 +135,14 @@ toHijriCalendar("2026-03-31");
 
 toHijriCalendar("2026-03-31", { locale: "bn-BD" });
 // → { day: "১১", month: "শাওয়াল", monthIndex: 10, year: "১৪৪৭" }
+
+const structuredHijri = toHijriCalendar("2026-03-31", {
+  locale: dynamicLocale
+});
+// → HijriCalendarResult<"en-BD" | "bn-BD">
+
+const structuredHijri = toHijriCalendar("2026-03-31", { locale });
+// → TypeScript infers HijriCalendarResult<"en-BD" | "bn-BD">
 
 toHijriCalendar("2026-03-31", { timeZone: "UTC" });
 // → { day: 11, month: "Shawwal", monthIndex: 10, year: 1447 }
@@ -143,6 +184,15 @@ fromNow(new Date(Date.now() - 86400000), { numeric: "auto" });
 
 fromNow(new Date(), { numeric: "auto" });
 // Output depends on the current clock.
+
+fromNow("2026-03-31T10:00:00Z", {
+  baseDate: "2026-03-31T12:00:00Z",
+  style: "short"
+});
+// → "2h ago"
+
+parseDateDetailed("31 Mar 26", { strict: true });
+// → { success: false, reason: "strict_mismatch", ... }
 ```
 
 > Use `format()` for everything. Choose a mode (`standard`, `bangla`, `hijri`, `hybrid`) or pass a token pattern.
@@ -181,6 +231,8 @@ format(new Date(2026, 2, 31, 15, 4, 9), {
 ```
 
 **Options:** `locale` (`"en-BD"` | `"bn-BD"`), `month` (`"short"` | `"long"`), `year` (`"numeric"` | `"2-digit"`), `day` (`"numeric"` | `"2-digit"`), `weekday` (`"short"` | `"long"`), `hour` / `minute` / `second` (`"numeric"` | `"2-digit"`), `hour12` (`boolean`)
+
+**Presets:** `preset: "date" | "dateTime" | "isoLike"`
 
 ### Pattern Formatting
 
@@ -228,15 +280,15 @@ format(new Date(2026, 2, 31, 15, 4), { pattern: "[Today at] h:mm a" });
 
 ## 🇧🇩 Bangla Calendar (Core Feature)
 
-| Bangla calendar | Behavior |
-| --------------- | -------- |
-| `toBanglaCalendar()` | Returns a structured object |
-| Default output | English digits + Latin month names (`en-BD`) |
-| `bn-BD` output | Bangla day forms like `১লা`, `২রা`, `৩রা`, `৪ঠা`, `৫ই`, `১৯শে` |
-| Spoken mode | Returns `পহেলা`, `দোসরা`, `তেসরা`, `চৌঠা` |
-| `variant: "pohela"` | Keeps the standard `পহেলা` spelling |
-| `variant: "poyla"` | Uses `পয়লা` for day 1 |
-| `monthIndex` | Stays numeric in both cases |
+| Bangla calendar      | Behavior                                                       |
+| -------------------- | -------------------------------------------------------------- |
+| `toBanglaCalendar()` | Returns a structured object                                    |
+| Default output       | English digits + Latin month names (`en-BD`)                   |
+| `bn-BD` output       | Bangla day forms like `১লা`, `২রা`, `৩রা`, `৪ঠা`, `৫ই`, `১৯শে` |
+| Spoken mode          | Returns `পহেলা`, `দোসরা`, `তেসরা`, `চৌঠা`                      |
+| `variant: "pohela"`  | Keeps the standard `পহেলা` spelling                            |
+| `variant: "poyla"`   | Uses `পয়লা` for day 1                                         |
+| `monthIndex`         | Stays numeric in both cases                                    |
 
 ```ts
 import {
@@ -290,14 +342,16 @@ formatBanglaCalendarDay(1, { format: "spoken", variant: "pohela" });
 
 ### Hijri Calendar
 
-| Hijri calendar | Behavior |
-| -------------- | -------- |
-| `toHijriCalendar()` | Returns a structured object |
-| Default timezone | `Asia/Dhaka` |
-| `timeZone` override | Accepts the exported `HIJRI_TIME_ZONES` values |
-| Default output | English month/day/year with `AH` |
-| `bn-BD` output | Bangla digits and the `হিজরি` suffix |
-| `UTC` override | Exposes the alternative canonical Hijri result |
+| Hijri calendar         | Behavior                                           |
+| ---------------------- | -------------------------------------------------- |
+| `toHijriCalendar()`    | Returns a structured object                        |
+| Default timezone       | `Asia/Dhaka`                                       |
+| `timeZone` override    | Accepts the exported `HIJRI_TIME_ZONES` values     |
+| Default backend        | `Intl` with `islamic-umalqura`                     |
+| `hijriSystem` override | Accepts `"islamic-umalqura"` and `"islamic-civil"` |
+| Default output         | English month/day/year with `AH`                   |
+| `bn-BD` output         | Bangla digits and the `হিজরি` suffix               |
+| `UTC` override         | Exposes the alternative canonical Hijri result     |
 
 ```ts
 import { HIJRI_TIME_ZONES, format, toHijriCalendar } from "@coreify/tarikh";
@@ -313,6 +367,9 @@ toHijriCalendar("2026-03-31", { locale: "bn-BD" });
 toHijriCalendar("2026-03-31", { timeZone: "UTC" });
 // → { day: 11, month: "Shawwal", monthIndex: 10, year: 1447 }
 
+toHijriCalendar("2026-03-31", { hijriSystem: "islamic-civil" });
+// → Civil Hijri output backed by Intl
+
 // Supported values: defaultHijriZone === "Asia/Dhaka", alternateHijriZone === "UTC"
 
 format("2026-03-31", { mode: "hijri" });
@@ -325,10 +382,12 @@ format("2026-03-31", { mode: "hijri", locale: "bn-BD" });
 // → "১২ই শাওয়াল ১৪৪৭ হিজরি"
 ```
 
+> Hijri output is powered by `Intl` and defaults to `islamic-umalqura`. Regional moon-sighting expectations can differ from the returned value, so use `hijriSystem` and `timeZone` intentionally.
+
 ### Hybrid Formatting
 
-| Mixing rule | Summary |
-| ----------- | ------- |
+| Mixing rule       | Summary                                                       |
+| ----------------- | ------------------------------------------------------------- |
 | Hybrid formatting | Mix English and Bangla independently for day, month, and year |
 
 ```ts
@@ -380,12 +439,23 @@ fromNow(new Date(Date.now() + 86400000), {
   numeric: "auto"
 });
 // Output depends on the current clock.
+
+fromNow("2026-03-31T10:00:00Z", {
+  baseDate: "2026-03-31T12:00:00Z",
+  style: "short"
+});
+// → "2h ago"
+
+fromNow(new Date(Date.now() - 30000), {
+  threshold: { justNow: 60000 }
+});
+// → "just now"
 ```
 
 ### Parsing
 
 ```ts
-import { parseDate } from "@coreify/tarikh";
+import { parseDate, parseDateDetailed } from "@coreify/tarikh";
 
 parseDate("৩১ মার্চ ২০২৬");
 // → Date object (March 31, 2026)
@@ -416,6 +486,12 @@ parseDate("2026.03.31");
 parseDate("2026-03-31T15:30:00Z");
 // → Date object (March 31, 2026, 3:30 PM UTC)
 
+parseDate("31 Mar 26", { strict: true });
+// → null
+
+parseDateDetailed("31 Mar 26", { strict: true });
+// → { success: false, reason: "strict_mismatch", ... }
+
 // `toDate()` accepts the same Gregorian string forms as `parseDate()`,
 // plus `Date` objects and timestamps.
 // Supported string shapes:
@@ -429,6 +505,26 @@ parseDate("2026-03-31T15:30:00Z");
 // - `DD-Month-YYYY`
 // - Bangla calendar strings like `১৭ চৈত্র ১৪৩২`
 // - Common Bangla month aliases like `Boishakh`, `Poush`, `Falgun`, `Asharh`
+```
+
+### Global Defaults
+
+```ts
+import { format, getDefaults, setDefaults } from "@coreify/tarikh";
+
+setDefaults({
+  locale: "bn-BD",
+  mode: "standard",
+  month: "long",
+  timeZone: "UTC",
+  hijriSystem: "islamic-civil"
+});
+
+getDefaults();
+// → { locale: "bn-BD", mode: "standard", month: "long", timeZone: "UTC", hijriSystem: "islamic-civil" }
+
+format("2026-03-31");
+// → Uses the configured defaults
 ```
 
 ### Utilities
@@ -485,12 +581,12 @@ import {
 
 ## React Components
 
-| React export | Purpose |
-| ------------ | ------- |
-| `Tarikh` | Default semantic `<time>` formatter |
-| `Tarikh.Relative` | Relative time rendering |
-| `Tarikh.Bangla` | Bangla calendar rendering |
-| `Tarikh.Hijri` | Hijri calendar rendering |
+| React export      | Purpose                             |
+| ----------------- | ----------------------------------- |
+| `Tarikh`          | Default semantic `<time>` formatter |
+| `Tarikh.Relative` | Relative time rendering             |
+| `Tarikh.Bangla`   | Bangla calendar rendering           |
+| `Tarikh.Hijri`    | Hijri calendar rendering            |
 
 > Import from `@coreify/tarikh/react` only when you need the React components.
 
@@ -503,22 +599,24 @@ const date = "2026-03-31";
 <Tarikh.Relative value={date} />
 <Tarikh.Bangla value={date} locale="bn-BD" />
 <Tarikh.Hijri value={date} locale="bn-BD" />
+<Tarikh.Relative value={date} relativeStyle="short" />
 ```
 
 ```bash
 npm install @coreify/tarikh react
 ```
 
-| React detail | Notes |
-| ------------ | ----- |
-| Semantics | Renders `<time>` elements with `dateTime` and `aria-label` |
-| Runtime | SSR-safe, tree-shakeable, zero runtime dependencies beyond React |
-| Roles | `Tarikh` standard formatting, `Tarikh.Relative` relative time, `Tarikh.Bangla` Bangla calendar, `Tarikh.Hijri` Hijri calendar |
+| React detail       | Notes                                                                                                                         |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| Semantics          | Renders `<time>` elements with `dateTime` and `aria-label`                                                                    |
+| Runtime            | SSR-safe, tree-shakeable, zero runtime dependencies beyond React                                                              |
+| Roles              | `Tarikh` standard formatting, `Tarikh.Relative` relative time, `Tarikh.Bangla` Bangla calendar, `Tarikh.Hijri` Hijri calendar |
+| Relative prop note | Use `relativeStyle` instead of `style` on `Tarikh.Relative` to avoid colliding with the native DOM `style` prop               |
 
 ## What `Intl.DateTimeFormat` cannot do
 
-| Why `Intl` falls short | Summary |
-| --------------------- | ------- |
+| Why `Intl` falls short        | Summary                                             |
+| ----------------------------- | --------------------------------------------------- |
 | Bangladesh-focused formatting | Needs Bangla calendar and culturally correct output |
 
 | Feature                         | Intl    | @coreify/tarikh |
@@ -531,21 +629,38 @@ npm install @coreify/tarikh react
 | Relative time in Bangla         | No      | Yes             |
 | SSR-safe React components       | N/A     | Yes             |
 
+## Common Pitfalls
+
+| Pitfall                        | What to watch for                                                                                           |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| Hijri mismatch                 | Tarikh uses `Intl` and defaults to `islamic-umalqura`; local moon-sighting calendars may differ             |
+| Time zone expectations         | Hijri conversion changes with `timeZone`, so `Asia/Dhaka` and `UTC` can return different days               |
+| `short` vs `long` month output | Standard mode defaults to short English month names but long Bangla month names unless you override `month` |
+| Strict parsing                 | `strict: true` rejects loose helpers like two-digit years and legacy Bangla month aliases                   |
+
 ## TypeScript
 
-| Type | Purpose |
-| ---- | ------- |
-| `FormatOptions` | Primary object-based formatting contract |
-| `TarikhProps` | Props for the main React `<Tarikh />` component |
-| `HIJRI_TIME_ZONES` | Canonical supported Hijri time zones (`Asia/Dhaka`, `UTC`) |
-| Type-level contract | When using `pattern`, `mode` is intentionally disallowed in TypeScript |
+| Type                             | Purpose                                                                |
+| -------------------------------- | ---------------------------------------------------------------------- |
+| `FormatOptions`                  | Primary object-based formatting contract                               |
+| `BanglaCalendarResult<TLocale>`  | Locale-aware structured Bangla calendar return type                    |
+| `HijriCalendarResult<TLocale>`   | Locale-aware structured Hijri return type                              |
+| `BanglaCalendarOptions<TLocale>` | Locale-aware structured Bangla conversion options                      |
+| `HijriCalendarOptions<TLocale>`  | Locale-aware structured Hijri conversion options                       |
+| `TarikhProps`                    | Props for the main React `<Tarikh />` component                        |
+| `HIJRI_TIME_ZONES`               | Canonical supported Hijri time zones (`Asia/Dhaka`, `UTC`)             |
+| Type-level contract              | When using `pattern`, `mode` is intentionally disallowed in TypeScript |
 
 ```ts
 import type {
+  BanglaCalendarOptions,
+  BanglaCalendarResult,
   Locale,
   FormatMode,
   FormatOptions,
   DateInput,
+  HijriCalendarOptions,
+  HijriCalendarResult,
   RelativeTimeOptions
 } from "@coreify/tarikh";
 

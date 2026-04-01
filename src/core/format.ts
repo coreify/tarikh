@@ -3,13 +3,16 @@ import type {
   BanglaCalendarDayFormat,
   BanglaDayFormatOptions,
   BanglaCalendarFormatOptions,
-  HijriCalendarFormatOptions,
-  FormatOptions,
   DateFormatOptions,
+  DateInput,
+  FormatMode,
+  HijriCalendarFormatOptions,
   HybridDateFormatOptions,
-  DateInput
+  ResolvableFormatOptions
 } from "../types";
 import { toBanglaCalendar } from "./calendar";
+import { getDefaults } from "./defaults";
+import { toBanglaDigits, toEnglishDigits } from "./digits";
 import { toHijriCalendar } from "./hijri";
 import {
   BANGLA_CALENDAR_MONTHS,
@@ -22,7 +25,6 @@ import {
   ENGLISH_WEEKDAYS_FULL,
   ENGLISH_WEEKDAYS_SHORT
 } from "./constants";
-import { toBanglaDigits, toEnglishDigits } from "./digits";
 import { toDate } from "./utils";
 
 function banglaDayOrdinal(day: number): string {
@@ -129,19 +131,62 @@ function getMeridiem(
   return lowercase ? meridiem.toLowerCase() : meridiem;
 }
 
-function formatDateCore(
-  input: DateInput,
-  options?: DateFormatOptions
-): string {
+function formatExpandedYear(year: number): string {
+  if (year >= 0 && year <= 9_999) {
+    return String(year).padStart(4, "0");
+  }
+
+  const sign = year >= 0 ? "+" : "-";
+  return `${sign}${String(Math.abs(year)).padStart(6, "0")}`;
+}
+
+function formatIsoLike(input: DateInput, locale: "en-BD" | "bn-BD"): string {
   const date = toDate(input);
-  const locale = options?.locale ?? "en-BD";
-  const monthFormat = options?.month ?? (locale === "bn-BD" ? "long" : "short");
-  const yearFormat = options?.year ?? "numeric";
-  const dayFormat = options?.day ?? "numeric";
-  const weekdayFormat = options?.weekday;
-  const hourFormat = options?.hour;
-  const minuteFormat = options?.minute;
-  const secondFormat = options?.second;
+  const raw = `${formatExpandedYear(date.getFullYear())}-${String(
+    date.getMonth() + 1
+  ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(
+    date.getHours()
+  ).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(
+    date.getSeconds()
+  ).padStart(2, "0")}`;
+
+  return locale === "bn-BD" ? toBanglaDigits(raw) : raw;
+}
+
+function normalizeStandardOptions(
+  options: DateFormatOptions | undefined
+): DateFormatOptions {
+  if (options?.preset === "dateTime") {
+    return {
+      hour: "2-digit",
+      minute: "2-digit",
+      ...options
+    };
+  }
+
+  return options ?? {};
+}
+
+function formatDateCore(input: DateInput, options?: DateFormatOptions): string {
+  const defaults = getDefaults();
+  const locale = options?.locale ?? defaults.locale;
+
+  if (options?.preset === "isoLike") {
+    return formatIsoLike(input, locale);
+  }
+
+  const normalizedOptions = normalizeStandardOptions(options);
+  const date = toDate(input);
+  const monthFormat =
+    normalizedOptions.month ??
+    defaults.month ??
+    (locale === "bn-BD" ? "long" : "short");
+  const yearFormat = normalizedOptions.year ?? "numeric";
+  const dayFormat = normalizedOptions.day ?? "numeric";
+  const weekdayFormat = normalizedOptions.weekday;
+  const hourFormat = normalizedOptions.hour;
+  const minuteFormat = normalizedOptions.minute;
+  const secondFormat = normalizedOptions.second;
   const shouldIncludeTime =
     hourFormat !== undefined ||
     minuteFormat !== undefined ||
@@ -229,7 +274,7 @@ function formatDateCore(
 
   let timePart = "";
   if (shouldIncludeTime) {
-    const useHour12 = options?.hour12 ?? false;
+    const useHour12 = normalizedOptions.hour12 ?? false;
     const hours24 = date.getHours();
     const hours = useHour12 ? hours24 % 12 || 12 : hours24;
     const resolvedHourFormat = hourFormat ?? "numeric";
@@ -292,7 +337,11 @@ function formatPatternCore(
     A: getMeridiem(hours24, locale, false),
     a: getMeridiem(hours24, locale, true),
     YYYY: formatPatternNumericValue(year, locale, "numeric"),
-    YY: formatPatternNumericValue(Number(String(year).slice(-2)), locale, "2-digit")
+    YY: formatPatternNumericValue(
+      Number(String(year).slice(-2)),
+      locale,
+      "2-digit"
+    )
   };
 
   const pattern =
@@ -325,28 +374,96 @@ function formatPatternCore(
   return formatted;
 }
 
-export function format(input: DateInput, options: FormatOptions): string {
-  if (options === null || typeof options !== "object" || Array.isArray(options)) {
-    throw new TypeError("format() expects an options object");
+function inferModeFromOptions(
+  options: Exclude<ResolvableFormatOptions, { pattern: string }> | undefined,
+  fallbackMode: FormatMode
+): FormatMode {
+  if (options === undefined) {
+    return fallbackMode;
   }
 
-  if ("pattern" in options && options.pattern !== undefined) {
+  if ("mode" in options && options.mode !== undefined) {
+    return options.mode;
+  }
+
+  const record = options as Record<string, unknown>;
+
+  if (
+    "digits" in record ||
+    "monthFormat" in record ||
+    record.month === "en" ||
+    record.month === "bn" ||
+    record.year === "en" ||
+    record.year === "bn" ||
+    record.day === "en" ||
+    record.day === "bn"
+  ) {
+    return "hybrid";
+  }
+
+  if ("timeZone" in record || "hijriSystem" in record) {
+    return "hijri";
+  }
+
+  if ("format" in record || "variant" in record) {
+    return "bangla";
+  }
+
+  if (
+    "weekday" in record ||
+    "hour" in record ||
+    "minute" in record ||
+    "second" in record ||
+    "hour12" in record ||
+    "preset" in record ||
+    record.month === "short" ||
+    record.month === "long" ||
+    record.year === "numeric" ||
+    record.year === "2-digit" ||
+    record.day === "numeric" ||
+    record.day === "2-digit"
+  ) {
+    return "standard";
+  }
+
+  return fallbackMode;
+}
+
+export function format(
+  input: DateInput,
+  options?: ResolvableFormatOptions
+): string {
+  if (options !== undefined) {
+    if (
+      options === null ||
+      typeof options !== "object" ||
+      Array.isArray(options)
+    ) {
+      throw new TypeError("format() expects an options object");
+    }
+  }
+
+  const defaults = getDefaults();
+
+  if (options && "pattern" in options && options.pattern !== undefined) {
     if ("mode" in options && options.mode !== undefined) {
       throw new TypeError(
         "Do not pass `mode` when `pattern` is provided. `pattern` formatting does not use mode."
       );
     }
-    const locale =
-      "locale" in options && options.locale !== undefined ? options.locale : "en-BD";
+
+    const locale = options.locale ?? defaults.locale;
     return formatPatternCore(input, options.pattern, locale);
   }
 
-  if (!("mode" in options) || options.mode === undefined) {
-    throw new TypeError("format() expects `mode` or `pattern`");
-  }
+  const resolvedMode = inferModeFromOptions(
+    options as
+      | Exclude<ResolvableFormatOptions, { pattern: string }>
+      | undefined,
+    defaults.mode
+  );
 
-  const mode = options.mode;
-  switch (mode) {
+  switch (resolvedMode) {
     case "standard":
       return formatDateCore(input, options as DateFormatOptions | undefined);
     case "bangla":
@@ -365,7 +482,7 @@ export function format(input: DateInput, options: FormatOptions): string {
         options as HybridDateFormatOptions | undefined
       );
     default:
-      throw new TypeError(`Invalid format mode: ${String(mode)}`);
+      throw new TypeError(`Invalid format mode: ${String(resolvedMode)}`);
   }
 }
 
@@ -373,7 +490,7 @@ function formatBanglaCalendarCore(
   input: DateInput,
   options?: BanglaCalendarFormatOptions
 ): string {
-  const locale = options?.locale ?? "en-BD";
+  const locale = options?.locale ?? getDefaults().locale;
   const dayFormat: BanglaCalendarDayFormat = options?.format ?? "ordinal";
   const variant: BanglaCalendarDaySpokenVariant | undefined = options?.variant;
   const calendar = toBanglaCalendar(input, { locale: "en-BD" });
@@ -394,29 +511,28 @@ function formatHijriCalendarCore(
   input: DateInput,
   options?: HijriCalendarFormatOptions
 ): string {
-  const locale = options?.locale ?? "en-BD";
-  const timeZone = options?.timeZone;
+  const locale = options?.locale ?? getDefaults().locale;
 
   if (locale === "bn-BD") {
-    const hijriOptions: HijriCalendarFormatOptions & { locale: "bn-BD" } = {
-      locale
-    };
-    if (timeZone !== undefined) {
-      hijriOptions.timeZone = timeZone;
-    }
-    const calendar = toHijriCalendar(input, hijriOptions);
+    const calendar = toHijriCalendar(input, {
+      locale: "bn-BD",
+      ...(options?.timeZone !== undefined && { timeZone: options.timeZone }),
+      ...(options?.hijriSystem !== undefined && {
+        hijriSystem: options.hijriSystem
+      })
+    });
     const year = toBanglaDigits(calendar.year);
     const day = Number(toEnglishDigits(calendar.day));
     return `${hijriBanglaDayOrdinal(day)} ${calendar.month} ${year} হিজরি`;
   }
 
-  const hijriOptions: HijriCalendarFormatOptions & { locale: "en-BD" } = {
-    locale
-  };
-  if (timeZone !== undefined) {
-    hijriOptions.timeZone = timeZone;
-  }
-  const calendar = toHijriCalendar(input, hijriOptions);
+  const calendar = toHijriCalendar(input, {
+    locale: "en-BD",
+    ...(options?.timeZone !== undefined && { timeZone: options.timeZone }),
+    ...(options?.hijriSystem !== undefined && {
+      hijriSystem: options.hijriSystem
+    })
+  });
   return `${englishDayOrdinal(calendar.day)} ${calendar.month} ${calendar.year} AH`;
 }
 
@@ -431,7 +547,11 @@ function formatHybridDateCore(
   const dayLang = options?.day ?? digitLang;
   const monthFormat = options?.monthFormat ?? "long";
 
-  assertAllowedValue(digitLang, ["en", "bn"], "digits language for hybrid mode");
+  assertAllowedValue(
+    digitLang,
+    ["en", "bn"],
+    "digits language for hybrid mode"
+  );
   assertAllowedValue(monthLang, ["en", "bn"], "month language for hybrid mode");
   assertAllowedValue(yearLang, ["en", "bn"], "year language for hybrid mode");
   assertAllowedValue(dayLang, ["en", "bn"], "day language for hybrid mode");

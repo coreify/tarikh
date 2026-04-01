@@ -1,13 +1,13 @@
 import type {
-  BanglaCalendarDate,
-  BanglaCalendarDateLocalized,
+  BanglaCalendarOptions,
+  BanglaCalendarResult,
   DateInput,
-  BanglaCalendarOptions
+  Locale
 } from "../types";
 import {
-  BANGLA_CALENDAR_MONTH_DAYS,
   BANGLA_CALENDAR_MONTHS,
   BANGLA_CALENDAR_MONTHS_EN,
+  BANGLA_CALENDAR_MONTH_DAYS,
   BOISHAKH_START_DAY,
   BOISHAKH_START_MONTH
 } from "./constants";
@@ -65,18 +65,12 @@ function validateBanglaCalendarDate(
   return monthDays;
 }
 
-export function toBanglaCalendar(
+export function toBanglaCalendar<
+  TLocale extends Locale | undefined = undefined
+>(
   input: DateInput,
-  options: BanglaCalendarOptions & { locale: "bn-BD" }
-): BanglaCalendarDateLocalized;
-export function toBanglaCalendar(
-  input: DateInput,
-  options?: BanglaCalendarOptions
-): BanglaCalendarDate;
-export function toBanglaCalendar(
-  input: DateInput,
-  options?: BanglaCalendarOptions
-): BanglaCalendarDate | BanglaCalendarDateLocalized {
+  options?: BanglaCalendarOptions<TLocale>
+): BanglaCalendarResult<TLocale> {
   const locale = options?.locale ?? "en-BD";
   const date = toDate(input);
   const gYear = date.getFullYear();
@@ -119,7 +113,7 @@ export function toBanglaCalendar(
       month: BANGLA_CALENDAR_MONTHS[monthIndex]!,
       monthIndex: monthIndexValue,
       year: toBanglaDigits(banglaYear)
-    };
+    } as BanglaCalendarResult<TLocale>;
   }
 
   return {
@@ -127,7 +121,7 @@ export function toBanglaCalendar(
     month: BANGLA_CALENDAR_MONTHS_EN[monthIndex]!,
     monthIndex: monthIndexValue,
     year: banglaYear
-  };
+  } as BanglaCalendarResult<TLocale>;
 }
 
 export function fromBanglaCalendar(
@@ -150,9 +144,13 @@ export function fromBanglaCalendar(
 
   const result = new Date(boishakhStart);
   result.setDate(result.getDate() + totalDays);
-  return assertDateRange(result, {
-    day,
-    monthIndex,
-    year
-  }, "fromBanglaCalendar()");
+  return assertDateRange(
+    result,
+    {
+      day,
+      monthIndex,
+      year
+    },
+    "fromBanglaCalendar()"
+  );
 }

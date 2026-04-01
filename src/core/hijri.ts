@@ -1,24 +1,40 @@
 import type {
   DateInput,
-  HijriCalendarDate,
-  HijriCalendarDateLocalized,
-  HijriCalendarOptions
+  HijriCalendarOptions,
+  HijriCalendarResult,
+  HijriCalendarSystem,
+  Locale
 } from "../types";
 import { HIJRI_TIME_ZONES } from "../types";
+import { getDefaults } from "./defaults";
 import { toBanglaDigits, toEnglishDigits } from "./digits";
 import { toDate } from "./utils";
 
-const HIJRI_CALENDAR = "islamic-umalqura";
-const DEFAULT_HIJRI_TIME_ZONE = "Asia/Dhaka";
-
-function hijriLocale(locale: "en-BD" | "bn-BD"): string {
-  return `${locale}-u-ca-${HIJRI_CALENDAR}`;
+function hijriLocale(
+  locale: "en-BD" | "bn-BD",
+  hijriSystem: HijriCalendarSystem
+): string {
+  return `${locale}-u-ca-${hijriSystem}`;
 }
 
-function assertHijriTimeZone(timeZone: string): asserts timeZone is (typeof HIJRI_TIME_ZONES)[number] {
-  if (!HIJRI_TIME_ZONES.includes(timeZone as (typeof HIJRI_TIME_ZONES)[number])) {
+function assertHijriTimeZone(
+  timeZone: string
+): asserts timeZone is (typeof HIJRI_TIME_ZONES)[number] {
+  if (
+    !HIJRI_TIME_ZONES.includes(timeZone as (typeof HIJRI_TIME_ZONES)[number])
+  ) {
     throw new RangeError(
       `Unsupported Hijri time zone: ${timeZone}. Supported values: ${HIJRI_TIME_ZONES.join(", ")}`
+    );
+  }
+}
+
+function assertHijriSystem(
+  hijriSystem: string
+): asserts hijriSystem is HijriCalendarSystem {
+  if (!["islamic-umalqura", "islamic-civil"].includes(hijriSystem)) {
+    throw new RangeError(
+      `Unsupported Hijri calendar system: ${hijriSystem}. Supported values: islamic-umalqura, islamic-civil`
     );
   }
 }
@@ -39,14 +55,15 @@ function getPart(
 function formatHijriParts(
   date: Date,
   locale: "en-BD" | "bn-BD",
-  timeZone: string
+  timeZone: string,
+  hijriSystem: HijriCalendarSystem
 ): {
   day: string;
   month: string;
   monthIndex: number;
   year: string;
 } {
-  const intlLocale = hijriLocale(locale);
+  const intlLocale = hijriLocale(locale, hijriSystem);
   const numericParts = new Intl.DateTimeFormat(intlLocale, {
     day: "numeric",
     month: "numeric",
@@ -68,23 +85,18 @@ function formatHijriParts(
   return { day, month, monthIndex, year };
 }
 
-export function toHijriCalendar(
+export function toHijriCalendar<TLocale extends Locale | undefined = undefined>(
   input: DateInput,
-  options: HijriCalendarOptions & { locale: "bn-BD" }
-): HijriCalendarDateLocalized;
-export function toHijriCalendar(
-  input: DateInput,
-  options?: HijriCalendarOptions
-): HijriCalendarDate;
-export function toHijriCalendar(
-  input: DateInput,
-  options?: HijriCalendarOptions
-): HijriCalendarDate | HijriCalendarDateLocalized {
+  options?: HijriCalendarOptions<TLocale>
+): HijriCalendarResult<TLocale> {
+  const defaults = getDefaults();
   const locale = options?.locale ?? "en-BD";
-  const timeZone = options?.timeZone ?? DEFAULT_HIJRI_TIME_ZONE;
+  const timeZone = options?.timeZone ?? defaults.timeZone;
+  const hijriSystem = options?.hijriSystem ?? defaults.hijriSystem;
   assertHijriTimeZone(timeZone);
+  assertHijriSystem(hijriSystem);
   const date = toDate(input);
-  const parts = formatHijriParts(date, locale, timeZone);
+  const parts = formatHijriParts(date, locale, timeZone, hijriSystem);
 
   if (locale === "bn-BD") {
     return {
@@ -92,7 +104,7 @@ export function toHijriCalendar(
       month: parts.month,
       monthIndex: parts.monthIndex,
       year: toBanglaDigits(parts.year)
-    };
+    } as HijriCalendarResult<TLocale>;
   }
 
   return {
@@ -100,5 +112,5 @@ export function toHijriCalendar(
     month: parts.month,
     monthIndex: parts.monthIndex,
     year: Number(toEnglishDigits(parts.year))
-  };
+  } as HijriCalendarResult<TLocale>;
 }

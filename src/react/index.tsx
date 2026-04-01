@@ -1,4 +1,8 @@
-import type { ForwardRefExoticComponent, ReactElement, RefAttributes } from "react";
+import type {
+  ForwardRefExoticComponent,
+  ReactElement,
+  RefAttributes
+} from "react";
 import { createElement, forwardRef } from "react";
 import { format as formatDate } from "../core/format";
 import { parseDate } from "../core/parse";
@@ -58,6 +62,7 @@ export const Tarikh = forwardRef<HTMLTimeElement, TarikhProps>(function Tarikh(
   {
     value,
     locale,
+    preset,
     month,
     year,
     day,
@@ -75,6 +80,7 @@ export const Tarikh = forwardRef<HTMLTimeElement, TarikhProps>(function Tarikh(
   const date = toDate(value);
   const formatOptions = {
     ...(locale !== undefined && { locale }),
+    ...(preset !== undefined && { preset }),
     ...(month !== undefined && { month }),
     ...(year !== undefined && { year }),
     ...(day !== undefined && { day }),
@@ -102,13 +108,26 @@ Tarikh.displayName = "Tarikh";
 
 const RelativeTimeComponent = forwardRef<HTMLTimeElement, RelativeTimeProps>(
   function RelativeTime(
-    { value, locale, numeric, srLabel, "aria-label": ariaLabelProp, ...props },
+    {
+      value,
+      locale,
+      numeric,
+      baseDate,
+      relativeStyle,
+      threshold,
+      srLabel,
+      "aria-label": ariaLabelProp,
+      ...props
+    },
     ref
   ): ReactElement {
     const date = toDate(value);
     const relativeTimeOptions = {
       ...(locale !== undefined && { locale }),
-      ...(numeric !== undefined && { numeric })
+      ...(numeric !== undefined && { numeric }),
+      ...(baseDate !== undefined && { baseDate }),
+      ...(relativeStyle !== undefined && { style: relativeStyle }),
+      ...(threshold !== undefined && { threshold })
     };
     const formatted = fromNow(
       date,
@@ -148,13 +167,10 @@ const BanglaDateComponent = forwardRef<HTMLTimeElement, BanglaDateProps>(
       ...(format !== undefined && { format }),
       ...(variant !== undefined && { variant })
     };
-    const formatted = formatDate(
-      date,
-      {
-        mode: "bangla",
-        ...calendarFormatOptions
-      }
-    );
+    const formatted = formatDate(date, {
+      mode: "bangla",
+      ...calendarFormatOptions
+    });
     const dateTime = dateTimeAttribute(value, date);
     const ariaLabel = srLabel ?? ariaLabelProp ?? formatted;
 
@@ -170,13 +186,22 @@ BanglaDateComponent.displayName = "BanglaDate";
 
 const HijriDateComponent = forwardRef<HTMLTimeElement, HijriDateProps>(
   function HijriDate(
-    { value, locale, timeZone, srLabel, "aria-label": ariaLabelProp, ...props },
+    {
+      value,
+      locale,
+      timeZone,
+      hijriSystem,
+      srLabel,
+      "aria-label": ariaLabelProp,
+      ...props
+    },
     ref
   ): ReactElement {
     const date = toDate(value);
     const calendarFormatOptions = {
       ...(locale !== undefined && { locale }),
-      ...(timeZone !== undefined && { timeZone })
+      ...(timeZone !== undefined && { timeZone }),
+      ...(hijriSystem !== undefined && { hijriSystem })
     };
     const formatted = formatDate(date, {
       mode: "hijri",
